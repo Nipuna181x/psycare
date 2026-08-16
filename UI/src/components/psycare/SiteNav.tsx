@@ -2,12 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Menu } from "lucide-react";
 
 const links = [
-  { label: "Home", href: "#top" },
-  { label: "Services", href: "#services" },
-  { label: "About us", href: "#about" },
-  { label: "Doctors", to: "/doctors" as const },
-  { label: "Reviews", href: "#reviews" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Book a Doctor", href: "/doctors" },
+  { label: "AI Companion", href: "/ai-companion" },
+  { label: "My Health Records", href: "/health-records" },
+  { label: "My Appointments", href: "/appointments" },
+  { label: "Group Therapy", href: "/group-therapy" },
+  { label: "Mood Tracker", href: "/mood-tracker" },
 ];
 
 export function SiteNav() {
@@ -21,25 +22,15 @@ export function SiteNav() {
       </a>
 
       <div className="hidden items-center gap-1 rounded-full bg-primary-foreground/12 px-2 py-1.5 backdrop-blur-md lg:flex">
-        {links.map((l) =>
-          l.to ? (
-            <Link
-              key={l.label}
-              to={l.to}
-              className="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
-            >
-              {l.label}
-            </Link>
-          ) : (
-            <a
-              key={l.label}
-              href={l.href}
-              className="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
-            >
-              {l.label}
-            </a>
-          ),
-        )}
+        {links.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
+          >
+            {link.label}
+          </a>
+        ))}
       </div>
 
       <div className="flex items-center gap-2">

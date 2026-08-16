@@ -2,8 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 
 const links = [
-  { label: "Home", to: "/" as const },
-  { label: "Doctors", to: "/doctors" as const },
+  { label: "Home", href: "/" },
+  { label: "Book a Doctor", href: "/doctors" },
+  { label: "AI Companion", href: "/ai-companion" },
+  { label: "My Health Records", href: "/health-records" },
+  { label: "My Appointments", href: "/appointments" },
+  { label: "Group Therapy", href: "/group-therapy" },
+  { label: "Mood Tracker", href: "/mood-tracker" },
 ];
 
 export function SubNav() {
@@ -17,15 +22,14 @@ export function SubNav() {
       </Link>
 
       <div className="hidden items-center gap-1 rounded-full bg-card px-2 py-1.5 shadow-[0_1px_0_0_var(--border)] lg:flex">
-        {links.map((l) => (
-          <Link
-            key={l.to}
-            to={l.to}
-            activeProps={{ className: "bg-secondary text-ink" }}
-            className="rounded-full px-4 py-2 text-[13px] text-ink-soft transition-colors hover:text-ink"
+        {links.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-ink-soft transition-colors hover:bg-secondary hover:text-ink"
           >
-            {l.label}
-          </Link>
+            {link.label}
+          </a>
         ))}
       </div>
 
