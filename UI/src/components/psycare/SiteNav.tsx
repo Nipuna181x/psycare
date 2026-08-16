@@ -1,10 +1,11 @@
+import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Menu } from "lucide-react";
 
 const links = [
   { label: "Home", href: "#top" },
   { label: "Services", href: "#services" },
   { label: "About us", href: "#about" },
-  { label: "Doctors", href: "#doctors" },
+  { label: "Doctors", to: "/doctors" as const },
   { label: "Reviews", href: "#reviews" },
   { label: "Contact", href: "#contact" },
 ];
@@ -20,31 +21,42 @@ export function SiteNav() {
       </a>
 
       <div className="hidden items-center gap-1 rounded-full bg-primary-foreground/12 px-2 py-1.5 backdrop-blur-md lg:flex">
-        {links.map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            className="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
-          >
-            {l.label}
-          </a>
-        ))}
+        {links.map((l) =>
+          l.to ? (
+            <Link
+              key={l.label}
+              to={l.to}
+              className="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
+            >
+              {l.label}
+            </Link>
+          ) : (
+            <a
+              key={l.label}
+              href={l.href}
+              className="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground"
+            >
+              {l.label}
+            </a>
+          ),
+        )}
       </div>
 
       <div className="flex items-center gap-2">
-        <a
-          href="#doctors"
+        <Link
+          to="/doctors"
           className="rounded-full bg-card px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5"
         >
           Book a doctor
-        </a>
-        <a
-          href="#doctors"
-          aria-label="Book a doctor"
+        </Link>
+        <Link
+          to="/login"
+          aria-label="Log in"
+          title="Log in"
           className="grid h-11 w-11 place-items-center rounded-full bg-card text-ink transition-transform hover:-translate-y-0.5"
         >
           <ArrowUpRight className="h-4 w-4" />
-        </a>
+        </Link>
         <button
           type="button"
           aria-label="Open menu"

@@ -14,6 +14,8 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::view('doctors', 'doctors.index')->name('doctors.index');
+
 // Patient (web guard)
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])->name('register');

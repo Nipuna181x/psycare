@@ -29,14 +29,14 @@
                         <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
                     </a>
                     <div class="hidden items-center gap-1 rounded-full bg-primary-foreground/12 px-2 py-1.5 backdrop-blur-md lg:flex">
-                        @foreach ([['Home', '#top'], ['Services', '#services'], ['About us', '#about'], ['Doctors', '#doctors'], ['Reviews', '#reviews'], ['Contact', '#contact']] as [$label, $href])
+                        @foreach ([['Home', '#top'], ['Services', '#services'], ['About us', '#about'], ['Doctors', route('doctors.index')], ['Reviews', '#reviews'], ['Contact', '#contact']] as [$label, $href])
                             <a href="{{ $href }}" class="rounded-full px-4 py-2 text-[13px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground">{{ $label }}</a>
                         @endforeach
                     </div>
                     <div class="flex items-center gap-2">
-                        <a href="#doctors" class="rounded-full bg-card px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">Book a doctor</a>
-                        <a href="#doctors" aria-label="Book a doctor" class="grid h-11 w-11 place-items-center rounded-full bg-card text-ink transition-transform hover:-translate-y-0.5">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                        <a href="{{ route('doctors.index') }}" class="rounded-full bg-card px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">Book a doctor</a>
+                        <a href="{{ route('login') }}" aria-label="Log in" class="grid h-11 w-11 place-items-center rounded-full bg-card text-ink transition-transform hover:-translate-y-0.5">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg>
                         </a>
                         <button type="button" aria-label="Open menu" class="grid h-11 w-11 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur-md lg:hidden">
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
@@ -136,17 +136,26 @@
             <section id="doctors" class="mx-auto max-w-[1320px] px-5 pb-16 md:px-9 md:pb-24">
                 <div class="flex flex-wrap items-end justify-between gap-5">
                     <h2 class="display-head max-w-[22ch] text-[clamp(1.9rem,3.6vw,3rem)] text-ink">Meet the professionals behind your recovery</h2>
-                    <a href="#contact" class="inline-flex items-center gap-1.5 text-[13px] text-ink-soft transition-colors hover:text-teal-deep">Browse all 1,480 clinicians <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+                    <a href="{{ route('doctors.index') }}" class="inline-flex items-center gap-1.5 text-[13px] text-ink-soft transition-colors hover:text-teal-deep">Browse all 1,480 clinicians <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
                 </div>
                 <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    @foreach ([['Dr. Anusha Perera', 'Consultant Psychiatrist', 'doc-1.jpg', '4.9', '980+ reviews', 'Today, 4:00 PM'], ['Dr. S. Rajaratnam', 'Clinical Psychologist · Trauma', 'doc-2.jpg', '5.0', '640+ reviews', 'Tuesday, 9:30 AM'], ['Ms. Dilani Fernando', 'Counselling Psychologist · Teens', 'doc-3.jpg', '4.8', '1,120+ reviews', 'Today, 6:15 PM']] as [$name, $role, $image, $rating, $reviews, $next])
-                        <article class="group">
-                            <div class="relative overflow-hidden rounded-3xl bg-secondary">
-                                <img src="{{ Vite::asset('resources/images/psycare/'.$image) }}" alt="{{ $name }}, {{ $role }}" width="800" height="1000" loading="lazy" class="h-[400px] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
-                                <span class="absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full bg-card text-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+                    @foreach ([['Dr. Anusha Perera', 'Consultant Psychiatrist', 'Serene Mind Clinic', 'Colombo', 'doc-1.jpg', '4.9', 'LKR 4,500', 'Today, 4:00 PM', 'In-person & online'], ['Dr. S. Rajaratnam', 'Clinical Psychologist · Trauma', 'Northern Wellbeing Centre', 'Jaffna', 'doc-2.jpg', '5.0', 'LKR 3,800', 'Tuesday, 9:30 AM', 'In-person'], ['Ms. Dilani Fernando', 'Counselling Psychologist · Teens', 'Lagoon Counselling Rooms', 'Negombo', 'doc-3.jpg', '4.8', 'LKR 3,200', 'Today, 6:15 PM', 'Online']] as [$name, $role, $clinic, $city, $image, $rating, $fee, $next, $mode])
+                        <article class="group flex h-full flex-col overflow-hidden rounded-3xl bg-card">
+                            <div class="relative overflow-hidden">
+                                <img src="{{ Vite::asset('resources/images/psycare/'.$image) }}" alt="{{ $name }}, {{ $role }}" width="800" height="1000" loading="lazy" class="h-[320px] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
                                 <span class="absolute bottom-4 left-4 rounded-full bg-card/95 px-3.5 py-1.5 text-[12px] font-medium text-ink backdrop-blur-sm">Next: {{ $next }}</span>
                             </div>
-                            <div class="mt-4 flex items-start justify-between gap-4"><div class="min-w-0"><h3 class="font-display text-[15px] font-medium text-ink">{{ $name }}</h3><p class="mt-0.5 text-[12px] text-muted-foreground">{{ $role }}</p></div><div class="shrink-0 text-right"><p class="font-display text-[15px] font-medium text-ink">{{ $rating }}</p><p class="text-[11px] text-muted-foreground">{{ $reviews }}</p></div></div>
+                            <div class="flex flex-1 flex-col p-5">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0"><h3 class="font-display text-[16px] font-medium text-ink">{{ $name }}</h3><p class="mt-0.5 text-[12px] text-muted-foreground">{{ $role }}</p></div>
+                                    <p class="flex shrink-0 items-center gap-1 text-[13px] text-ink"><svg class="h-3.5 w-3.5 fill-teal text-teal" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.75a.53.53 0 0 1 .294.904l-3.738 3.644a2.12 2.12 0 0 0-.609 1.878l.882 5.146a.53.53 0 0 1-.77.559l-4.62-2.429a2.12 2.12 0 0 0-1.97 0l-4.62 2.429a.53.53 0 0 1-.77-.559l.882-5.146a2.12 2.12 0 0 0-.609-1.878L2.16 9.788a.53.53 0 0 1 .294-.904l5.166-.75a2.12 2.12 0 0 0 1.595-1.16z"/></svg>{{ $rating }}</p>
+                                </div>
+                                <dl class="mt-4 space-y-1.5 text-[12px] text-ink-soft">
+                                    <div class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><dd>{{ $clinic }} · {{ $city }}</dd></div>
+                                    <div class="flex items-center justify-between"><dd>{{ $mode }}</dd><dd class="text-ink">{{ $fee }}</dd></div>
+                                </dl>
+                                <div class="mt-auto flex items-center gap-2 pt-5"><a href="{{ route('login') }}" class="flex-1 rounded-full bg-ink px-5 py-3 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Book appointment</a><a href="{{ route('login') }}" aria-label="Book an appointment with {{ $name }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-ink transition-transform hover:-translate-y-0.5"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a></div>
+                            </div>
                         </article>
                     @endforeach
                 </div>
