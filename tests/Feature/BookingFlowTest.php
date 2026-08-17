@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\BookingController;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\User;
@@ -47,16 +48,18 @@ class BookingFlowTest extends TestCase
             ])
             ->assertRedirect(route('booking.assessment', $doctor));
 
+        $answers = collect(BookingController::ASSESSMENT_QUESTIONS)
+            ->map(fn (array $question): array => [
+                'key' => $question['key'],
+                'question' => $question['question'],
+                'answer' => $question['key'] === 'notes' ? '' : 'No',
+            ])
+            ->all();
+
         $this->actingAs($patient)
             ->post(route('booking.assessment', $doctor), [
                 'mood_rating' => 4,
-                'answers' => [
-                    ['key' => 'reason', 'question' => 'reason?', 'answer' => 'Feeling anxious'],
-                    ['key' => 'duration', 'question' => 'duration?', 'answer' => 'A few weeks'],
-                    ['key' => 'sleep', 'question' => 'sleep?', 'answer' => 'Trouble sleeping'],
-                    ['key' => 'safety', 'question' => 'safety?', 'answer' => 'No'],
-                    ['key' => 'notes', 'question' => 'notes?', 'answer' => ''],
-                ],
+                'answers' => $answers,
             ])
             ->assertRedirect(route('booking.review', $doctor));
 
