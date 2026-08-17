@@ -59,7 +59,7 @@
                         @endif
 
                         <div data-login-options class="flex items-center justify-between text-[12px] text-ink-soft"><label class="flex items-center gap-2"><input type="checkbox" name="remember" class="accent-teal-deep"> Keep me signed in</label><button type="button" class="transition-colors hover:text-teal-deep">Forgot password?</button></div>
-                        <label data-register-options class="flex items-start gap-2.5 text-[12px] leading-relaxed text-ink-soft"><input type="checkbox" required class="mt-0.5 accent-teal-deep"> I agree to PsyCare's clinical privacy policy and consent to secure storage of my records.</label>
+                        <label data-register-options class="flex items-start gap-2.5 text-[12px] leading-relaxed text-ink-soft"><input type="checkbox" class="mt-0.5 accent-teal-deep"> I agree to PsyCare's clinical privacy policy and consent to secure storage of my records.</label>
                         <button id="account-submit" type="submit" class="w-full rounded-full bg-ink px-6 py-4 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5"></button>
                     </form>
                     <p class="mt-6 text-[12px] text-ink-soft">Looking for a clinician instead? <a href="{{ route('doctors.index') }}" class="text-teal-deep underline-offset-4 hover:underline">Browse doctors</a></p>
@@ -111,8 +111,10 @@
                     wrapper.hidden = !visible;
                     wrapper.querySelector('input').required = visible;
                 });
+                const registerOptions = document.querySelector('[data-register-options]');
                 document.querySelector('[data-login-options]').hidden = isRegister;
-                document.querySelector('[data-register-options]').hidden = !isRegister;
+                registerOptions.hidden = !isRegister;
+                registerOptions.querySelector('input').required = isRegister;
             };
 
             document.querySelectorAll('[data-role-button]').forEach((button) => button.addEventListener('click', () => { role = button.dataset.roleButton; update(); }));

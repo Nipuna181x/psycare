@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Doctor\AuthenticatedSessionController as DoctorAuthenticatedSessionController;
+use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
 use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as MedicalCenterAuthenticatedSessionController;
+use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
 use App\Http\Controllers\MedicalCenter\DoctorController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use Illuminate\Support\Facades\Route;
@@ -39,7 +42,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-        Route::view('dashboard', 'admin.dashboard')->name('dashboard');
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('user-managment', [AdminMedicalCenterController::class, 'index'])->name('user-managment.index');
         Route::patch('user-managment/medical-centers/{medicalCenter}/approve', [AdminMedicalCenterController::class, 'approve'])->name('user-managment.medical-centers.approve');
@@ -60,7 +63,7 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
     Route::middleware(['auth:medical_center', 'medical_center.approved'])->group(function () {
         Route::post('logout', [MedicalCenterAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-        Route::view('dashboard', 'medical-center.dashboard')->name('dashboard');
+        Route::get('dashboard', [MedicalCenterDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('doctor-managment', DoctorController::class)
             ->parameters(['doctor-managment' => 'doctor'])
@@ -78,6 +81,6 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
     Route::middleware('auth:doctor')->group(function () {
         Route::post('logout', [DoctorAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-        Route::view('dashboard', 'doctor.dashboard')->name('dashboard');
+        Route::get('dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
     });
 });

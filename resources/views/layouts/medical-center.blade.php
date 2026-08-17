@@ -3,31 +3,50 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Clinic Portal | PsyCare')</title>
+    <title>{{ $title ?? 'Dashboard' }} — PsyCare Clinic Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300..600&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-900">
-    <div class="flex min-h-screen">
-        <x-sidebar :links="[
-            ['label' => 'Dashboard', 'href' => route('medical-center.dashboard'), 'active' => request()->routeIs('medical-center.dashboard')],
-            ['label' => 'Doctor Management', 'href' => route('medical-center.doctor-managment.index'), 'active' => request()->routeIs('medical-center.doctor-managment.*')],
-        ]" />
+<body class="bg-background text-ink selection:bg-purple-500/15">
+    <div class="flex min-h-screen gap-5 p-3 md:p-5">
+        <x-dashboard.sidebar
+            accent="clinic"
+            role-label="Clinic portal"
+            :logout-action="route('medical-center.logout')"
+            :links="[
+                [
+                    'label' => 'Dashboard',
+                    'href' => route('medical-center.dashboard'),
+                    'active' => request()->routeIs('medical-center.dashboard'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect width=\'7\' height=\'9\' x=\'3\' y=\'3\' rx=\'1\'/><rect width=\'7\' height=\'5\' x=\'14\' y=\'3\' rx=\'1\'/><rect width=\'7\' height=\'9\' x=\'14\' y=\'12\' rx=\'1\'/><rect width=\'7\' height=\'5\' x=\'3\' y=\'16\' rx=\'1\'/></svg>',
+                ],
+                [
+                    'label' => 'Doctors',
+                    'href' => route('medical-center.doctor-managment.index'),
+                    'active' => request()->routeIs('medical-center.doctor-managment.*'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\'/><circle cx=\'9\' cy=\'7\' r=\'4\'/><path d=\'M22 21v-2a4 4 0 0 0-3-3.87\'/><path d=\'M16 3.13a4 4 0 0 1 0 7.75\'/></svg>',
+                ],
+            ]"
+            promo-title="Grow your team"
+            promo-description="Add clinicians to your roster so patients can find and book them."
+            promo-cta-label="Add a doctor"
+            :promo-cta-href="route('medical-center.doctor-managment.create')"
+        />
 
-        <div class="flex flex-1 flex-col">
-            <header class="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-                <h1 class="text-lg font-semibold text-gray-800">@yield('title', 'Dashboard')</h1>
+        <div class="flex flex-1 flex-col gap-5">
+            <x-dashboard.topbar
+                accent="clinic"
+                :title="$title ?? 'Dashboard'"
+                :subtitle="$subtitle ?? null"
+                :user-name="auth('medical_center')->user()->name"
+                role-label="Clinic"
+            />
 
-                <form method="POST" action="{{ route('medical-center.logout') }}">
-                    @csrf
-                    <button type="submit" class="text-sm font-medium text-gray-600 hover:text-gray-900">
-                        Logout
-                    </button>
-                </form>
-            </header>
-
-            <main class="flex-1 p-6">
+            <main class="flex-1">
                 @if (session('status'))
-                    <div class="mb-4 rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">
+                    <div class="mb-5 rounded-2xl bg-purple-50 px-4 py-3 text-[13px] text-purple-700">
                         {{ session('status') }}
                     </div>
                 @endif
