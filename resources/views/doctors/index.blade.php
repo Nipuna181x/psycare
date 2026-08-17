@@ -40,7 +40,11 @@
                 @forelse ($doctors as $doctor)
                     <article data-doctor data-specialty="{{ $doctor->specialization ?? '' }}" data-search="{{ Str::lower($doctor->name.' '.$doctor->medicalCenter->name.' '.$doctor->specialization) }}" class="group overflow-hidden rounded-3xl bg-card">
                         <div class="relative flex h-[200px] items-center justify-center overflow-hidden bg-secondary">
-                            <span class="grid h-24 w-24 place-items-center rounded-full bg-ink text-[24px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                            @if ($doctor->avatarUrl())
+                                <img src="{{ $doctor->avatarUrl() }}" alt="{{ $doctor->name }}" width="600" height="750" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
+                            @else
+                                <span class="grid h-24 w-24 place-items-center rounded-full bg-ink text-[24px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                            @endif
                             @if ($doctor->consultation_fee)
                                 <span class="absolute bottom-4 left-4 rounded-full bg-card/95 px-3.5 py-1.5 text-[12px] font-medium text-ink backdrop-blur-sm">LKR {{ number_format($doctor->consultation_fee) }}</span>
                             @endif

@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Vite;
 
-#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'bio', 'years_experience', 'consultation_fee', 'phone', 'status'])]
+#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'avatar', 'bio', 'years_experience', 'consultation_fee', 'phone', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class Doctor extends Authenticatable
 {
@@ -59,5 +60,10 @@ class Doctor extends Authenticatable
             ->map(fn (string $part): string => mb_strtoupper(mb_substr($part, 0, 1)))
             ->take(2)
             ->implode('');
+    }
+
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar ? Vite::asset('resources/images/psycare/'.$this->avatar) : null;
     }
 }

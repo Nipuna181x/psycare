@@ -23,7 +23,11 @@
             <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
                 <section class="rounded-3xl bg-card p-6 md:p-8">
                     <div class="flex flex-wrap items-start gap-5">
-                        <span class="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-ink text-[22px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                        @if ($doctor->avatarUrl())
+                            <img src="{{ $doctor->avatarUrl() }}" alt="{{ $doctor->name }}" width="160" height="160" class="h-20 w-20 shrink-0 rounded-full object-cover">
+                        @else
+                            <span class="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-ink text-[22px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                        @endif
                         <div class="min-w-0">
                             <p class="eyebrow">{{ $doctor->specialization ?? 'General practice' }}</p>
                             <h1 class="display-head mt-1 text-[clamp(1.7rem,3.2vw,2.4rem)] text-ink">{{ $doctor->name }}</h1>
