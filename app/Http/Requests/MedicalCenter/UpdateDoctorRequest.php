@@ -31,6 +31,9 @@ class UpdateDoctorRequest extends FormRequest
             'password' => ['nullable', 'confirmed', Password::defaults()],
             'specialization' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'bio' => ['nullable', 'string', 'max:2000'],
+            'years_experience' => ['nullable', 'integer', 'min:0', 'max:80'],
+            'consultation_fee' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ];
     }

@@ -37,6 +37,14 @@ class MedicalCenter extends Authenticatable
         return $this->hasMany(Doctor::class);
     }
 
+    /**
+     * @return HasMany<Appointment, $this>
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
     public function isApproved(): bool
     {
         return $this->status === 'approved';

@@ -29,6 +29,8 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
+        $appointments = $medicalCenter->appointments();
+
         return view('medical-center.dashboard', [
             'totalDoctors' => array_sum($statusCounts),
             'activeDoctors' => $statusCounts['active'],
@@ -37,6 +39,10 @@ class DashboardController extends Controller
             'statusCounts' => $statusCounts,
             'specializations' => $specializations,
             'recentDoctors' => (clone $doctors)->latest()->take(5)->get(),
+            'todayAppointments' => (clone $appointments)->where('status', 'confirmed')->today()->count(),
+            'upcomingAppointments' => (clone $appointments)->upcoming()->count(),
+            'completedAppointments' => (clone $appointments)->where('status', 'completed')->count(),
+            'recentAppointments' => (clone $appointments)->with(['doctor', 'user'])->latest('appointment_date')->take(5)->get(),
         ]);
     }
 }

@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'phone', 'status'])]
+#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'bio', 'years_experience', 'consultation_fee', 'phone', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class Doctor extends Authenticatable
 {
@@ -26,6 +27,7 @@ class Doctor extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'consultation_fee' => 'decimal:2',
         ];
     }
 
@@ -35,5 +37,27 @@ class Doctor extends Authenticatable
     public function medicalCenter(): BelongsTo
     {
         return $this->belongsTo(MedicalCenter::class);
+    }
+
+    /**
+     * @return HasMany<Appointment, $this>
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function isBookable(): bool
+    {
+        return $this->status === 'active' && $this->medicalCenter?->isApproved();
+    }
+
+    public function initials(): string
+    {
+        return collect(preg_split('/\s+/', trim($this->name)))
+            ->filter()
+            ->map(fn (string $part): string => mb_strtoupper(mb_substr($part, 0, 1)))
+            ->take(2)
+            ->implode('');
     }
 }
