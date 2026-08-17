@@ -39,35 +39,42 @@
             <div id="doctor-grid" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse ($doctors as $doctor)
                     <article data-doctor data-specialty="{{ $doctor->specialization ?? '' }}" data-search="{{ Str::lower($doctor->name.' '.$doctor->medicalCenter->name.' '.$doctor->specialization) }}" class="group overflow-hidden rounded-3xl bg-card">
-                        <div class="relative flex h-[200px] items-center justify-center overflow-hidden bg-secondary">
+                        <div class="relative overflow-hidden bg-secondary">
                             @if ($doctor->avatarUrl())
-                                <img src="{{ $doctor->avatarUrl() }}" alt="{{ $doctor->name }}" width="600" height="750" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
+                                <img src="{{ $doctor->avatarUrl() }}" alt="{{ $doctor->name }}" width="800" height="1000" loading="lazy" class="h-[280px] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
                             @else
-                                <span class="grid h-24 w-24 place-items-center rounded-full bg-ink text-[24px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                                <div class="flex h-[280px] w-full items-center justify-center pb-8">
+                                    <span class="grid h-24 w-24 place-items-center rounded-full bg-ink text-[24px] font-semibold text-primary-foreground">{{ $doctor->initials() }}</span>
+                                </div>
                             @endif
-                            @if ($doctor->consultation_fee)
-                                <span class="absolute bottom-4 left-4 rounded-full bg-card/95 px-3.5 py-1.5 text-[12px] font-medium text-ink backdrop-blur-sm">LKR {{ number_format($doctor->consultation_fee) }}</span>
-                            @endif
+                            <span class="absolute bottom-4 left-4 rounded-full bg-card/95 px-3.5 py-1.5 text-[12px] font-medium text-ink backdrop-blur-sm">Next: {{ $doctor->nextAvailableLabel() }}</span>
                         </div>
                         <div class="p-5">
                             <div class="flex items-start justify-between gap-4">
                                 <div class="min-w-0">
                                     <h2 class="font-display text-[16px] font-medium text-ink">{{ $doctor->name }}</h2>
-                                    <p class="mt-0.5 text-[12px] text-muted-foreground">{{ $doctor->specialization ?? 'General practice' }}</p>
+                                    <p class="mt-0.5 text-[12px] text-teal-deep">{{ $doctor->specialization ?? 'General practice' }}</p>
                                 </div>
-                                @if ($doctor->years_experience)
-                                    <p class="shrink-0 text-[12px] text-ink-soft">{{ $doctor->years_experience }}+ yrs</p>
+                                @if ($doctor->rating)
+                                    <div class="shrink-0 flex items-center gap-1 text-[13px] font-medium text-ink">
+                                        <svg class="h-3.5 w-3.5 fill-teal-deep text-teal-deep" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M12 2l2.9 6.26L21 9.27l-4.5 4.38L17.8 21 12 17.77 6.2 21l1.3-7.35L3 9.27l6.1-1.01L12 2z"/></svg>
+                                        {{ number_format((float) $doctor->rating, 1) }}
+                                    </div>
                                 @endif
                             </div>
-                            <dl class="mt-4 space-y-1.5 text-[12px] text-ink-soft">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="h-3.5 w-3.5 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                    <dd class="truncate">{{ $doctor->medicalCenter->name }}</dd>
-                                </div>
-                            </dl>
+                            <p class="mt-4 flex items-center gap-1.5 text-[12px] text-ink-soft">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <span class="truncate">{{ $doctor->medicalCenter->name }} &middot; {{ $doctor->medicalCenter->address }}</span>
+                            </p>
+                            <div class="mt-2 flex items-center justify-between gap-4">
+                                <span class="text-[12px] text-ink-soft">{{ $doctor->consultationModeLabel() }}</span>
+                                @if ($doctor->consultation_fee)
+                                    <span class="text-[13px] font-medium text-ink">LKR {{ number_format($doctor->consultation_fee) }}</span>
+                                @endif
+                            </div>
                             <div class="mt-5 flex items-center gap-2">
-                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">View profile</a>
-                                <a href="{{ route('doctors.show', $doctor) }}" aria-label="Book {{ $doctor->name }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3.5 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Book appointment</a>
+                                <a href="{{ route('doctors.show', $doctor) }}" aria-label="View {{ $doctor->name }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
                             </div>
                         </div>
                     </article>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Database\Factories\DoctorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Vite;
 
-#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'avatar', 'bio', 'years_experience', 'consultation_fee', 'phone', 'status'])]
+#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'avatar', 'bio', 'years_experience', 'consultation_fee', 'consultation_mode', 'rating', 'phone', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class Doctor extends Authenticatable
 {
@@ -29,6 +30,7 @@ class Doctor extends Authenticatable
         return [
             'password' => 'hashed',
             'consultation_fee' => 'decimal:2',
+            'rating' => 'decimal:1',
         ];
     }
 
@@ -53,6 +55,19 @@ class Doctor extends Authenticatable
         return $this->status === 'active' && $this->medicalCenter?->isApproved();
     }
 
+    public function nextAvailableLabel(): string
+    {
+        $next = $this->appointments()->upcoming()->orderBy('appointment_date')->orderBy('appointment_time')->first();
+
+        if (! $next) {
+            return 'By request';
+        }
+
+        $date = $next->appointment_date->isToday() ? 'Today' : $next->appointment_date->format('D, M j');
+
+        return $date.', '.Carbon::parse($next->appointment_time)->format('g:i A');
+    }
+
     public function initials(): string
     {
         return collect(preg_split('/\s+/', trim($this->name)))
@@ -65,5 +80,14 @@ class Doctor extends Authenticatable
     public function avatarUrl(): ?string
     {
         return $this->avatar ? Vite::asset('resources/images/psycare/'.$this->avatar) : null;
+    }
+
+    public function consultationModeLabel(): string
+    {
+        return match ($this->consultation_mode) {
+            'in_person' => 'In-person',
+            'online' => 'Online',
+            default => 'In-person & online',
+        };
     }
 }
