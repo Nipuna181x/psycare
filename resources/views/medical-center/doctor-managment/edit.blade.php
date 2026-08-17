@@ -45,6 +45,34 @@
             </div>
 
             <div>
+                <label for="years_experience" class="block text-sm font-medium text-gray-700">Years of experience</label>
+                <input id="years_experience" name="years_experience" type="number" min="0" max="80" value="{{ old('years_experience', $doctor->years_experience) }}"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                @error('years_experience')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="consultation_fee" class="block text-sm font-medium text-gray-700">Consultation fee (LKR)</label>
+                <input id="consultation_fee" name="consultation_fee" type="number" min="0" step="0.01" value="{{ old('consultation_fee', $doctor->consultation_fee) }}"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">
+                @error('consultation_fee')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="bio" class="block text-sm font-medium text-gray-700">Bio</label>
+                <textarea id="bio" name="bio" rows="3"
+                    class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">{{ old('bio', $doctor->bio) }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">Shown on the doctor's public profile.</p>
+                @error('bio')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select id="status" name="status"
                     class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm">

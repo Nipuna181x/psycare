@@ -30,39 +30,41 @@
         </x-dashboard.stat-card>
     </div>
 
+    <div class="mt-5 grid gap-5 sm:grid-cols-3">
+        <x-dashboard.stat-card label="Today's appointments" :value="$todayCount" chip="rose">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
+        </x-dashboard.stat-card>
+        <x-dashboard.stat-card label="Upcoming appointments" :value="$upcomingCount" chip="accent" accent="doctor">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </x-dashboard.stat-card>
+        <x-dashboard.stat-card label="Completed" :value="$completedCount" chip="emerald">
+            <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
+        </x-dashboard.stat-card>
+    </div>
+
     <div class="mt-5 grid gap-5 lg:grid-cols-3">
-        <x-dashboard.panel title="Your profile" subtitle="How patients see you on PsyCare" class="lg:col-span-2">
-            <dl class="grid gap-4 sm:grid-cols-2">
-                <div>
-                    <dt class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Full name</dt>
-                    <dd class="mt-1 text-[13px] font-medium text-ink">{{ $doctor->name }}</dd>
-                </div>
-                <div>
-                    <dt class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Email</dt>
-                    <dd class="mt-1 truncate text-[13px] font-medium text-ink">{{ $doctor->email }}</dd>
-                </div>
-                <div>
-                    <dt class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Phone</dt>
-                    <dd class="mt-1 text-[13px] font-medium text-ink">{{ $doctor->phone ?? 'Not provided' }}</dd>
-                </div>
-                <div>
-                    <dt class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Username</dt>
-                    <dd class="mt-1 text-[13px] font-medium text-ink">{{ $doctor->username }}</dd>
-                </div>
-            </dl>
+        <x-dashboard.panel title="Next appointments" subtitle="Upcoming, soonest first" class="lg:col-span-2">
+            <x-slot:action>
+                <a href="{{ route('doctor.appointments.index') }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-sky-700 transition-colors hover:text-sky-800">
+                    View all
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+                </a>
+            </x-slot:action>
+            <ul class="divide-y divide-border">
+                @forelse ($nextAppointments as $appointment)
+                    @include('doctor.appointments._row', ['appointment' => $appointment])
+                @empty
+                    <li class="py-3.5 text-[12px] text-ink-soft">No upcoming appointments yet.</li>
+                @endforelse
+            </ul>
         </x-dashboard.panel>
 
-        <x-dashboard.panel title="What's next" subtitle="Coming soon to your portal">
-            <ul class="space-y-4">
-                @foreach (['Appointment scheduling', 'Patient records', 'Session notes'] as $item)
-                    <li class="flex items-center gap-3">
-                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sky-100 text-sky-600">
-                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        </span>
-                        <span class="text-[13px] text-ink">{{ $item }}</span>
-                    </li>
-                @endforeach
-            </ul>
+        <x-dashboard.panel title="Pre-assessment risk" subtitle="Across confirmed appointments">
+            <x-dashboard.bar-list
+                accent="doctor"
+                empty-label="No confirmed appointments yet."
+                :items="collect(['low' => 'Low', 'moderate' => 'Moderate', 'elevated' => 'Elevated'])->map(fn ($label, $key) => ['label' => $label, 'value' => $riskCounts[$key] ?? 0])->values()->all()"
+            />
         </x-dashboard.panel>
     </div>
 @endsection
