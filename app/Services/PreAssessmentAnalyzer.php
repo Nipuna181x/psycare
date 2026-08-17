@@ -40,13 +40,17 @@ class PreAssessmentAnalyzer
         $safetyAnswer = mb_strtolower($lookup->get('safety')['answer'] ?? '');
         $sleepAnswer = mb_strtolower($lookup->get('sleep')['answer'] ?? '');
         $durationAnswer = mb_strtolower($lookup->get('duration')['answer'] ?? '');
+        $severityAnswer = mb_strtolower($lookup->get('severity')['answer'] ?? '');
+        $dailyImpactAnswer = mb_strtolower($lookup->get('daily_impact')['answer'] ?? '');
 
         $riskLevel = match (true) {
             $this->indicatesHarm($safetyAnswer) => 'elevated',
             $moodRating !== null && $moodRating <= 3 => 'moderate',
             $moodRating !== null && $moodRating <= 6 => 'moderate',
+            $this->containsAny($severityAnswer, ['severe', 'constant', 'constantly', 'all the time', 'every day']) => 'moderate',
             $this->containsAny($sleepAnswer, ['insomnia', "can't sleep", 'cant sleep', 'no sleep']) => 'moderate',
             $this->containsAny($durationAnswer, ['months', 'years', 'weeks']) => 'moderate',
+            $this->containsAny($dailyImpactAnswer, ['cannot', "can't", 'unable', 'stopped working', 'stopped going']) => 'moderate',
             default => 'low',
         };
 
@@ -97,18 +101,25 @@ class PreAssessmentAnalyzer
      */
     private function summarize($lookup, ?int $moodRating, string $riskLevel): string
     {
-        $reason = $lookup->get('reason')['answer'] ?? 'not specified';
-        $duration = $lookup->get('duration')['answer'] ?? 'not specified';
-        $sleep = $lookup->get('sleep')['answer'] ?? 'not specified';
-        $safety = $lookup->get('safety')['answer'] ?? 'not specified';
+        $answer = fn (string $key): string => $lookup->get($key)['answer'] ?? 'not specified';
         $notes = $lookup->get('notes')['answer'] ?? null;
 
         $sentences = [
             'Patient rates their mood '.($moodRating !== null ? $moodRating.'/10' : 'unrated').' over the past week.',
-            'Main reason for booking: '.$reason.'.',
-            'Duration of symptoms: '.$duration.'.',
-            'Sleep: '.$sleep.'.',
-            'Safety check response: '.$safety.'.',
+            'Main reason for booking: '.$answer('reason').'.',
+            'Duration of symptoms: '.$answer('duration').'.',
+            'Severity and frequency: '.$answer('severity').'.',
+            'Triggers: '.$answer('triggers').'.',
+            'Onset: '.$answer('onset').'.',
+            'Impact on daily life: '.$answer('daily_impact').'.',
+            'Impact on relationships: '.$answer('relationships').'.',
+            'Sleep: '.$answer('sleep').'.',
+            'Appetite: '.$answer('appetite').'.',
+            'Mood pattern: '.$answer('mood').'.',
+            'Mental health history: '.$answer('history').'.',
+            'Current medication: '.$answer('medication').'.',
+            'Support system: '.$answer('support').'.',
+            'Safety check response: '.$answer('safety').'.',
         ];
 
         if ($notes) {

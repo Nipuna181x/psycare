@@ -25,7 +25,40 @@ class BookingController extends Controller
     public const ASSESSMENT_QUESTIONS = [
         ['key' => 'reason', 'question' => "What's the main reason you're booking this appointment today?"],
         ['key' => 'duration', 'question' => 'How long have you been feeling this way?'],
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ['key' => 'severity', 'question' => 'How often does this affect you, and how severe would you say it is — mild, moderate, or severe?'],
+        ['key' => 'triggers', 'question' => 'Is there anything that seems to bring this on or make it worse?'],
+        ['key' => 'onset', 'question' => 'Did this start after a particular event or change in your life?'],
+        ['key' => 'daily_impact', 'question' => 'How is this affecting your work, studies, or daily routine?'],
+        ['key' => 'relationships', 'question' => 'Has this affected your relationships with family, friends, or colleagues?'],
         ['key' => 'sleep', 'question' => 'How has your sleep been recently — any trouble falling or staying asleep?'],
+        ['key' => 'appetite', 'question' => 'Have you noticed any changes in your appetite or eating habits?'],
+        ['key' => 'mood', 'question' => 'How would you describe your mood most days — and does it change suddenly?'],
+        ['key' => 'history', 'question' => 'Have you been diagnosed with or treated for a mental health condition before?'],
+        ['key' => 'medication', 'question' => 'Are you currently taking any medication, including for this or anything else?'],
+        ['key' => 'support', 'question' => 'Do you have people you can turn to for support right now — family, friends, or others?'],
         ['key' => 'safety', 'question' => 'Have you had any thoughts of harming yourself or others recently?'],
         ['key' => 'notes', 'question' => "Is there anything else you'd like your doctor to know before the appointment?"],
     ];
