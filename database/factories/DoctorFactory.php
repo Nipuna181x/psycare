@@ -28,6 +28,10 @@ class DoctorFactory extends Factory
             'username' => fake()->unique()->userName(),
             'password' => static::$password ??= Hash::make('password'),
             'specialization' => fake()->randomElement(['Psychiatry', 'Psychology', 'Counseling', 'Neurology']),
+            'years_experience' => fake()->numberBetween(2, 20),
+            'consultation_fee' => fake()->numberBetween(2500, 6000),
+            'consultation_mode' => fake()->randomElement(['in_person', 'online', 'both']),
+            'rating' => fake()->randomFloat(1, 4.0, 5.0),
             'phone' => fake()->phoneNumber(),
             'status' => 'active',
         ];
