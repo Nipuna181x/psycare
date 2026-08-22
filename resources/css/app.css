@@ -93,3 +93,93 @@
 }
 
 @utility rise-in { animation: rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes companion-breathe {
+    0%, 100% { scale: 0.97; filter: saturate(0.95) brightness(0.96); }
+    50% { scale: 1.035; filter: saturate(1.18) brightness(1.08); }
+}
+
+@keyframes companion-listen {
+    0%, 100% { scale: 0.94; }
+    45% { scale: 1.1; }
+}
+
+@keyframes companion-think {
+    to { rotate: 360deg; }
+}
+
+@keyframes companion-ribbon-a {
+    0%, 100% { rotate: -18deg; scale: 0.92 1.08; translate: -6% 3%; }
+    50% { rotate: 28deg; scale: 1.08 0.9; translate: 7% -4%; }
+}
+
+@keyframes companion-ribbon-b {
+    0%, 100% { rotate: 35deg; scale: 1 0.86; translate: 5% -2%; }
+    50% { rotate: -25deg; scale: 0.88 1.08; translate: -5% 5%; }
+}
+
+@keyframes companion-ribbon-c {
+    0%, 100% { rotate: 8deg; scale: 0.88 1.05; }
+    50% { rotate: 62deg; scale: 1.08 0.88; }
+}
+
+.companion-orb {
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.38);
+    background:
+        radial-gradient(circle at 42% 32%, rgb(255 255 255 / 0.88) 0 3%, transparent 22%),
+        radial-gradient(circle at 48% 48%, #293a60 0%, #111727 56%, #070810 100%);
+    box-shadow: 0 0 80px rgb(115 233 255 / 0.18), 0 0 110px rgb(241 75 189 / 0.12), inset 0 0 30px rgb(255 255 255 / 0.22), inset 0 -28px 45px rgb(0 7 22 / 0.72);
+    animation: companion-breathe 4.5s ease-in-out infinite;
+}
+
+.companion-orb::before {
+    position: absolute;
+    inset: 2%;
+    content: "";
+    border-radius: inherit;
+    z-index: 5;
+    background: radial-gradient(circle at 40% 19%, rgb(255 255 255 / 0.72), transparent 26%), linear-gradient(145deg, rgb(255 255 255 / 0.22), transparent 34% 70%, rgb(25 230 224 / 0.14));
+    box-shadow: inset 8px 10px 16px rgb(255 255 255 / 0.22), inset -10px -14px 24px rgb(0 0 0 / 0.28);
+}
+
+.companion-ribbon, .companion-core {
+    position: absolute;
+    border-radius: 48% 52% 43% 57% / 58% 42% 58% 42%;
+    filter: blur(1px) saturate(1.2);
+    mix-blend-mode: screen;
+}
+
+.companion-ribbon-a {
+    inset: 17% 6% 16% 20%;
+    background: linear-gradient(125deg, #38f4dd 5%, #87fff1 35%, #4676ff 72%, transparent 92%);
+    animation: companion-ribbon-a 5.2s ease-in-out infinite;
+}
+
+.companion-ribbon-b {
+    inset: 15% 16% 13% 11%;
+    background: linear-gradient(150deg, transparent 4%, #fc7bcb 24%, #ff287e 58%, #9f3cff 88%);
+    animation: companion-ribbon-b 4.3s ease-in-out infinite;
+}
+
+.companion-ribbon-c {
+    inset: 24% 18% 9% 24%;
+    background: linear-gradient(42deg, #18bebf 8%, #4677ff 42%, #df73ff 72%, transparent 94%);
+    animation: companion-ribbon-c 5.8s ease-in-out infinite;
+}
+
+.companion-core {
+    inset: 29%;
+    z-index: 4;
+    background: rgb(255 255 255 / 0.94);
+    box-shadow: 0 0 24px 13px rgb(255 255 255 / 0.74), 0 0 48px 22px rgb(144 247 255 / 0.34);
+}
+
+.companion-orb.is-listening { animation: companion-listen 1.15s ease-in-out infinite; box-shadow: 0 0 100px rgb(78 244 228 / 0.4), 0 0 130px rgb(250 70 180 / 0.22); }
+.companion-orb.is-thinking { animation: companion-think 2.2s linear infinite; }
+.companion-orb.is-speaking { animation-duration: 1.35s; box-shadow: 0 0 110px rgb(77 221 255 / 0.38), 0 0 145px rgb(247 70 184 / 0.28); }
+
+@media (prefers-reduced-motion: reduce) {
+    .companion-orb, .companion-orb.is-listening, .companion-orb.is-thinking, .companion-orb.is-speaking, .companion-ribbon { animation: none; }
+}

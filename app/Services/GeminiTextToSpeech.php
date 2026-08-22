@@ -7,7 +7,7 @@ use RuntimeException;
 
 class GeminiTextToSpeech
 {
-    public function synthesize(string $text): string
+    public function synthesize(string $text, string $language): string
     {
         $apiKey = config('services.gemini.api_key');
         $model = config('services.gemini.tts_model');
@@ -17,30 +17,31 @@ class GeminiTextToSpeech
             throw new RuntimeException('Gemini Text-to-Speech is not fully configured.');
         }
 
+        $languageName = $language === 'si' ? 'Sinhala' : 'English';
         $response = Http::withHeader('x-goog-api-key', $apiKey)->acceptJson()
             ->connectTimeout(5)->timeout(60)->retry([500, 1000])
             ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', [
-                'contents' => [['parts' => [['text' => 'Read this Sinhala health screening question exactly as written, in a warm, calm, clear Sri Lankan voice. Do not add or remove words: '.$text]]]],
+                'contents' => [['parts' => [['text' => "Speak the following {$languageName} response exactly as written. Use a warm, calm, natural Sri Lankan voice and a gentle conversational pace. Do not add or remove words: {$text}"]]]],
                 'generationConfig' => [
                     'responseModalities' => ['AUDIO'],
                     'speechConfig' => ['voiceConfig' => ['prebuiltVoiceConfig' => ['voiceName' => $voice]]],
                 ],
             ])->throw();
 
-        $audio = $response->json('candidates.0.content.parts.0.inlineData.data');
-        $pcm = is_string($audio) ? base64_decode($audio, true) : false;
+        $encodedAudio = $response->json('candidates.0.content.parts.0.inlineData.data');
+        $pcmAudio = is_string($encodedAudio) ? base64_decode($encodedAudio, true) : false;
 
-        if ($pcm === false) {
+        if ($pcmAudio === false) {
             throw new RuntimeException('Gemini Text-to-Speech returned invalid audio data.');
         }
 
-        return $this->waveFile($pcm);
+        return $this->toWave($pcmAudio);
     }
 
-    private function waveFile(string $pcm): string
+    private function toWave(string $pcmAudio): string
     {
-        $dataLength = strlen($pcm);
+        $dataLength = strlen($pcmAudio);
 
-        return 'RIFF'.pack('V', 36 + $dataLength).'WAVEfmt '.pack('VvvVVvv', 16, 1, 1, 24000, 48000, 2, 16).'data'.pack('V', $dataLength).$pcm;
+        return 'RIFF'.pack('V', 36 + $dataLength).'WAVEfmt '.pack('VvvVVvv', 16, 1, 1, 24000, 48000, 2, 16).'data'.pack('V', $dataLength).$pcmAudio;
     }
 }
