@@ -41,6 +41,9 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware('auth')->group(function () {
     Route::get('ai-companion', [AiCompanionController::class, 'show'])->name('ai-companion.show');
+    Route::post('ai-companion/start', [AiCompanionController::class, 'start'])
+        ->middleware('throttle:20,1')
+        ->name('ai-companion.start');
     Route::post('ai-companion/respond', [AiCompanionController::class, 'respond'])
         ->middleware('throttle:20,1')
         ->name('ai-companion.respond');

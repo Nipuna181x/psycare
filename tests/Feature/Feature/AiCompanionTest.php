@@ -24,7 +24,7 @@ class AiCompanionTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('ai-companion.show'))
             ->assertOk()
-            ->assertSee('PsyCare Companion')
+            ->assertSee('Asha')
             ->assertDontSee('<textarea', false)
             ->assertDontSee('type="text"', false);
     }
@@ -53,5 +53,24 @@ class AiCompanionTest extends TestCase
             ])->assertJsonPath('audio', fn (string $audio): bool => str_starts_with(base64_decode($audio), 'RIFF'));
 
         Http::assertSentCount(2);
+    }
+
+    public function test_asha_introduces_herself_when_session_starts(): void
+    {
+        config([
+            'services.gemini.api_key' => 'test-key',
+            'services.gemini.tts_model' => 'gemini-tts-test',
+            'services.gemini.tts_voice' => 'Kore',
+        ]);
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['inlineData' => ['data' => base64_encode('greeting-audio')]]]]]],
+        ])]);
+
+        $this->actingAs(User::factory()->create())
+            ->postJson(route('ai-companion.start'), ['language' => 'en'])
+            ->assertOk()
+            ->assertJsonPath('response', "Hey, my name is Asha. I'm here to help you. Tell me what's on your mind.")
+            ->assertJsonPath('audio_type', 'audio/wav');
     }
 }

@@ -13,11 +13,12 @@ if (root) {
     let language = 'en';
     let recognition = null;
     let sessionEnded = false;
+    let sessionStarted = false;
     let busy = false;
 
     const text = {
-        en: { ready: 'Tap the microphone to begin', listening: 'I’m listening…', thinking: 'Thinking…', speaking: 'Speaking…', missed: 'I didn’t catch that. Tap the microphone and try again.', unavailable: 'Voice recognition is unavailable in this browser.', error: 'I’m having trouble connecting. Please try again.' },
-        si: { ready: 'ආරම්භ කිරීමට මයික්‍රෆෝනය ඔබන්න', listening: 'මම සවන් දෙමි…', thinking: 'සිතමින්…', speaking: 'කතා කරමින්…', missed: 'එය පැහැදිලිව ඇසුණේ නැහැ. නැවත උත්සාහ කරන්න.', unavailable: 'මෙම බ්‍රවුසරයේ හඬ හඳුනාගැනීම ලබා ගත නොහැක.', error: 'සම්බන්ධ වීමේ ගැටලුවක් තිබේ. නැවත උත්සාහ කරන්න.' },
+        en: { ready: 'Tap the microphone to meet Asha', starting: 'Asha is joining…', listening: 'Asha is listening…', thinking: 'Asha is thinking…', speaking: 'Asha is speaking…', missed: 'I didn’t catch that. Tap the microphone and try again.', unavailable: 'Voice recognition is unavailable in this browser.', error: 'Asha is having trouble connecting. Please try again.' },
+        si: { ready: 'ආශා සමඟ කතා කිරීමට මයික්‍රෆෝනය ඔබන්න', starting: 'ආශා සම්බන්ධ වෙමින්…', listening: 'ආශා සවන් දෙමින්…', thinking: 'ආශා සිතමින්…', speaking: 'ආශා කතා කරමින්…', missed: 'එය පැහැදිලිව ඇසුණේ නැහැ. නැවත උත්සාහ කරන්න.', unavailable: 'මෙම බ්‍රවුසරයේ හඬ හඳුනාගැනීම ලබා ගත නොහැක.', error: 'ආශාට සම්බන්ධ වීමේ ගැටලුවක් තිබේ. නැවත උත්සාහ කරන්න.' },
     };
 
     const setState = (state, message) => {
@@ -87,6 +88,29 @@ if (root) {
         }
     };
 
+    const startSession = async () => {
+        busy = true;
+        microphoneButton.disabled = true;
+        setState('thinking', text[language].starting);
+        try {
+            const response = await fetch(root.dataset.startEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
+                body: JSON.stringify({ language }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            sessionStarted = true;
+            audio.src = `data:${result.audio_type};base64,${result.audio}`;
+            setState('speaking', text[language].speaking);
+            await audio.play();
+        } catch {
+            busy = false;
+            microphoneButton.disabled = false;
+            setState('ready', text[language].error);
+        }
+    };
+
     audio.addEventListener('ended', () => {
         busy = false;
         microphoneButton.disabled = false;
@@ -95,6 +119,10 @@ if (root) {
     microphoneButton.addEventListener('click', () => {
         if (recognition) {
             recognition.stop();
+            return;
+        }
+        if (!sessionStarted) {
+            startSession();
             return;
         }
         listen();
@@ -107,7 +135,7 @@ if (root) {
     });
     document.querySelectorAll('.companion-language').forEach((button) => {
         button.addEventListener('click', () => {
-            if (busy || recognition) return;
+            if (busy || recognition || sessionStarted) return;
             language = button.dataset.language;
             document.documentElement.lang = language;
             document.querySelectorAll('.companion-language').forEach((candidate) => {
