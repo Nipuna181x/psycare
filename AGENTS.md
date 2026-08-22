@@ -161,3 +161,10 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - To filter on a particular test name: `php artisan test --compact --filter=testName` (recommended after making a change to a related file).
 
 </laravel-boost-guidelines>
+
+=== git workflow rules ===
+
+# Git Workflow
+
+- Before starting any new feature, create a new git branch off `main` (e.g. `feat/short-description`). Do not commit feature work directly to `main`.
+- All commits must be authored as the human user (name: `Nipuna181x`, email: `nipunadhananjaya181@gmail.com`) using the repo's configured git identity. Do not add `Co-Authored-By: Claude`, `Co-Authored-By: Codex`, or any AI/agent attribution to commit messages.
