@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::post('details', [BookingController::class, 'storeDetails']);
         Route::get('assessment', [BookingController::class, 'assessment'])->name('assessment');
         Route::post('assessment', [BookingController::class, 'storeAssessment']);
+        Route::post('assessment/interpret', [BookingController::class, 'interpretAnswer'])->middleware('throttle:30,1')->name('assessment.interpret');
         Route::get('review', [BookingController::class, 'review'])->name('review');
         Route::post('review', [BookingController::class, 'confirm'])->name('confirm');
     });

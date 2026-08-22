@@ -23,11 +23,15 @@ class StoreAssessmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'answers' => ['required', 'array', 'min:1'],
-            'answers.*.key' => ['required', 'string'],
+            'answers' => ['required', 'array', 'size:16'],
+            'answers.*.key' => ['required', 'string', 'distinct'],
             'answers.*.question' => ['required', 'string'],
+            'answers.*.instrument' => ['required', 'string', 'in:phq9,gad7'],
+            'answers.*.score' => ['required', 'integer', 'min:0', 'max:3'],
             'answers.*.answer' => ['nullable', 'string', 'max:2000'],
-            'mood_rating' => ['required', 'integer', 'min:1', 'max:10'],
+            'answers.*.confidence' => ['nullable', 'string', 'in:high,medium,low,manual'],
+            'answers.*.extracted_context' => ['nullable', 'string', 'max:2000'],
+            'open_notes' => ['nullable', 'string', 'max:4000'],
         ];
     }
 }

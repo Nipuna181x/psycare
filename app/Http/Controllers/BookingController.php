@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Booking\InterpretScreenerAnswerRequest;
 use App\Http\Requests\Booking\StoreAssessmentRequest;
 use App\Http\Requests\Booking\StoreDetailsRequest;
 use App\Http\Requests\Booking\StoreScheduleRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
-use App\Services\PreAssessmentAnalyzer;
+use App\Models\ScreenerDraft;
+use App\Services\ScreenerAnalyzer;
+use App\Services\ScreenerAnswerInterpreter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,48 +23,9 @@ class BookingController extends Controller
     /**
      * Ordered list of pre-assessment questions asked by the voice assistant.
      *
-     * @var array<int, array{key: string, question: string}>
+     * @var array<int, array{key: string, instrument: string, question: string}>
      */
-    public const ASSESSMENT_QUESTIONS = [
-        ['key' => 'reason', 'question' => "What's the main reason you're booking this appointment today?"],
-        ['key' => 'duration', 'question' => 'How long have you been feeling this way?'],
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        ['key' => 'severity', 'question' => 'How often does this affect you, and how severe would you say it is — mild, moderate, or severe?'],
-        ['key' => 'triggers', 'question' => 'Is there anything that seems to bring this on or make it worse?'],
-        ['key' => 'onset', 'question' => 'Did this start after a particular event or change in your life?'],
-        ['key' => 'daily_impact', 'question' => 'How is this affecting your work, studies, or daily routine?'],
-        ['key' => 'relationships', 'question' => 'Has this affected your relationships with family, friends, or colleagues?'],
-        ['key' => 'sleep', 'question' => 'How has your sleep been recently — any trouble falling or staying asleep?'],
-        ['key' => 'appetite', 'question' => 'Have you noticed any changes in your appetite or eating habits?'],
-        ['key' => 'mood', 'question' => 'How would you describe your mood most days — and does it change suddenly?'],
-        ['key' => 'history', 'question' => 'Have you been diagnosed with or treated for a mental health condition before?'],
-        ['key' => 'medication', 'question' => 'Are you currently taking any medication, including for this or anything else?'],
-        ['key' => 'support', 'question' => 'Do you have people you can turn to for support right now — family, friends, or others?'],
-        ['key' => 'safety', 'question' => 'Have you had any thoughts of harming yourself or others recently?'],
-        ['key' => 'notes', 'question' => "Is there anything else you'd like your doctor to know before the appointment?"],
-    ];
+    public const ASSESSMENT_QUESTIONS = ScreenerAnalyzer::QUESTIONS;
 
     /**
      * Step 1: choose a date, time slot and consultation mode.
@@ -154,10 +118,26 @@ class BookingController extends Controller
             return $redirect;
         }
 
+        $draft = ScreenerDraft::query()
+            ->whereBelongsTo(Auth::user())
+            ->whereBelongsTo($doctor)
+            ->first();
+
         return view('booking.assessment', [
             'doctor' => $doctor,
-            'questions' => self::ASSESSMENT_QUESTIONS,
-            'saved' => $this->stepData($doctor, 'assessment'),
+            'questions' => collect(self::ASSESSMENT_QUESTIONS)->map(fn (array $question): array => [
+                ...$question,
+                'audio_url' => asset("audio/screener/{$question['key']}.mp3"),
+                'audio_url_si' => asset("audio/screener/si/{$question['key']}.wav"),
+            ])->all(),
+            'scale' => ScreenerAnalyzer::SCALE,
+            'saved' => $this->stepData($doctor, 'assessment') ?? ['answers' => $draft?->answers ?? []],
+            'currentQuestion' => $draft?->current_question ?? 0,
+            'language' => $draft?->language,
+            'clarificationAudio' => [
+                'en' => asset('audio/screener/clarification.mp3'),
+                'si' => asset('audio/screener/si/clarification.wav'),
+            ],
         ]);
     }
 
@@ -169,7 +149,9 @@ class BookingController extends Controller
             return $redirect;
         }
 
-        $this->saveStep($doctor, 'assessment', $request->validated());
+        $validated = $request->validated();
+        $validated['answers'] = $this->canonicalAnswers($validated['answers']);
+        $this->saveStep($doctor, 'assessment', $validated);
 
         return redirect()->route('booking.review', $doctor);
     }
@@ -177,7 +159,30 @@ class BookingController extends Controller
     /**
      * Step 4: review everything before confirming.
      */
-    public function review(Doctor $doctor): View|RedirectResponse
+    public function interpretAnswer(InterpretScreenerAnswerRequest $request, Doctor $doctor, ScreenerAnswerInterpreter $interpreter): JsonResponse
+    {
+        $this->ensureBookable($doctor);
+        $validated = $request->validated();
+        $question = collect(self::ASSESSMENT_QUESTIONS)->firstWhere('key', $validated['key']);
+        $language = $validated['language'];
+        $localizedQuestion = $language === 'si' ? $question['question_si'] : $question['question'];
+
+        try {
+            $interpretation = $interpreter->interpret($localizedQuestion, $validated['answer'], $question['key'] === 'phq_9');
+
+            if ($interpretation['score'] !== null && ! $interpretation['needs_clarification']) {
+                $this->saveScreenerDraft($doctor, $question, $validated['answer'], $interpretation, $language);
+            }
+
+            return response()->json($interpretation);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['message' => 'We could not interpret that answer. Please record or type it again.', 'needs_clarification' => true], 503);
+        }
+    }
+
+    public function review(Doctor $doctor, ScreenerAnalyzer $analyzer): View|RedirectResponse
     {
         $this->ensureBookable($doctor);
 
@@ -186,10 +191,7 @@ class BookingController extends Controller
         }
 
         $booking = session("booking.{$doctor->id}");
-        $analysis = app(PreAssessmentAnalyzer::class)->analyze(
-            $booking['assessment']['answers'],
-            $booking['assessment']['mood_rating']
-        );
+        $analysis = $analyzer->analyze($booking['assessment']['answers']);
 
         return view('booking.review', [
             'doctor' => $doctor,
@@ -203,7 +205,7 @@ class BookingController extends Controller
     /**
      * Step 5: confirm — creates the appointment and clears the wizard session.
      */
-    public function confirm(Doctor $doctor): RedirectResponse
+    public function confirm(Doctor $doctor, ScreenerAnalyzer $analyzer): RedirectResponse
     {
         $this->ensureBookable($doctor);
 
@@ -218,10 +220,7 @@ class BookingController extends Controller
                 ->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.']);
         }
 
-        $analysis = app(PreAssessmentAnalyzer::class)->analyze(
-            $booking['assessment']['answers'],
-            $booking['assessment']['mood_rating']
-        );
+        $analysis = $analyzer->analyze($booking['assessment']['answers']);
 
         $appointment = Appointment::create([
             'user_id' => Auth::id(),
@@ -238,13 +237,21 @@ class BookingController extends Controller
             'reason' => $booking['details']['reason'] ?? null,
             'consultation_fee' => $doctor->consultation_fee,
             'pre_assessment' => $booking['assessment']['answers'],
-            'pre_assessment_mood_rating' => $booking['assessment']['mood_rating'],
-            'pre_assessment_summary' => $analysis['summary'],
-            'pre_assessment_risk_level' => $analysis['risk_level'],
+            'pre_assessment_summary' => $this->screenerSummary($analysis),
+            'pre_assessment_risk_level' => $analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate'),
+            'phq9_total' => $analysis['phq9']['total'],
+            'phq9_severity' => $analysis['phq9']['severity'],
+            'gad7_total' => $analysis['gad7']['total'],
+            'gad7_severity' => $analysis['gad7']['severity'],
+            'self_harm_flag' => $analysis['phq9']['self_harm_flag'],
+            'requires_immediate_escalation' => $analysis['requires_immediate_escalation'],
+            'screener_open_notes' => $booking['assessment']['open_notes'] ?? null,
+            'screener_completed_at' => now(),
             'status' => 'confirmed',
         ]);
 
         session()->forget("booking.{$doctor->id}");
+        ScreenerDraft::query()->whereBelongsTo(Auth::user())->whereBelongsTo($doctor)->delete();
 
         return redirect()->route('booking.confirmed', $appointment);
     }
@@ -261,6 +268,61 @@ class BookingController extends Controller
     private function ensureBookable(Doctor $doctor): void
     {
         abort_unless($doctor->isBookable(), 404);
+    }
+
+    /**
+     * @param  array{key: string, instrument: string, question: string}  $question
+     * @param  array{score: int|null, confidence: string, needs_clarification: bool, reason: string, extracted_context: string}  $interpretation
+     */
+    private function saveScreenerDraft(Doctor $doctor, array $question, string $answer, array $interpretation, string $language): void
+    {
+        $draft = ScreenerDraft::query()->firstOrNew([
+            'user_id' => Auth::id(),
+            'doctor_id' => $doctor->id,
+        ]);
+        $answers = collect($draft->answers ?? [])->keyBy('key');
+        $answers->put($question['key'], [
+            ...$question,
+            'score' => $interpretation['score'],
+            'answer' => $answer,
+            'confidence' => $interpretation['confidence'],
+            'extracted_context' => $interpretation['extracted_context'],
+        ]);
+        $questionIndex = collect(self::ASSESSMENT_QUESTIONS)->search(fn (array $candidate): bool => $candidate['key'] === $question['key']);
+        $draft->fill([
+            'answers' => $answers->values()->all(),
+            'current_question' => min(((int) $questionIndex) + 1, count(self::ASSESSMENT_QUESTIONS) - 1),
+            'language' => $language,
+        ])->save();
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $submittedAnswers
+     * @return array<int, array<string, mixed>>
+     */
+    private function canonicalAnswers(array $submittedAnswers): array
+    {
+        $submittedByKey = collect($submittedAnswers)->keyBy('key');
+
+        return collect(self::ASSESSMENT_QUESTIONS)->map(function (array $question) use ($submittedByKey): array {
+            $submitted = $submittedByKey->get($question['key']);
+
+            return [
+                ...$question,
+                'score' => (int) $submitted['score'],
+                'answer' => $submitted['answer'] ?? '',
+                'confidence' => $submitted['confidence'] ?? 'manual',
+                'extracted_context' => $submitted['extracted_context'] ?? '',
+            ];
+        })->all();
+    }
+
+    /** @param  array<string, mixed>  $analysis */
+    private function screenerSummary(array $analysis): string
+    {
+        return "PHQ-9: {$analysis['phq9']['total']}/27 ({$analysis['phq9']['severity']}). "
+            ."GAD-7: {$analysis['gad7']['total']}/21 ({$analysis['gad7']['severity']})."
+            .($analysis['requires_immediate_escalation'] ? ' Immediate escalation required due to a positive PHQ-9 self-harm item.' : '');
     }
 
     /**

@@ -42,4 +42,10 @@ return [
         'tts_voice' => env('GEMINI_TTS_VOICE', 'Kore'),
     ],
 
+    'google_tts' => [
+        'api_key' => env('GOOGLE_TTS_API_KEY'),
+        'voice' => env('GOOGLE_TTS_VOICE', 'en-US-Neural2-F'),
+        'language' => env('GOOGLE_TTS_LANGUAGE', 'en-US'),
+    ],
+
 ];
