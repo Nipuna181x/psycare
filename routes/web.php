@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
+use App\Http\Controllers\AiCompanionController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -39,6 +40,11 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
 Route::middleware('auth')->group(function () {
+    Route::get('ai-companion', [AiCompanionController::class, 'show'])->name('ai-companion.show');
+    Route::post('ai-companion/respond', [AiCompanionController::class, 'respond'])
+        ->middleware('throttle:20,1')
+        ->name('ai-companion.respond');
+
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 
     Route::prefix('booking/{doctor}')->name('booking.')->group(function () {
