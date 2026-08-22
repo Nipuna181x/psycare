@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash'),
+        'tts_model' => env('GEMINI_TTS_MODEL', 'gemini-2.5-flash-preview-tts'),
+        'tts_voice' => env('GEMINI_TTS_VOICE', 'Kore'),
+    ],
+
+    'google_tts' => [
+        'api_key' => env('GOOGLE_TTS_API_KEY'),
+        'voice' => env('GOOGLE_TTS_VOICE', 'en-US-Neural2-F'),
+        'language' => env('GOOGLE_TTS_LANGUAGE', 'en-US'),
+    ],
+
 ];

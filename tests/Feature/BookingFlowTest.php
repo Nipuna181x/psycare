@@ -51,15 +51,19 @@ class BookingFlowTest extends TestCase
         $answers = collect(BookingController::ASSESSMENT_QUESTIONS)
             ->map(fn (array $question): array => [
                 'key' => $question['key'],
+                'instrument' => $question['instrument'],
                 'question' => $question['question'],
-                'answer' => $question['key'] === 'notes' ? '' : 'No',
+                'score' => $question['key'] === 'phq_9' ? 1 : 0,
+                'answer' => '',
+                'confidence' => 'manual',
+                'extracted_context' => '',
             ])
             ->all();
 
         $this->actingAs($patient)
             ->post(route('booking.assessment', $doctor), [
-                'mood_rating' => 4,
                 'answers' => $answers,
+                'open_notes' => 'Work has been stressful.',
             ])
             ->assertRedirect(route('booking.review', $doctor));
 
@@ -77,6 +81,10 @@ class BookingFlowTest extends TestCase
             'patient_name' => 'Jane Doe',
             'appointment_date' => $date,
             'status' => 'confirmed',
+            'phq9_total' => 1,
+            'gad7_total' => 0,
+            'self_harm_flag' => true,
+            'requires_immediate_escalation' => true,
         ]);
 
         $appointment = $patient->appointments()->first();
