@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'patient_name', 'patient_age', 'patient_gender', 'patient_phone', 'patient_email', 'reason',
     'consultation_fee',
     'pre_assessment', 'pre_assessment_mood_rating', 'pre_assessment_summary', 'pre_assessment_risk_level',
+    'phq9_total', 'phq9_severity', 'gad7_total', 'gad7_severity', 'self_harm_flag',
+    'requires_immediate_escalation', 'screener_open_notes', 'screener_completed_at',
     'status',
 ])]
 class Appointment extends Model
@@ -32,6 +34,9 @@ class Appointment extends Model
         return [
             'appointment_date' => 'date',
             'pre_assessment' => 'array',
+            'self_harm_flag' => 'boolean',
+            'requires_immediate_escalation' => 'boolean',
+            'screener_completed_at' => 'datetime',
         ];
     }
 
