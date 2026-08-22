@@ -24,6 +24,7 @@ class StartAiCompanionRequest extends FormRequest
     {
         return [
             'language' => ['required', 'string', 'in:en,si'],
+            'consent' => ['accepted'],
         ];
     }
 }
