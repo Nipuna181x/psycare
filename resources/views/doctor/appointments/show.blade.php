@@ -93,5 +93,40 @@
                 <p class="mt-4 rounded-2xl bg-secondary p-4 text-[12px] text-ink"><strong>Additional note:</strong> {{ $appointment->screener_open_notes }}</p>
             @endif
         </x-dashboard.panel>
+
+        @if ($appointment->patientNlpReports->isNotEmpty())
+            @php($nlpReport = $appointment->patientNlpReports->first()->report)
+            <x-dashboard.panel title="Asha conversation report" class="lg:col-span-3">
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-900">AI-generated clinical support summary. This is not a diagnosis and must be checked against the patient conversation and screening responses.</div>
+
+                @if (($nlpReport['risk']['requires_immediate_review'] ?? false) === true)
+                    <div class="mt-4 rounded-2xl bg-red-100 p-4 text-[12px] font-semibold leading-relaxed text-red-800">Immediate review required · {{ $nlpReport['risk']['recommended_action'] }}</div>
+                @endif
+
+                <p class="mt-5 text-[13px] leading-relaxed text-ink">{{ $nlpReport['summary'] }}</p>
+
+                <div class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    @foreach (['presenting_concerns' => 'Presenting concerns', 'symptoms' => 'Reported symptoms', 'stressors' => 'Stressors', 'protective_factors' => 'Protective factors', 'functional_impact' => 'Functional impact'] as $key => $heading)
+                        <section class="rounded-2xl bg-secondary p-4">
+                            <h3 class="text-[11px] font-semibold tracking-[0.08em] text-ink uppercase">{{ $heading }}</h3>
+                            <ul class="mt-3 space-y-3">
+                                @forelse ($nlpReport[$key] ?? [] as $item)
+                                    <li><p class="text-[12px] font-medium text-ink">{{ $item['label'] }}</p><p class="mt-0.5 text-[11px] leading-relaxed text-ink-soft">{{ $item['evidence'] }} · {{ ucfirst($item['confidence']) }} confidence</p></li>
+                                @empty
+                                    <li class="text-[11px] text-ink-soft">Not established in this conversation.</li>
+                                @endforelse
+                            </ul>
+                        </section>
+                    @endforeach
+
+                    <section class="rounded-2xl bg-secondary p-4">
+                        <h3 class="text-[11px] font-semibold tracking-[0.08em] text-ink uppercase">Clinician follow-up</h3>
+                        <ul class="mt-3 list-disc space-y-2 pl-4 text-[11px] leading-relaxed text-ink-soft">
+                            @forelse ($nlpReport['clinician_follow_up_questions'] ?? [] as $question)<li>{{ $question }}</li>@empty<li>No questions generated.</li>@endforelse
+                        </ul>
+                    </section>
+                </div>
+            </x-dashboard.panel>
+        @endif
     </div>
 @endsection

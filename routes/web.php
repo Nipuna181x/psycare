@@ -47,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::post('ai-companion/respond', [AiCompanionController::class, 'respond'])
         ->middleware('throttle:20,1')
         ->name('ai-companion.respond');
+    Route::post('ai-companion/finish', [AiCompanionController::class, 'finish'])
+        ->middleware('throttle:10,1')
+        ->name('ai-companion.finish');
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 

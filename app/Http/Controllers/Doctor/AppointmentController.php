@@ -40,7 +40,7 @@ class AppointmentController extends Controller
         $this->authorizeDoctorOwnsAppointment($appointment);
 
         return view('doctor.appointments.show', [
-            'appointment' => $appointment->load('user'),
+            'appointment' => $appointment->load(['user', 'patientNlpReports' => fn ($query) => $query->latest('generated_at')]),
         ]);
     }
 

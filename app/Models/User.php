@@ -38,4 +38,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Appointment::class);
     }
+
+    /** @return HasMany<AiCompanionSession, $this> */
+    public function aiCompanionSessions(): HasMany
+    {
+        return $this->hasMany(AiCompanionSession::class);
+    }
+
+    /** @return HasMany<PatientNlpReport, $this> */
+    public function patientNlpReports(): HasMany
+    {
+        return $this->hasMany(PatientNlpReport::class);
+    }
 }

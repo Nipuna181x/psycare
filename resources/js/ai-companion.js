@@ -9,8 +9,8 @@ if (root) {
     const halo = document.getElementById('orb-halo');
     const audio = document.getElementById('companion-audio');
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
-    const history = [];
     let language = 'en';
+    let sessionId = null;
     let recognition = null;
     let sessionEnded = false;
     let sessionStarted = false;
@@ -72,12 +72,10 @@ if (root) {
             const response = await fetch(root.dataset.endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify({ message, language, history }),
+                body: JSON.stringify({ message, language, session_id: sessionId }),
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message);
-            history.push({ role: 'user', text: message }, { role: 'model', text: result.response });
-            if (history.length > 12) history.splice(0, history.length - 12);
             audio.src = `data:${result.audio_type};base64,${result.audio}`;
             setState('speaking', text[language].speaking);
             await audio.play();
@@ -96,10 +94,11 @@ if (root) {
             const response = await fetch(root.dataset.startEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
-                body: JSON.stringify({ language }),
+                body: JSON.stringify({ language, consent: true }),
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message);
+            sessionId = result.session_id;
             sessionStarted = true;
             audio.src = `data:${result.audio_type};base64,${result.audio}`;
             setState('speaking', text[language].speaking);
@@ -127,10 +126,23 @@ if (root) {
         }
         listen();
     });
-    endCallButton.addEventListener('click', () => {
+    endCallButton.addEventListener('click', async () => {
         sessionEnded = true;
         stopRecognition();
         audio.pause();
+        if (sessionId) {
+            endCallButton.disabled = true;
+            setState('thinking', language === 'si' ? 'ඔබේ වාර්තාව සුරකිමින්…' : 'Saving your clinical summary…');
+            try {
+                await fetch(root.dataset.finishEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf },
+                    body: JSON.stringify({ session_id: sessionId }),
+                });
+            } catch {
+                // The conversation turns are already securely saved after each exchange.
+            }
+        }
         window.location.assign(root.dataset.home);
     });
     document.querySelectorAll('.companion-language').forEach((button) => {

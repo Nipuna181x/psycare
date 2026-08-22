@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AiCompanionMessageRequest extends FormRequest
+class FinishAiCompanionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,6 @@ class AiCompanionMessageRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'message' => ['required', 'string', 'max:2000'],
-            'language' => ['required', 'string', 'in:en,si'],
-            'session_id' => ['required', 'uuid'],
-        ];
+        return ['session_id' => ['required', 'uuid']];
     }
 }

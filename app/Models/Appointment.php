@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'user_id', 'doctor_id', 'medical_center_id',
@@ -62,6 +63,12 @@ class Appointment extends Model
     public function medicalCenter(): BelongsTo
     {
         return $this->belongsTo(MedicalCenter::class);
+    }
+
+    /** @return HasMany<PatientNlpReport, $this> */
+    public function patientNlpReports(): HasMany
+    {
+        return $this->hasMany(PatientNlpReport::class);
     }
 
     /**

@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/ai-companion.js'])
 </head>
 <body class="overflow-hidden bg-black">
-    <main id="voice-companion" data-start-endpoint="{{ route('ai-companion.start') }}" data-endpoint="{{ route('ai-companion.respond') }}" data-home="{{ route('home') }}" class="relative flex min-h-dvh flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#211c28_0%,#0d0b10_38%,#050505_72%)] text-white">
+    <main id="voice-companion" data-start-endpoint="{{ route('ai-companion.start') }}" data-endpoint="{{ route('ai-companion.respond') }}" data-finish-endpoint="{{ route('ai-companion.finish') }}" data-home="{{ route('home') }}" class="relative flex min-h-dvh flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#211c28_0%,#0d0b10_38%,#050505_72%)] text-white">
         <header class="relative z-20 flex items-center justify-between gap-4 px-5 py-5 md:px-8">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-white/90">
                 <span class="grid size-8 place-items-center rounded-full border border-white/15 bg-white/10"><span class="size-2.5 rounded-full bg-[#bac5ff]"></span></span>
@@ -32,6 +32,7 @@
             </div>
             <p id="companion-status" class="mt-6 min-h-6 text-center text-sm tracking-wide text-white/60" aria-live="polite">Tap the microphone to begin</p>
             <p class="mt-2 max-w-md text-center text-xs leading-relaxed text-white/30">A supportive AI companion, not a replacement for professional care. In a crisis, call 1926 or emergency services.</p>
+            <p class="mt-3 max-w-lg text-center text-[11px] leading-relaxed text-white/25">By starting, you consent to securely storing this conversation and combining it with your screening results to prepare an AI-generated report for clinician review.</p>
         </section>
 
         <div class="absolute inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-8 md:pb-7">
