@@ -20,6 +20,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/fonts/installed-fonts.json
+/storage/fonts/*.ufm
+/storage/fonts/*.ufm.json
+/storage/fonts/noto_sans_sinhala_*.ttf
 /vendor
 _ide_helper.php
 Homestead.json
