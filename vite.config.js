@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/ai-companion.js', 'resources/js/therapy-room.js'],
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/ai-companion.js', 'resources/js/therapy-room.js', 'resources/js/patient-charts.js'],
             assets: ['resources/images/**'],
             refresh: true,
             fonts: [

@@ -44,6 +44,27 @@ class PatientNlpReportGeneratorTest extends TestCase
             && $request['generationConfig']['responseJsonSchema']['type'] === 'object');
     }
 
+    public function test_it_instructs_the_model_to_write_the_report_in_english_only(): void
+    {
+        config(['services.gemini.api_key' => 'test-key', 'services.gemini.model' => 'gemini-test']);
+        Http::preventStrayRequests();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => json_encode($this->geminiReport())]]]]],
+        ])]);
+        $session = AiCompanionSession::factory()->create(['language' => 'si']);
+        $session->turns()->create(['role' => 'user', 'sequence' => 1, 'content' => 'මට හොඳ නෑ.']);
+
+        (new PatientNlpReportGenerator)->generate($session, null);
+
+        Http::assertSent(function ($request): bool {
+            $instructions = $request['systemInstruction']['parts'][0]['text'];
+
+            return str_contains($instructions, 'Write the entire report in English')
+                && str_contains($instructions, 'Never quote or reproduce the patient\'s original wording verbatim')
+                && str_contains($instructions, 'never include non-English text');
+        });
+    }
+
     /** @return array<string, mixed> */
     private function geminiReport(): array
     {

@@ -23,7 +23,7 @@ class GeminiTextToSpeechTest extends TestCase
             'candidates' => [['content' => ['parts' => [['inlineData' => ['data' => base64_encode('pcm-audio')]]]]]],
         ])]);
 
-        $audio = (new GeminiTextToSpeech)->synthesize('ඔබට කොහොමද?');
+        $audio = (new GeminiTextToSpeech)->synthesize('ඔබට කොහොමද?', 'si');
 
         $this->assertStringStartsWith('RIFF', $audio);
         $this->assertStringContainsString('WAVE', $audio);

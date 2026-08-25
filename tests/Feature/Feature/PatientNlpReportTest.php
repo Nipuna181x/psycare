@@ -53,7 +53,7 @@ class PatientNlpReportTest extends TestCase
             ->assertNotFound();
     }
 
-    public function test_owning_doctor_can_view_generated_report_with_disclaimer(): void
+    public function test_appointment_page_no_longer_shows_the_lumi_report_panel(): void
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
@@ -73,7 +73,31 @@ class PatientNlpReportTest extends TestCase
 
         $this->actingAs($doctor, 'doctor')->get(route('doctor.appointments.show', $appointment))
             ->assertOk()
-            ->assertSee('Lumi conversation report')
+            ->assertDontSee('Lumi conversation report')
+            ->assertSee('Patient profile');
+    }
+
+    public function test_owning_doctor_can_view_generated_report_on_patient_profile(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        $appointment = Appointment::factory()->for($patient)->for($doctor)->create();
+        $session = AiCompanionSession::factory()->for($patient)->create();
+        PatientNlpReport::factory()->create([
+            'user_id' => $patient->id,
+            'appointment_id' => $appointment->id,
+            'ai_companion_session_id' => $session->id,
+            'report' => [
+                'summary' => 'Work stress is affecting sleep.',
+                'presenting_concerns' => [], 'symptoms' => [], 'stressors' => [], 'protective_factors' => [], 'functional_impact' => [],
+                'risk' => ['level' => 'low', 'requires_immediate_review' => false, 'evidence' => [], 'recommended_action' => 'Routine review.'],
+                'clinician_follow_up_questions' => [],
+            ],
+        ]);
+
+        $this->actingAs($doctor, 'doctor')->get(route('doctor.patients.show', $patient))
+            ->assertOk()
+            ->assertSee('Day-by-day Lumi reports')
             ->assertSee('Work stress is affecting sleep.')
             ->assertSee('not a diagnosis');
     }

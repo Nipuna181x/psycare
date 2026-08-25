@@ -11,6 +11,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\AuthenticatedSessionController as DoctorAuthenticatedSessionController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
 use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
@@ -146,6 +147,11 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
 
+        Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
+        Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');
+        Route::post('patients/{patient}/reports/generate', [DoctorPatientController::class, 'generateReports'])->name('patients.reports.generate');
+        Route::get('patients/{patient}/reports/history/download', [DoctorPatientController::class, 'downloadHistory'])->name('patients.reports.history-download');
+        Route::get('patients/{patient}/reports/{report}/download', [DoctorPatientController::class, 'downloadReport'])->name('patients.reports.download');
         Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
         Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');
         Route::get('patients/{patient}/conversations', [PatientConversationController::class, 'index'])->name('patients.conversations.index');
