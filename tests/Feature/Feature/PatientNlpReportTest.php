@@ -73,7 +73,7 @@ class PatientNlpReportTest extends TestCase
 
         $this->actingAs($doctor, 'doctor')->get(route('doctor.appointments.show', $appointment))
             ->assertOk()
-            ->assertSee('Asha conversation report')
+            ->assertSee('Lumi conversation report')
             ->assertSee('Work stress is affecting sleep.')
             ->assertSee('not a diagnosis');
     }

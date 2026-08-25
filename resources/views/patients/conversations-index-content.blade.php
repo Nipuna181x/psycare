@@ -12,7 +12,7 @@
 
 @if ($sessionsByDay->isEmpty())
     <x-dashboard.panel title="No conversations yet">
-        <p class="text-[13px] text-ink-soft">This patient has not had an Asha conversation yet.</p>
+        <p class="text-[13px] text-ink-soft">This patient has not had a Lumi conversation yet.</p>
     </x-dashboard.panel>
 @else
     <div class="space-y-5">

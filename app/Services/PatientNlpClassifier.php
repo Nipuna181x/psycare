@@ -51,13 +51,13 @@ class PatientNlpClassifier
     }
 
     /**
-     * Render the conversation as a plain "Patient: ... / Asha: ..." transcript,
+     * Render the conversation as a plain "Patient: ... / Lumi: ..." transcript,
      * which is the format the classification service expects.
      */
     private function transcript(AiCompanionSession $session): string
     {
         return $session->turns()->get(['role', 'content'])
-            ->map(fn ($turn): string => ($turn->role === 'user' ? 'Patient' : 'Asha').': '.$turn->content)
+            ->map(fn ($turn): string => ($turn->role === 'user' ? 'Patient' : 'Lumi').': '.$turn->content)
             ->implode("\n");
     }
 

@@ -19,7 +19,7 @@ class GeminiTextToSpeech
 
         $languageName = $language === 'si' ? 'Sinhala' : 'English';
         $response = Http::withHeader('x-goog-api-key', $apiKey)->acceptJson()
-            ->connectTimeout(5)->timeout(60)->retry([500, 1000])
+            ->connectTimeout(5)->timeout(25)->retry(2, 250)
             ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', [
                 'contents' => [['parts' => [['text' => "Speak the following {$languageName} response exactly as written. Use a warm, calm, natural Sri Lankan voice and a gentle conversational pace. Do not add or remove words: {$text}"]]]],
                 'generationConfig' => [

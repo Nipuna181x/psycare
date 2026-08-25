@@ -25,7 +25,7 @@ class AiCompanionTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('ai-companion.show'))
             ->assertOk()
-            ->assertSee('Asha')
+            ->assertSee('Lumi')
             ->assertDontSee('<textarea', false)
             ->assertDontSee('type="text"', false);
     }
@@ -35,13 +35,15 @@ class AiCompanionTest extends TestCase
         config([
             'services.gemini.api_key' => 'test-key',
             'services.gemini.model' => 'gemini-test',
-            'services.gemini.tts_model' => 'gemini-tts-test',
-            'services.gemini.tts_voice' => 'Kore',
+            'services.google_tts.api_key' => 'test-tts-key',
+            'services.google_tts.voice' => 'en-US-Neural2-F',
+            'services.google_tts.language' => 'en-US',
         ]);
         Http::preventStrayRequests();
-        Http::fakeSequence('generativelanguage.googleapis.com/*')
-            ->push(['candidates' => [['content' => ['parts' => [['text' => 'That sounds difficult. What feels hardest right now?']]]]]])
-            ->push(['candidates' => [['content' => ['parts' => [['inlineData' => ['data' => base64_encode('audio')]]]]]]]);
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'That sounds difficult. What feels hardest right now?']]]]]]),
+            'texttospeech.googleapis.com/*' => Http::response(['audioContent' => base64_encode('audio')]),
+        ]);
 
         $patient = User::factory()->create();
         $session = AiCompanionSession::factory()->for($patient)->create();
@@ -53,15 +55,36 @@ class AiCompanionTest extends TestCase
                 'session_id' => $session->public_id,
             ])->assertOk()->assertJson([
                 'response' => 'That sounds difficult. What feels hardest right now?',
-                'audio_type' => 'audio/wav',
-            ])->assertJsonPath('audio', fn (string $audio): bool => str_starts_with(base64_decode($audio), 'RIFF'));
+                'audio_type' => 'audio/mpeg',
+            ])->assertJsonPath('audio', fn (string $audio): bool => base64_decode($audio) === 'audio');
 
         Http::assertSentCount(2);
         $this->assertSame(['user', 'model'], $session->turns()->pluck('role')->all());
         $this->assertNotSame('I have had a difficult day.', $session->turns()->first()->getRawOriginal('content'));
     }
 
-    public function test_asha_introduces_herself_when_session_starts(): void
+    public function test_lumi_introduces_herself_when_session_starts(): void
+    {
+        config([
+            'services.google_tts.api_key' => 'test-tts-key',
+            'services.google_tts.voice' => 'en-US-Neural2-F',
+            'services.google_tts.language' => 'en-US',
+        ]);
+        Http::preventStrayRequests();
+        Http::fake(['texttospeech.googleapis.com/*' => Http::response(['audioContent' => base64_encode('greeting-audio')])]);
+
+        $patient = User::factory()->create();
+        $this->actingAs($patient)
+            ->postJson(route('ai-companion.start'), ['language' => 'en', 'consent' => true])
+            ->assertOk()
+            ->assertJsonPath('response', "Hi, I'm Lumi, a friend to express how you feel.")
+            ->assertJsonPath('audio_type', 'audio/mpeg')
+            ->assertJsonStructure(['session_id']);
+
+        $this->assertModelExists($patient->aiCompanionSessions()->first());
+    }
+
+    public function test_lumi_introduces_herself_in_sinhala_using_gemini_tts(): void
     {
         config([
             'services.gemini.api_key' => 'test-key',
@@ -75,10 +98,10 @@ class AiCompanionTest extends TestCase
 
         $patient = User::factory()->create();
         $this->actingAs($patient)
-            ->postJson(route('ai-companion.start'), ['language' => 'en', 'consent' => true])
+            ->postJson(route('ai-companion.start'), ['language' => 'si', 'consent' => true])
             ->assertOk()
-            ->assertJsonPath('response', "Hey, my name is Asha. I'm here to help you. Tell me what's on your mind.")
             ->assertJsonPath('audio_type', 'audio/wav')
+            ->assertJsonPath('audio', fn (string $audio): bool => str_starts_with(base64_decode($audio), 'RIFF'))
             ->assertJsonStructure(['session_id']);
 
         $this->assertModelExists($patient->aiCompanionSessions()->first());

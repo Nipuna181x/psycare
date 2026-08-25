@@ -26,10 +26,10 @@ class AiCompanionTest extends TestCase
 
         $this->assertSame('I hear you. What would help tonight?', $response);
         Http::assertSent(fn ($request): bool => count($request['contents']) === 3
-            && str_contains($request['systemInstruction']['parts'][0]['text'], '3 to 5 short sentences')
+            && str_contains($request['systemInstruction']['parts'][0]['text'], '2 to 3 short sentences')
             && str_contains($request['systemInstruction']['parts'][0]['text'], 'specific details')
-            && str_contains($request['systemInstruction']['parts'][0]['text'], 'You are Asha')
-            && $request['generationConfig']['maxOutputTokens'] === 4096);
+            && str_contains($request['systemInstruction']['parts'][0]['text'], 'You are Lumi')
+            && $request['generationConfig']['maxOutputTokens'] === 160);
     }
 
     public function test_it_returns_immediate_safety_guidance_without_calling_gemini(): void
