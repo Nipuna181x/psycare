@@ -7,13 +7,14 @@
     </a>
 
     <div class="hidden items-center gap-1 rounded-full bg-card px-2 py-1.5 shadow-[0_1px_0_0_var(--border)] lg:flex">
-        @foreach ([['Home', '/'], ['Book a Doctor', route('doctors.index')], ['AI Companion', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', route('appointments.index')], ['Group Therapy', '/group-therapy'], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
+        @foreach ([['Home', '/'], ['Book a Doctor', route('doctors.index')], ['AI Companion', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', route('appointments.index')], ['Group Therapy', route('therapy-rooms.index')], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
             <a href="{{ $href }}" class="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-ink-soft transition-colors hover:bg-secondary hover:text-ink {{ request()->is(ltrim($href, '/')) ? 'bg-secondary text-ink' : '' }}">{{ $label }}</a>
         @endforeach
     </div>
 
     @auth('web')
         <div class="flex items-center gap-2">
+            <x-notification-bell />
             <a href="{{ route('appointments.index') }}" class="hidden rounded-full bg-secondary px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5 sm:inline-flex">My appointments</a>
             <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-[12px] font-semibold text-primary-foreground" title="{{ auth('web')->user()->name }}">{{ mb_strtoupper(mb_substr(auth('web')->user()->name, 0, 1)) }}</span>
             <form method="POST" action="{{ route('logout') }}">
