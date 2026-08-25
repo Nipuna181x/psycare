@@ -95,6 +95,54 @@ class BookingFlowTest extends TestCase
             ->assertOk();
     }
 
+    public function test_patient_can_skip_the_voice_screening_step(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
+        $date = now()->addDay()->toDateString();
+
+        $this->actingAs($patient)
+            ->post(route('booking.schedule', $doctor), [
+                'appointment_date' => $date,
+                'appointment_time' => '10:30',
+                'mode' => 'in_person',
+            ])
+            ->assertRedirect(route('booking.details', $doctor));
+
+        $this->actingAs($patient)
+            ->post(route('booking.details', $doctor), [
+                'patient_name' => 'Jane Doe',
+                'patient_phone' => '0771234567',
+            ])
+            ->assertRedirect(route('booking.assessment', $doctor));
+
+        $this->actingAs($patient)
+            ->post(route('booking.assessment', $doctor), ['skipped' => true])
+            ->assertRedirect(route('booking.review', $doctor));
+
+        $this->actingAs($patient)
+            ->get(route('booking.review', $doctor))
+            ->assertOk()
+            ->assertSee('chose to skip the screening');
+
+        $confirmResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+
+        $this->assertDatabaseHas('appointments', [
+            'user_id' => $patient->id,
+            'doctor_id' => $doctor->id,
+            'status' => 'confirmed',
+            'phq9_total' => null,
+            'gad7_total' => null,
+            'pre_assessment_risk_level' => null,
+            'self_harm_flag' => false,
+            'requires_immediate_escalation' => false,
+            'screener_completed_at' => null,
+        ]);
+
+        $appointment = $patient->appointments()->first();
+        $confirmResponse->assertRedirect(route('booking.confirmed', $appointment));
+    }
+
     public function test_booking_step_cannot_be_skipped(): void
     {
         $patient = User::factory()->create();

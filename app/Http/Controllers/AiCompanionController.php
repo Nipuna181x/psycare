@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\PatientNlpReport;
 use App\Services\AiCompanion;
 use App\Services\GeminiTextToSpeech;
+use App\Services\GoogleTextToSpeech;
 use App\Services\PatientNlpClassifier;
 use App\Services\PatientNlpReportGenerator;
 use Illuminate\Http\JsonResponse;
@@ -25,15 +26,15 @@ class AiCompanionController extends Controller
         return view('ai-companion.show');
     }
 
-    public function start(StartAiCompanionRequest $request, GeminiTextToSpeech $textToSpeech): JsonResponse
+    public function start(StartAiCompanionRequest $request, GoogleTextToSpeech $textToSpeech, GeminiTextToSpeech $sinhalaTextToSpeech): JsonResponse
     {
         $language = $request->validated('language');
 
         $greeting = $language === 'si'
-            ? 'හේයි, මගේ නම ආශා. මම ඔබට උදව් කිරීමට මෙහි සිටිනවා. ඔබේ හිතේ තියෙන දේ මට කියන්න.'
-            : "Hey, my name is Asha. I'm here to help you. Tell me what's on your mind.";
+            ? 'හායි, මම ලුමී. හැඟීම් ප්‍රකාශ කිරීමට මිතුරෙක්.'
+            : "Hi, I'm Lumi, a friend to express how you feel.";
 
-        $spokenResponse = $this->spokenResponse($greeting, $language, $textToSpeech);
+        $spokenResponse = $this->spokenResponse($greeting, $language, $textToSpeech, $sinhalaTextToSpeech);
 
         if ($spokenResponse->isServerError()) {
             return $spokenResponse;
@@ -49,7 +50,7 @@ class AiCompanionController extends Controller
         return $spokenResponse->setData([...$spokenResponse->getData(true), 'session_id' => $session->public_id]);
     }
 
-    public function respond(AiCompanionMessageRequest $request, AiCompanion $companion, GeminiTextToSpeech $textToSpeech): JsonResponse
+    public function respond(AiCompanionMessageRequest $request, AiCompanion $companion, GoogleTextToSpeech $textToSpeech, GeminiTextToSpeech $sinhalaTextToSpeech): JsonResponse
     {
         $validated = $request->validated();
         $session = $this->patientSession($validated['session_id'], $request->user()->id);
@@ -61,7 +62,7 @@ class AiCompanionController extends Controller
                 'text' => $turn->content,
             ])->values()->all();
             $response = $companion->respond($validated['message'], $validated['language'], $history);
-            $spokenResponse = $this->spokenResponse($response, $validated['language'], $textToSpeech);
+            $spokenResponse = $this->spokenResponse($response, $validated['language'], $textToSpeech, $sinhalaTextToSpeech);
 
             if ($spokenResponse->isServerError()) {
                 return $spokenResponse;
@@ -126,20 +127,26 @@ class AiCompanionController extends Controller
         }
     }
 
-    private function spokenResponse(string $response, string $language, GeminiTextToSpeech $textToSpeech): JsonResponse
+    private function spokenResponse(string $response, string $language, GoogleTextToSpeech $textToSpeech, GeminiTextToSpeech $sinhalaTextToSpeech): JsonResponse
     {
         try {
-            $audio = $textToSpeech->synthesize($response, $language);
+            if ($language === 'si') {
+                $audio = $sinhalaTextToSpeech->synthesize($response, $language);
+                $audioType = 'audio/wav';
+            } else {
+                $audio = $textToSpeech->synthesize($response);
+                $audioType = 'audio/mpeg';
+            }
 
             return response()->json([
                 'response' => $response,
                 'audio' => base64_encode($audio),
-                'audio_type' => 'audio/wav',
+                'audio_type' => $audioType,
             ]);
         } catch (Throwable $exception) {
             report($exception);
 
-            return response()->json(['message' => 'Asha is temporarily unavailable. Please try again.'], 503);
+            return response()->json(['message' => 'Lumi is temporarily unavailable. Please try again.'], 503);
         }
     }
 

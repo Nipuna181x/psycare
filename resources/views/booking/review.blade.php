@@ -49,29 +49,34 @@
                 </div>
 
                 <div class="mt-4 rounded-2xl border border-border p-5">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Validated screener results</p>
-                        @if ($analysis['requires_immediate_escalation'])
-                            <span class="rounded-full bg-red-100 px-3 py-1 text-[11px] font-semibold text-red-700">Immediate support needed</span>
-                        @endif
-                    </div>
-                    <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                        <p class="rounded-xl bg-secondary p-3 text-[13px] text-ink"><strong>PHQ-9:</strong> {{ $analysis['phq9']['total'] }}/27 · {{ str($analysis['phq9']['severity'])->replace('_', ' ')->title() }}</p>
-                        <p class="rounded-xl bg-secondary p-3 text-[13px] text-ink"><strong>GAD-7:</strong> {{ $analysis['gad7']['total'] }}/21 · {{ str($analysis['gad7']['severity'])->title() }}</p>
-                    </div>
+                    @if ($analysis === null)
+                        <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Voice screening</p>
+                        <p class="mt-3 rounded-xl bg-secondary p-3 text-[13px] text-ink">You chose to skip the screening. You can still book this appointment — your doctor will follow up with you directly.</p>
+                    @else
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Validated screener results</p>
+                            @if ($analysis['requires_immediate_escalation'])
+                                <span class="rounded-full bg-red-100 px-3 py-1 text-[11px] font-semibold text-red-700">Immediate support needed</span>
+                            @endif
+                        </div>
+                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                            <p class="rounded-xl bg-secondary p-3 text-[13px] text-ink"><strong>PHQ-9:</strong> {{ $analysis['phq9']['total'] }}/27 · {{ str($analysis['phq9']['severity'])->replace('_', ' ')->title() }}</p>
+                            <p class="rounded-xl bg-secondary p-3 text-[13px] text-ink"><strong>GAD-7:</strong> {{ $analysis['gad7']['total'] }}/21 · {{ str($analysis['gad7']['severity'])->title() }}</p>
+                        </div>
 
-                    <details class="mt-3">
-                        <summary class="cursor-pointer text-[12px] font-medium text-ink">View full answers</summary>
-                        <ul class="mt-3 space-y-2.5">
-                            @foreach ($assessment['answers'] as $answer)
-                                <li>
-                                    <p class="text-[12px] font-medium text-ink">{{ $answer['question'] }}</p>
-                                    <p class="mt-0.5 text-[12px] text-ink-soft">{{ $answer['score'] }} · {{ \App\Services\ScreenerAnalyzer::SCALE[$answer['score']] }}</p>
-                                    @if ($answer['answer'] !== '')<p class="mt-0.5 text-[11px] text-ink-soft">Patient said: “{{ $answer['answer'] }}”</p>@endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    </details>
+                        <details class="mt-3">
+                            <summary class="cursor-pointer text-[12px] font-medium text-ink">View full answers</summary>
+                            <ul class="mt-3 space-y-2.5">
+                                @foreach ($assessment['answers'] as $answer)
+                                    <li>
+                                        <p class="text-[12px] font-medium text-ink">{{ $answer['question'] }}</p>
+                                        <p class="mt-0.5 text-[12px] text-ink-soft">{{ $answer['score'] }} · {{ \App\Services\ScreenerAnalyzer::SCALE[$answer['score']] }}</p>
+                                        @if ($answer['answer'] !== '')<p class="mt-0.5 text-[11px] text-ink-soft">Patient said: “{{ $answer['answer'] }}”</p>@endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </details>
+                    @endif
                     @if (! empty($assessment['open_notes']))
                         <p class="mt-3 rounded-xl bg-secondary p-3 text-[12px] text-ink"><strong>Additional note:</strong> {{ $assessment['open_notes'] }}</p>
                     @endif

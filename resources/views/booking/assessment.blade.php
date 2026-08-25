@@ -48,6 +48,7 @@
                             Begin voice check-in
                             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
+                        <button id="skip-screening-button" type="button" class="mt-4 block w-full text-center text-[11px] font-medium text-ink-soft underline-offset-4 hover:underline">Skip this step for now</button>
                     </div>
                 </div>
 
@@ -89,10 +90,12 @@
                         <button id="previous-button" type="button" class="rounded-2xl bg-secondary px-5 py-3 text-[11px] font-semibold tracking-[0.1em] text-ink uppercase disabled:opacity-40">Previous</button>
                         <button id="next-button" type="button" disabled class="ml-auto rounded-2xl bg-ink px-6 py-3 text-[11px] font-semibold tracking-[0.1em] text-primary-foreground uppercase disabled:cursor-not-allowed disabled:opacity-35">Next question</button>
                     </div>
+                    <button id="skip-screening-button-agent" type="button" class="mt-4 block w-full text-center text-[11px] font-medium text-ink-soft underline-offset-4 hover:underline">Skip screening for now</button>
                 </div>
 
                 <form method="POST" action="{{ route('booking.assessment', $doctor) }}" id="assessment-form" class="hidden">
                     @csrf
+                    <input type="hidden" name="skipped" id="skipped-field" value="0">
                     <div id="answer-fields"></div>
                     <textarea name="open_notes" id="open-notes-field"></textarea>
                 </form>
@@ -313,6 +316,22 @@
                 document.getElementById('open-notes-field').value = elements.openNotes.value;
                 document.getElementById('assessment-form').submit();
             });
+
+            const skipCopy = {
+                en: 'Are you sure you want to skip screening? This helps your doctor understand you better, but you can still book without it.',
+                si: 'ඔබට පරීක්ෂණය මඟහැරීමට අවශ්‍ය බව විශ්වාසද? මෙය ඔබේ වෛද්‍යවරයාට ඔබව වඩා හොඳින් තේරුම් ගැනීමට උපකාරී වේ, නමුත් එය නොමැතිවත් වෙන්කරවා ගත හැක.',
+            };
+            const skipScreening = () => {
+                if (!window.confirm(skipCopy[selectedLanguage] || skipCopy.en)) return;
+                stopRecognition();
+                elements.audio.pause();
+                document.getElementById('skipped-field').value = '1';
+                document.getElementById('answer-fields').innerHTML = '';
+                document.getElementById('open-notes-field').value = elements.openNotes.value;
+                document.getElementById('assessment-form').submit();
+            };
+            document.getElementById('skip-screening-button').addEventListener('click', skipScreening);
+            document.getElementById('skip-screening-button-agent').addEventListener('click', skipScreening);
         })();
     </script>
 </body>

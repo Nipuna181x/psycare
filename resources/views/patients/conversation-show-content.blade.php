@@ -67,7 +67,7 @@
             @foreach ($turns as $turn)
                 <li class="flex {{ $turn->role === 'user' ? 'justify-end' : 'justify-start' }}">
                     <div class="max-w-[80%] rounded-2xl px-4 py-3 {{ $turn->role === 'user' ? 'bg-ink text-primary-foreground' : 'bg-secondary text-ink' }}">
-                        <p class="text-[10px] font-semibold tracking-[0.08em] uppercase {{ $turn->role === 'user' ? 'text-primary-foreground/70' : 'text-ink-soft' }}">{{ $turn->role === 'user' ? $patient->name : 'Asha' }}</p>
+                        <p class="text-[10px] font-semibold tracking-[0.08em] uppercase {{ $turn->role === 'user' ? 'text-primary-foreground/70' : 'text-ink-soft' }}">{{ $turn->role === 'user' ? $patient->name : 'Lumi' }}</p>
                         <p class="mt-1 text-[13px] leading-relaxed">{{ $turn->content }}</p>
                     </div>
                 </li>

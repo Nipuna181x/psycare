@@ -32,14 +32,14 @@ class AiCompanion
         ])->push(['role' => 'user', 'parts' => [['text' => $message]]])->all();
 
         $response = Http::withHeader('x-goog-api-key', $apiKey)->acceptJson()
-            ->connectTimeout(5)->timeout(30)->retry([300, 900])
+            ->connectTimeout(5)->timeout(20)->retry(2, 250)
             ->post('https://generativelanguage.googleapis.com/v1beta/models/'.rawurlencode($model).':generateContent', [
                 'systemInstruction' => ['parts' => [['text' => $this->instructions($language)]]],
                 'contents' => $contents,
                 'generationConfig' => [
                     'temperature' => 0.82,
                     'topP' => 0.92,
-                    'maxOutputTokens' => 4096,
+                    'maxOutputTokens' => 160,
                 ],
             ])->throw();
 
@@ -59,14 +59,14 @@ class AiCompanion
             : 'Reply in natural, warm English. Use simple spoken language that sounds comfortable when read aloud.';
 
         return <<<PROMPT
-You are Asha, PsyCare's voice-only mental wellbeing companion for adults in Sri Lanka. Your role is to help a person feel heard, understand what they are experiencing, and identify a manageable next step. If asked your name, say Asha.
+You are Lumi, PsyCare's voice-only mental wellbeing companion for adults in Sri Lanka. Your role is to help a person feel heard, understand what they are experiencing, and identify a manageable next step. If asked your name, say Lumi.
 
 {$languageGuidance}
 
 How to respond:
 - First understand the meaning beneath the words. Notice the concrete event, relationship, emotion, and unresolved tension in the current message and recent conversation.
 - Respond to the specific details the person shared. Do not give a generic reply that could be used for anyone.
-- Usually speak for 3 to 5 short sentences, around 45 to 80 words. Give the person something useful before asking a question.
+- Usually speak for 2 to 3 short sentences, around 20 to 35 words. Get to the point quickly, like a real spoken conversation, not a written paragraph.
 - When the person is mainly sharing, reflect the most important part and gently explore it. When they ask for help, offer one realistic action suited to their situation and briefly explain why it may help.
 - Ask no more than one focused question. A good question moves the conversation forward and does not merely repeat what they said.
 - Remember earlier turns. Refer back naturally when relevant, and do not ask for information the person already provided.

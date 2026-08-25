@@ -5,6 +5,7 @@ if (root) {
     const microphoneButton = document.getElementById('microphone-button');
     const endCallButton = document.getElementById('end-call-button');
     const status = document.getElementById('companion-status');
+    const greeting = document.getElementById('companion-greeting');
     const orb = document.getElementById('voice-orb');
     const halo = document.getElementById('orb-halo');
     const audio = document.getElementById('companion-audio');
@@ -17,13 +18,14 @@ if (root) {
     let busy = false;
 
     const text = {
-        en: { ready: 'Tap the microphone to meet Asha', starting: 'Asha is joining…', listening: 'Asha is listening…', thinking: 'Asha is thinking…', speaking: 'Asha is speaking…', missed: 'I didn’t catch that. Tap the microphone and try again.', unavailable: 'Voice recognition is unavailable in this browser.', error: 'Asha is having trouble connecting. Please try again.' },
-        si: { ready: 'ආශා සමඟ කතා කිරීමට මයික්‍රෆෝනය ඔබන්න', starting: 'ආශා සම්බන්ධ වෙමින්…', listening: 'ආශා සවන් දෙමින්…', thinking: 'ආශා සිතමින්…', speaking: 'ආශා කතා කරමින්…', missed: 'එය පැහැදිලිව ඇසුණේ නැහැ. නැවත උත්සාහ කරන්න.', unavailable: 'මෙම බ්‍රවුසරයේ හඬ හඳුනාගැනීම ලබා ගත නොහැක.', error: 'ආශාට සම්බන්ධ වීමේ ගැටලුවක් තිබේ. නැවත උත්සාහ කරන්න.' },
+        en: { greeting: "Hi, I'm Lumi, a friend to express how you feel.", ready: 'Tap the microphone to meet Lumi', starting: 'Lumi is joining…', listening: 'Lumi is listening…', thinking: 'Lumi is thinking…', speaking: 'Lumi is speaking…', missed: 'I didn’t catch that. Tap the microphone and try again.', unavailable: 'Voice recognition is unavailable in this browser.', error: 'Lumi is having trouble connecting. Please try again.' },
+        si: { greeting: 'හායි, මම ලුමී. හැඟීම් ප්‍රකාශ කිරීමට මිතුරෙක්.', ready: 'ලුමී සමඟ කතා කිරීමට මයික්‍රෆෝනය ඔබන්න', starting: 'ලුමී සම්බන්ධ වෙමින්…', listening: 'ලුමී සවන් දෙමින්…', thinking: 'ලුමී සිතමින්…', speaking: 'ලුමී කතා කරමින්…', missed: 'එය පැහැදිලිව ඇසුණේ නැහැ. නැවත උත්සාහ කරන්න.', unavailable: 'මෙම බ්‍රවුසරයේ හඬ හඳුනාගැනීම ලබා ගත නොහැක.', error: 'ලුමීට සම්බන්ධ වීමේ ගැටලුවක් තිබේ. නැවත උත්සාහ කරන්න.' },
     };
 
     const setState = (state, message) => {
         root.dataset.state = state;
         status.textContent = message;
+        greeting.classList.toggle('hidden', sessionStarted);
         orb.classList.toggle('is-listening', state === 'listening');
         orb.classList.toggle('is-thinking', state === 'thinking');
         orb.classList.toggle('is-speaking', state === 'speaking');
@@ -150,6 +152,7 @@ if (root) {
             if (busy || recognition || sessionStarted) return;
             language = button.dataset.language;
             document.documentElement.lang = language;
+            greeting.textContent = text[language].greeting;
             document.querySelectorAll('.companion-language').forEach((candidate) => {
                 const selected = candidate === button;
                 candidate.setAttribute('aria-checked', String(selected));

@@ -102,7 +102,7 @@
 
         @if ($appointment->patientNlpReports->isNotEmpty())
             @php($nlpReport = $appointment->patientNlpReports->first()->report)
-            <x-dashboard.panel title="Asha conversation report" class="lg:col-span-3">
+            <x-dashboard.panel title="Lumi conversation report" class="lg:col-span-3">
                 <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[12px] leading-relaxed text-amber-900">AI-generated clinical support summary. This is not a diagnosis and must be checked against the patient conversation and screening responses.</div>
 
                 @if (($nlpReport['risk']['requires_immediate_review'] ?? false) === true)

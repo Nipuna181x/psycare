@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Asha — PsyCare AI Companion</title>
+    <title>Lumi — PsyCare AI Companion</title>
     @vite(['resources/css/app.css', 'resources/js/ai-companion.js'])
 </head>
 <body class="overflow-hidden bg-black">
@@ -12,7 +12,7 @@
         <header class="relative z-20 flex items-center justify-between gap-4 px-5 py-5 md:px-8">
             <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-white/90">
                 <span class="grid size-8 place-items-center rounded-full border border-white/15 bg-white/10"><span class="size-2.5 rounded-full bg-[#bac5ff]"></span></span>
-                <span class="text-sm font-medium tracking-tight">Asha <span class="font-normal text-white/35">· AI Companion</span></span>
+                <span class="text-sm font-medium tracking-tight">Lumi <span class="font-normal text-white/35">· AI Companion</span></span>
             </a>
             <div class="flex rounded-full border border-white/10 bg-white/6 p-1" role="radiogroup" aria-label="Conversation language">
                 <button type="button" data-language="en" role="radio" aria-checked="true" class="companion-language rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-black">EN</button>
@@ -30,14 +30,15 @@
                     <span class="companion-core"></span>
                 </span>
             </div>
-            <p id="companion-status" class="mt-6 min-h-6 text-center text-sm tracking-wide text-white/60" aria-live="polite">Tap the microphone to begin</p>
+            <p id="companion-greeting" class="mt-6 max-w-sm text-center text-lg font-medium tracking-wide text-white/90">Hi, I'm Lumi, a friend to express how you feel.</p>
+            <p id="companion-status" class="mt-3 min-h-6 text-center text-sm tracking-wide text-white/60" aria-live="polite">Tap the microphone to begin</p>
             <p class="mt-2 max-w-md text-center text-xs leading-relaxed text-white/30">A supportive AI companion, not a replacement for professional care. In a crisis, call 1926 or emergency services.</p>
             <p class="mt-3 max-w-lg text-center text-[11px] leading-relaxed text-white/25">By starting, you consent to securely storing this conversation and combining it with your screening results to prepare an AI-generated report for clinician review.</p>
         </section>
 
         <div class="absolute inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-8 md:pb-7">
             <div class="mx-auto flex max-w-xl items-center justify-between rounded-full border border-white/10 bg-[#242424]/95 p-2 shadow-2xl backdrop-blur-xl">
-                <span class="pl-4 text-xs text-white/35">Talk with Asha · voice only</span>
+                <span class="pl-4 text-xs text-white/35">Talk with Lumi · voice only</span>
                 <div class="flex items-center gap-2">
                     <button id="microphone-button" type="button" aria-label="Start listening" class="grid size-11 place-items-center rounded-full text-white/70 transition hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300">
                         <svg id="microphone-icon" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>

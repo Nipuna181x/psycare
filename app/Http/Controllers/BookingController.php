@@ -150,8 +150,17 @@ class BookingController extends Controller
         }
 
         $validated = $request->validated();
-        $validated['answers'] = $this->canonicalAnswers($validated['answers']);
-        $this->saveStep($doctor, 'assessment', $validated);
+        $skipped = (bool) ($validated['skipped'] ?? false);
+
+        $this->saveStep($doctor, 'assessment', [
+            'skipped' => $skipped,
+            'answers' => $skipped ? [] : $this->canonicalAnswers($validated['answers']),
+            'open_notes' => $validated['open_notes'] ?? null,
+        ]);
+
+        if ($skipped) {
+            ScreenerDraft::query()->whereBelongsTo(Auth::user())->whereBelongsTo($doctor)->delete();
+        }
 
         return redirect()->route('booking.review', $doctor);
     }
@@ -191,7 +200,8 @@ class BookingController extends Controller
         }
 
         $booking = session("booking.{$doctor->id}");
-        $analysis = $analyzer->analyze($booking['assessment']['answers']);
+        $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
+        $analysis = $skipped ? null : $analyzer->analyze($booking['assessment']['answers']);
 
         return view('booking.review', [
             'doctor' => $doctor,
@@ -220,7 +230,8 @@ class BookingController extends Controller
                 ->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.']);
         }
 
-        $analysis = $analyzer->analyze($booking['assessment']['answers']);
+        $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
+        $analysis = $skipped ? null : $analyzer->analyze($booking['assessment']['answers']);
 
         $appointment = Appointment::create([
             'user_id' => Auth::id(),
@@ -236,17 +247,17 @@ class BookingController extends Controller
             'patient_email' => $booking['details']['patient_email'] ?? null,
             'reason' => $booking['details']['reason'] ?? null,
             'consultation_fee' => $doctor->consultation_fee,
-            'pre_assessment' => $booking['assessment']['answers'],
-            'pre_assessment_summary' => $this->screenerSummary($analysis),
-            'pre_assessment_risk_level' => $analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate'),
-            'phq9_total' => $analysis['phq9']['total'],
-            'phq9_severity' => $analysis['phq9']['severity'],
-            'gad7_total' => $analysis['gad7']['total'],
-            'gad7_severity' => $analysis['gad7']['severity'],
-            'self_harm_flag' => $analysis['phq9']['self_harm_flag'],
-            'requires_immediate_escalation' => $analysis['requires_immediate_escalation'],
+            'pre_assessment' => $skipped ? null : $booking['assessment']['answers'],
+            'pre_assessment_summary' => $skipped ? null : $this->screenerSummary($analysis),
+            'pre_assessment_risk_level' => $skipped ? null : ($analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate')),
+            'phq9_total' => $skipped ? null : $analysis['phq9']['total'],
+            'phq9_severity' => $skipped ? null : $analysis['phq9']['severity'],
+            'gad7_total' => $skipped ? null : $analysis['gad7']['total'],
+            'gad7_severity' => $skipped ? null : $analysis['gad7']['severity'],
+            'self_harm_flag' => $skipped ? false : $analysis['phq9']['self_harm_flag'],
+            'requires_immediate_escalation' => $skipped ? false : $analysis['requires_immediate_escalation'],
             'screener_open_notes' => $booking['assessment']['open_notes'] ?? null,
-            'screener_completed_at' => now(),
+            'screener_completed_at' => $skipped ? null : now(),
             'status' => 'confirmed',
         ]);
 
