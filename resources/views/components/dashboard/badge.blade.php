@@ -2,9 +2,9 @@
 
 @php
     $tone = match (mb_strtolower($status)) {
-        'approved', 'active', 'confirmed', 'completed', 'low' => 'bg-emerald-100 text-emerald-700',
-        'pending', 'moderate' => 'bg-amber-100 text-amber-700',
-        'rejected', 'inactive', 'cancelled', 'elevated' => 'bg-red-100 text-red-700',
+        'approved', 'active', 'confirmed', 'completed', 'low', 'minimal' => 'bg-emerald-100 text-emerald-700',
+        'pending', 'moderate', 'mild' => 'bg-amber-100 text-amber-700',
+        'rejected', 'inactive', 'cancelled', 'elevated', 'high', 'urgent', 'moderately_severe', 'severe' => 'bg-red-100 text-red-700',
         default => 'bg-secondary text-ink-soft',
     };
 @endphp

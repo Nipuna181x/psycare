@@ -10,6 +10,7 @@ use App\Models\Appointment;
 use App\Models\PatientNlpReport;
 use App\Services\AiCompanion;
 use App\Services\GeminiTextToSpeech;
+use App\Services\PatientNlpClassifier;
 use App\Services\PatientNlpReportGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -83,7 +84,7 @@ class AiCompanionController extends Controller
         }
     }
 
-    public function finish(FinishAiCompanionRequest $request, PatientNlpReportGenerator $generator): JsonResponse
+    public function finish(FinishAiCompanionRequest $request, PatientNlpReportGenerator $generator, PatientNlpClassifier $classifier): JsonResponse
     {
         $session = $this->patientSession($request->validated('session_id'), $request->user()->id);
         $session->update(['ended_at' => $session->ended_at ?? now()]);
@@ -97,6 +98,12 @@ class AiCompanionController extends Controller
         }
 
         $appointment = Appointment::query()->whereBelongsTo($request->user())->latest('appointment_date')->first();
+
+        try {
+            $classifier->classify($session, $appointment);
+        } catch (Throwable $exception) {
+            report($exception);
+        }
 
         try {
             $reportData = $generator->generate($session, $appointment);
