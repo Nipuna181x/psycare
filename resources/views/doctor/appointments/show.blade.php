@@ -8,6 +8,12 @@
 @section('content')
     <div class="grid gap-5 lg:grid-cols-3">
         <x-dashboard.panel title="Visit details" class="lg:col-span-2">
+            <x-slot:action>
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('doctor.patients.conversations.index', $appointment->user) }}" class="text-[11px] font-semibold tracking-[0.08em] text-teal-deep uppercase hover:underline">Conversation history</a>
+                    <a href="{{ route('doctor.patients.nlp-report.show', $appointment->user) }}" class="text-[11px] font-semibold tracking-[0.08em] text-teal-deep uppercase hover:underline">NLP classification history</a>
+                </div>
+            </x-slot:action>
             <dl class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <dt class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Patient</dt>

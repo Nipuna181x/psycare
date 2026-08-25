@@ -50,4 +50,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(PatientNlpReport::class);
     }
+
+    /** @return HasMany<NlpClassificationResult, $this> */
+    public function nlpClassificationResults(): HasMany
+    {
+        return $this->hasMany(NlpClassificationResult::class, 'patient_id');
+    }
 }

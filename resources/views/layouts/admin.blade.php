@@ -12,6 +12,7 @@
 <body class="bg-background text-ink selection:bg-teal/20">
     <div class="flex min-h-screen gap-5 p-3 md:p-5">
         <x-dashboard.sidebar
+            class="print:hidden"
             accent="admin"
             role-label="Admin console"
             :logout-action="route('admin.logout')"
@@ -37,6 +38,7 @@
 
         <div class="flex flex-1 flex-col gap-5">
             <x-dashboard.topbar
+                class="print:hidden"
                 accent="admin"
                 :title="$title ?? 'Dashboard'"
                 :subtitle="$subtitle ?? null"

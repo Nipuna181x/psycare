@@ -17,6 +17,8 @@ use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as Medical
 use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
 use App\Http\Controllers\MedicalCenter\DoctorController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
+use App\Http\Controllers\PatientConversationController;
+use App\Http\Controllers\PatientNlpClassificationReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -81,6 +83,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
+        Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');
+        Route::get('patients/{patient}/conversations', [PatientConversationController::class, 'index'])->name('patients.conversations.index');
+        Route::get('patients/{patient}/conversations/{session}', [PatientConversationController::class, 'show'])->name('patients.conversations.show');
+
         Route::get('user-managment', [AdminMedicalCenterController::class, 'index'])->name('user-managment.index');
         Route::patch('user-managment/medical-centers/{medicalCenter}/approve', [AdminMedicalCenterController::class, 'approve'])->name('user-managment.medical-centers.approve');
         Route::patch('user-managment/medical-centers/{medicalCenter}/reject', [AdminMedicalCenterController::class, 'reject'])->name('user-managment.medical-centers.reject');
@@ -126,5 +133,10 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
         Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
+
+        Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
+        Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');
+        Route::get('patients/{patient}/conversations', [PatientConversationController::class, 'index'])->name('patients.conversations.index');
+        Route::get('patients/{patient}/conversations/{session}', [PatientConversationController::class, 'show'])->name('patients.conversations.show');
     });
 });

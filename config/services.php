@@ -48,4 +48,9 @@ return [
         'language' => env('GOOGLE_TTS_LANGUAGE', 'en-US'),
     ],
 
+    'psycare_nlp' => [
+        'url' => env('PSYCARE_NLP_API_URL'),
+        'timeout' => env('PSYCARE_NLP_API_TIMEOUT', 30),
+    ],
+
 ];

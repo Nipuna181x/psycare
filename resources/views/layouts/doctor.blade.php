@@ -12,6 +12,7 @@
 <body class="bg-background text-ink selection:bg-sky-500/15">
     <div class="flex min-h-screen gap-5 p-3 md:p-5">
         <x-dashboard.sidebar
+            class="print:hidden"
             accent="doctor"
             role-label="Doctor portal"
             :logout-action="route('doctor.logout')"
@@ -33,6 +34,7 @@
 
         <div class="flex flex-1 flex-col gap-5">
             <x-dashboard.topbar
+                class="print:hidden"
                 accent="doctor"
                 :title="$title ?? 'Dashboard'"
                 :subtitle="$subtitle ?? null"

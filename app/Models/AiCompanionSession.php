@@ -39,4 +39,10 @@ class AiCompanionSession extends Model
     {
         return $this->hasOne(PatientNlpReport::class);
     }
+
+    /** @return HasOne<NlpClassificationResult, $this> */
+    public function classificationResult(): HasOne
+    {
+        return $this->hasOne(NlpClassificationResult::class);
+    }
 }
