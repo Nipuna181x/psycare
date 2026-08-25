@@ -56,4 +56,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(NlpClassificationResult::class, 'patient_id');
     }
+
+    /** @return HasMany<TherapyRoomParticipant, $this> */
+    public function therapyRoomParticipations(): HasMany
+    {
+        return $this->hasMany(TherapyRoomParticipant::class, 'patient_id');
+    }
 }

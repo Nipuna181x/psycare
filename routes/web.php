@@ -11,14 +11,17 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\AuthenticatedSessionController as DoctorAuthenticatedSessionController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
 use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as MedicalCenterAuthenticatedSessionController;
 use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
 use App\Http\Controllers\MedicalCenter\DoctorController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConversationController;
 use App\Http\Controllers\PatientNlpClassificationReportController;
+use App\Http\Controllers\TherapyRoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -69,6 +72,15 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('booking/confirmed/{appointment}', [BookingController::class, 'confirmed'])->name('booking.confirmed');
+
+    Route::prefix('therapy-rooms')->name('therapy-rooms.')->group(function () {
+        Route::get('/', [TherapyRoomController::class, 'index'])->name('index');
+        Route::get('{therapyRoom}', [TherapyRoomController::class, 'show'])->name('show');
+        Route::get('{therapyRoom}/session', [TherapyRoomController::class, 'join'])->name('session');
+        Route::post('{therapyRoom}/signal', [TherapyRoomController::class, 'signal'])->name('signal');
+    });
+
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 // Super Admin
@@ -138,5 +150,22 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');
         Route::get('patients/{patient}/conversations', [PatientConversationController::class, 'index'])->name('patients.conversations.index');
         Route::get('patients/{patient}/conversations/{session}', [PatientConversationController::class, 'show'])->name('patients.conversations.show');
+
+        Route::prefix('therapy-rooms')->name('therapy-rooms.')->group(function () {
+            Route::get('/', [DoctorTherapyRoomController::class, 'index'])->name('index');
+            Route::get('create', [DoctorTherapyRoomController::class, 'create'])->name('create');
+            Route::post('/', [DoctorTherapyRoomController::class, 'store'])->name('store');
+            Route::get('{therapyRoom}', [DoctorTherapyRoomController::class, 'show'])->name('show');
+            Route::get('{therapyRoom}/edit', [DoctorTherapyRoomController::class, 'edit'])->name('edit');
+            Route::patch('{therapyRoom}', [DoctorTherapyRoomController::class, 'update'])->name('update');
+            Route::post('{therapyRoom}/participants', [DoctorTherapyRoomController::class, 'addParticipant'])->name('participants.store');
+            Route::delete('{therapyRoom}/participants/{participant}', [DoctorTherapyRoomController::class, 'removeParticipant'])->name('participants.destroy');
+            Route::post('{therapyRoom}/participants/{participant}/kick', [DoctorTherapyRoomController::class, 'kickParticipant'])->name('participants.kick');
+            Route::post('{therapyRoom}/start', [DoctorTherapyRoomController::class, 'start'])->name('start');
+            Route::post('{therapyRoom}/end', [DoctorTherapyRoomController::class, 'end'])->name('end');
+            Route::get('{therapyRoom}/session', [DoctorTherapyRoomController::class, 'session'])->name('session');
+            Route::get('{therapyRoom}/roster', [DoctorTherapyRoomController::class, 'roster'])->name('roster');
+            Route::post('{therapyRoom}/signal', [DoctorTherapyRoomController::class, 'signal'])->name('signal');
+        });
     });
 });

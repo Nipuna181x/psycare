@@ -53,4 +53,10 @@ return [
         'timeout' => env('PSYCARE_NLP_API_TIMEOUT', 30),
     ],
 
+    'turn' => [
+        'url' => env('TURN_URL'),
+        'username' => env('TURN_USERNAME'),
+        'credential' => env('TURN_CREDENTIAL'),
+    ],
+
 ];

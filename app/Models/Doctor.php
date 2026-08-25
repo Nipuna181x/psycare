@@ -50,6 +50,14 @@ class Doctor extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
+    /**
+     * @return HasMany<TherapyRoom, $this>
+     */
+    public function therapyRooms(): HasMany
+    {
+        return $this->hasMany(TherapyRoom::class);
+    }
+
     public function isBookable(): bool
     {
         return $this->status === 'active' && $this->medicalCenter?->isApproved();
