@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 
 #[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'avatar', 'bio', 'years_experience', 'consultation_fee', 'consultation_mode', 'rating', 'phone', 'status'])]
@@ -58,6 +59,12 @@ class Doctor extends Authenticatable
         return $this->hasMany(TherapyRoom::class);
     }
 
+    /** @return HasMany<Prescription, $this> */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
     public function isBookable(): bool
     {
         return $this->status === 'active' && $this->medicalCenter?->isApproved();
@@ -87,7 +94,13 @@ class Doctor extends Authenticatable
 
     public function avatarUrl(): ?string
     {
-        return $this->avatar ? Vite::asset('resources/images/psycare/'.$this->avatar) : null;
+        if (! $this->avatar) {
+            return null;
+        }
+
+        return str_starts_with($this->avatar, 'doctor-avatars/')
+            ? Storage::disk('public')->url($this->avatar)
+            : Vite::asset('resources/images/psycare/'.$this->avatar);
     }
 
     public function consultationModeLabel(): string

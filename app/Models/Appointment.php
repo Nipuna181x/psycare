@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'pre_assessment', 'pre_assessment_mood_rating', 'pre_assessment_summary', 'pre_assessment_risk_level',
     'phq9_total', 'phq9_severity', 'gad7_total', 'gad7_severity', 'self_harm_flag',
     'requires_immediate_escalation', 'screener_open_notes', 'screener_completed_at',
+    'escalation_reviewed', 'escalation_reviewed_at',
     'status',
 ])]
 class Appointment extends Model
@@ -37,6 +38,8 @@ class Appointment extends Model
             'pre_assessment' => 'array',
             'self_harm_flag' => 'boolean',
             'requires_immediate_escalation' => 'boolean',
+            'escalation_reviewed' => 'boolean',
+            'escalation_reviewed_at' => 'datetime',
             'screener_completed_at' => 'datetime',
         ];
     }
@@ -69,6 +72,17 @@ class Appointment extends Model
     public function patientNlpReports(): HasMany
     {
         return $this->hasMany(PatientNlpReport::class);
+    }
+
+    /** @return HasMany<Prescription, $this> */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
+    public function requiresCrisisEscalation(): bool
+    {
+        return $this->requires_immediate_escalation || $this->self_harm_flag;
     }
 
     /**

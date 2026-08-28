@@ -8,6 +8,7 @@
     'promoDescription' => null,
     'promoCtaLabel' => null,
     'promoCtaHref' => null,
+    'showLogout' => true,
 ])
 
 @php
@@ -37,7 +38,10 @@
                 class="flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[13px] font-medium transition-colors {{ ($link['active'] ?? false) ? $theme['solid'].' '.$theme['text'] : 'text-ink-soft hover:bg-secondary hover:text-ink' }}"
             >
                 <span class="grid h-5 w-5 shrink-0 place-items-center">{!! $link['icon'] !!}</span>
-                {{ $link['label'] }}
+                <span class="min-w-0 flex-1">{{ $link['label'] }}</span>
+                @if (($link['badge'] ?? 0) > 0)
+                    <span class="grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[9px] font-bold {{ ($link['badgeTone'] ?? 'neutral') === 'danger' ? 'bg-red-600 text-white' : 'bg-secondary text-ink-soft' }}">{{ $link['badge'] > 99 ? '99+' : $link['badge'] }}</span>
+                @endif
             </a>
         @endforeach
     </nav>
@@ -55,13 +59,15 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ $logoutAction }}" class="mt-3">
-        @csrf
-        <button type="submit" class="flex w-full items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[13px] font-medium text-ink-soft transition-colors hover:bg-secondary hover:text-ink">
-            <span class="grid h-5 w-5 shrink-0 place-items-center">
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
-            </span>
-            Sign out
-        </button>
-    </form>
+    @if ($showLogout)
+        <form method="POST" action="{{ $logoutAction }}" class="mt-3">
+            @csrf
+            <button type="submit" class="flex w-full items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[13px] font-medium text-ink-soft transition-colors hover:bg-secondary hover:text-ink">
+                <span class="grid h-5 w-5 shrink-0 place-items-center">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+                </span>
+                Sign out
+            </button>
+        </form>
+    @endif
 </aside>

@@ -67,7 +67,11 @@ class PatientController extends Controller
 
         return view('doctor.patients.show', [
             'patient' => $patient,
-            'appointments' => $patient->appointments()->where('doctor_id', Auth::guard('doctor')->id())->orderByDesc('appointment_date')->get(),
+            'appointments' => $patient->appointments()
+                ->where('doctor_id', Auth::guard('doctor')->id())
+                ->with(['prescriptions.doctor'])
+                ->orderByDesc('appointment_date')
+                ->get(),
             'reportsByDay' => $reports->groupBy(fn (PatientNlpReport $report): string => $report->generated_at->toDateString())->sortKeysDesc(),
             'riskProgression' => $this->riskProgression($reports),
             'latestReport' => $reports->last(),

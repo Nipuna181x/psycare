@@ -10,8 +10,12 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\AuthenticatedSessionController as DoctorAuthenticatedSessionController;
+use App\Http\Controllers\Doctor\CrisisQueueController as DoctorCrisisQueueController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\MedicationController as DoctorMedicationController;
+use App\Http\Controllers\Doctor\NotificationController as DoctorNotificationController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
+use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
@@ -143,9 +147,22 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
 
         Route::get('dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('crisis-queue', [DoctorCrisisQueueController::class, 'index'])->name('crisis-queue.index');
+        Route::patch('crisis-queue/{appointment}/acknowledge', [DoctorCrisisQueueController::class, 'acknowledge'])->name('crisis-queue.acknowledge');
+
+        Route::get('notifications', [DoctorNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/read-all', [DoctorNotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('notifications/{notification}/read', [DoctorNotificationController::class, 'read'])->name('notifications.read');
+
+        Route::get('profile', [DoctorProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile/information', [DoctorProfileController::class, 'updateProfile'])->name('profile.information.update');
+        Route::patch('profile/contact', [DoctorProfileController::class, 'updateContact'])->name('profile.contact.update');
+        Route::patch('profile/password', [DoctorProfileController::class, 'updatePassword'])->name('profile.password.update');
+
         Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
         Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
+        Route::post('appointments/{appointment}/medications', [DoctorMedicationController::class, 'store'])->name('appointments.medications.store');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

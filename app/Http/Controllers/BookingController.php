@@ -9,6 +9,7 @@ use App\Http\Requests\Booking\StoreScheduleRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\ScreenerDraft;
+use App\Notifications\DoctorPortalNotification;
 use App\Services\ScreenerAnalyzer;
 use App\Services\ScreenerAnswerInterpreter;
 use Illuminate\Http\JsonResponse;
@@ -260,6 +261,20 @@ class BookingController extends Controller
             'screener_completed_at' => $skipped ? null : now(),
             'status' => 'confirmed',
         ]);
+
+        $doctor->notify((new DoctorPortalNotification(
+            type: 'new_booking',
+            message: 'New booking from '.$appointment->patient_name.' for '.$appointment->appointment_date->format('j M Y').'.',
+            link: route('doctor.appointments.show', $appointment, absolute: false),
+        ))->afterCommit());
+
+        if ($appointment->requiresCrisisEscalation()) {
+            $doctor->notify((new DoctorPortalNotification(
+                type: 'elevated_risk',
+                message: 'Elevated-risk pre-assessment flagged for '.$appointment->patient_name.'.',
+                link: route('doctor.appointments.show', $appointment, absolute: false),
+            ))->afterCommit());
+        }
 
         session()->forget("booking.{$doctor->id}");
         ScreenerDraft::query()->whereBelongsTo(Auth::user())->whereBelongsTo($doctor)->delete();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Notifications\DoctorPortalNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,14 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->update(['status' => $validated['status']]);
+
+        if ($validated['status'] === 'cancelled') {
+            Auth::guard('doctor')->user()->notify((new DoctorPortalNotification(
+                type: 'appointment_cancelled',
+                message: 'Appointment with '.$appointment->patient_name.' was cancelled.',
+                link: route('doctor.appointments.show', $appointment, absolute: false),
+            ))->afterCommit());
+        }
 
         return back()->with('status', 'Appointment marked as '.$validated['status'].'.');
     }

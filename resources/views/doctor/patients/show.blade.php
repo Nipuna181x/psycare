@@ -133,6 +133,39 @@
             </x-dashboard.panel>
         @endif
 
+        <x-dashboard.panel title="Medication History" subtitle="Prescriptions recorded during appointments with you" class="lg:col-span-3">
+            @php($appointmentsWithMedications = $appointments->filter(fn ($appointment) => $appointment->prescriptions->isNotEmpty()))
+            @if ($appointmentsWithMedications->isEmpty())
+                <div class="grid min-h-32 place-items-center rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-center">
+                    <div>
+                        <svg class="mx-auto h-6 w-6 text-ink-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m10.5 20.5 10-10a4.24 4.24 0 0 0-6-6l-10 10a4.24 4.24 0 0 0 6 6Z"/><path d="m8.5 8.5 7 7"/></svg>
+                        <p class="mt-2 text-[12px] font-medium text-ink">No medications recorded yet</p>
+                    </div>
+                </div>
+            @else
+                <div class="grid gap-4">
+                    @foreach ($appointmentsWithMedications as $appointment)
+                        <section class="overflow-hidden rounded-2xl border border-border">
+                            <header class="flex flex-wrap items-center justify-between gap-2 bg-secondary/60 px-4 py-3">
+                                <p class="text-[12px] font-semibold text-ink">{{ $appointment->appointment_date->format('D, j M Y') }}</p>
+                                <p class="text-[11px] text-ink-soft">{{ $appointment->prescriptions->first()->doctor->name ?? 'Doctor' }}</p>
+                            </header>
+                            <ul class="divide-y divide-border">
+                                @foreach ($appointment->prescriptions as $prescription)
+                                    <li class="grid gap-2 px-4 py-3 sm:grid-cols-[1.2fr_0.8fr_0.8fr_1.5fr] sm:items-start">
+                                        <div><span class="text-[10px] text-ink-soft sm:hidden">Medication · </span><span class="text-[12px] font-semibold text-ink">{{ $prescription->medication_name }}</span></div>
+                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Dosage · </span>{{ $prescription->dosage }}</p>
+                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Frequency · </span>{{ $prescription->frequency }}</p>
+                                        <p class="text-[11px] leading-relaxed text-ink-soft">{{ $prescription->notes ?: 'No duration or notes recorded.' }}</p>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </section>
+                    @endforeach
+                </div>
+            @endif
+        </x-dashboard.panel>
+
         <x-dashboard.panel title="Appointment history" class="lg:col-span-3">
             @if ($appointments->isEmpty())
                 <p class="text-[13px] text-ink-soft">No appointments recorded yet.</p>
