@@ -5,7 +5,7 @@ namespace App\Http\Requests\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreMedicationRequest extends FormRequest
+class StorePrescriptionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +25,13 @@ class StoreMedicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'medication_name' => ['required', 'string', 'max:255'],
-            'dosage' => ['required', 'string', 'max:255'],
-            'frequency' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.medicine_name' => ['required', 'string', 'max:255'],
+            'items.*.dosage' => ['required', 'string', 'max:255'],
+            'items.*.frequency' => ['required', 'string', 'max:255'],
+            'items.*.duration' => ['nullable', 'string', 'max:255'],
+            'items.*.special_instructions' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

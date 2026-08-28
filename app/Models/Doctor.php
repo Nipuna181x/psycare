@@ -93,6 +93,12 @@ class Doctor extends Authenticatable
         return $this->hasMany(Prescription::class);
     }
 
+    /** @return HasMany<PatientConsent, $this> */
+    public function consentsReceived(): HasMany
+    {
+        return $this->hasMany(PatientConsent::class);
+    }
+
     /**
      * @return BelongsTo<Admin, $this>
      */

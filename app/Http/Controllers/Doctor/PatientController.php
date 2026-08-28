@@ -8,6 +8,7 @@ use App\Models\NlpClassificationResult;
 use App\Models\PatientNlpReport;
 use App\Models\User;
 use App\Services\DoctorClinicContext;
+use App\Services\PatientHistoryVisibility;
 use App\Services\PatientNlpReportGenerator;
 use App\Services\PdfFontRegistrar;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -52,11 +53,12 @@ class PatientController extends Controller
      * Display a single patient's profile: appointment history, a day-by-day Lumi report
      * timeline, and whether their risk level is trending up or down.
      */
-    public function show(User $patient, DoctorClinicContext $clinicContext): View
+    public function show(User $patient, DoctorClinicContext $clinicContext, PatientHistoryVisibility $visibility): View
     {
         $this->authorizeDoctorTreatsPatient($patient, $clinicContext);
 
-        $clinicId = $clinicContext->current(Auth::guard('doctor')->user());
+        $doctor = Auth::guard('doctor')->user();
+        $clinicId = $clinicContext->current($doctor);
 
         /** @var Collection<int, NlpClassificationResult> $classifications */
         $classifications = $patient->nlpClassificationResults()->orderBy('entry_date')->get();
@@ -72,11 +74,12 @@ class PatientController extends Controller
         return view('doctor.patients.show', [
             'patient' => $patient,
             'appointments' => $patient->appointments()
-                ->where('doctor_id', Auth::guard('doctor')->id())
+                ->where('doctor_id', $doctor->id)
                 ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
-                ->with(['prescriptions.doctor'])
+                ->with(['prescription.items', 'prescription.doctor', 'prescription.clinic'])
                 ->orderByDesc('appointment_date')
                 ->get(),
+            'otherProvidersHistory' => $visibility->otherProvidersHistoryFor($patient, $doctor),
             'reportsByDay' => $reports->groupBy(fn (PatientNlpReport $report): string => $report->generated_at->toDateString())->sortKeysDesc(),
             'riskProgression' => $this->riskProgression($reports),
             'latestReport' => $reports->last(),

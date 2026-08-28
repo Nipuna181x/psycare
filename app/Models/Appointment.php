@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'user_id', 'doctor_id', 'medical_center_id', 'doctor_availability_slot_id',
@@ -82,10 +83,10 @@ class Appointment extends Model
         return $this->hasMany(PatientNlpReport::class);
     }
 
-    /** @return HasMany<Prescription, $this> */
-    public function prescriptions(): HasMany
+    /** @return HasOne<Prescription, $this> */
+    public function prescription(): HasOne
     {
-        return $this->hasMany(Prescription::class);
+        return $this->hasOne(Prescription::class);
     }
 
     public function requiresCrisisEscalation(): bool

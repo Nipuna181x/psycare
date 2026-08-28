@@ -19,6 +19,7 @@ class PatientSeeder extends Seeder
             'Sanduni Mendis', 'Chamod Wijeratne', 'Dilki Ranasinghe', 'Isuru Bandaranayake',
             'Yasodha Kularatne', 'Chathura Amarasinghe', 'Piumi Gunawardena', 'Roshan de Silva',
             'Vindya Senanayake', 'Lakmal Herath',
+            'Oshadi Karunathilaka', 'Buddhika Wanniarachchi', 'Malsha Abeywickrama',
         ];
 
         $password = Hash::make('password');

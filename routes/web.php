@@ -15,10 +15,10 @@ use App\Http\Controllers\Doctor\ClinicContextController as DoctorClinicContextCo
 use App\Http\Controllers\Doctor\ClinicRequestController as DoctorClinicRequestController;
 use App\Http\Controllers\Doctor\CrisisQueueController as DoctorCrisisQueueController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
-use App\Http\Controllers\Doctor\MedicationController as DoctorMedicationController;
 use App\Http\Controllers\Doctor\NotificationController as DoctorNotificationController;
 use App\Http\Controllers\Doctor\OnboardingController as DoctorOnboardingController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
+use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\RegisteredDoctorController;
 use App\Http\Controllers\Doctor\StatusController as DoctorStatusController;
@@ -31,6 +31,7 @@ use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashb
 use App\Http\Controllers\MedicalCenter\DoctorSearchController as MedicalCenterDoctorSearchController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
 use App\Http\Controllers\PatientNlpClassificationReportController;
 use App\Http\Controllers\TherapyRoomController;
@@ -95,6 +96,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+
+    Route::get('settings/care-access', [PatientConsentController::class, 'index'])->name('settings.care-access.index');
+    Route::patch('settings/care-access/{doctor}', [PatientConsentController::class, 'update'])->name('settings.care-access.update');
 });
 
 // Super Admin
@@ -193,7 +197,8 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
         Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
-        Route::post('appointments/{appointment}/medications', [DoctorMedicationController::class, 'store'])->name('appointments.medications.store');
+        Route::post('appointments/{appointment}/prescription', [DoctorPrescriptionController::class, 'store'])->name('appointments.prescription.store');
+        Route::get('appointments/{appointment}/prescription/download', [DoctorPrescriptionController::class, 'download'])->name('appointments.prescription.download');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('appointment_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('patient_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('doctor_id')->constrained()->cascadeOnDelete();
-            $table->string('medication_name');
-            $table->string('dosage');
-            $table->string('frequency');
+            $table->foreignId('patient_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('clinic_id')->nullable()->constrained('medical_centers')->nullOnDelete();
             $table->text('notes')->nullable();
+            $table->timestamp('issued_at')->nullable();
             $table->timestamps();
 
+            $table->unique('appointment_id');
             $table->index(['patient_id', 'created_at']);
             $table->index(['doctor_id', 'appointment_id']);
         });
