@@ -85,8 +85,8 @@ class TherapyRoomManagementTest extends TestCase
         $doctor = Doctor::factory()->create();
         $patientA = User::factory()->create();
         $patientB = User::factory()->create();
-        Appointment::factory()->for($doctor)->create(['user_id' => $patientA->id, 'medical_center_id' => $doctor->medical_center_id]);
-        Appointment::factory()->for($doctor)->create(['user_id' => $patientB->id, 'medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patientA->id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patientB->id]);
 
         $response = $this->actingAs($doctor, 'doctor')->post(route('doctor.therapy-rooms.store'), [
             'title' => 'Anxiety Support Circle',
@@ -133,7 +133,7 @@ class TherapyRoomManagementTest extends TestCase
 
         for ($i = 0; $i < TherapyRoom::MAX_PARTICIPANTS + 1; $i++) {
             $patient = User::factory()->create();
-            Appointment::factory()->for($doctor)->create(['user_id' => $patient->id, 'medical_center_id' => $doctor->medical_center_id]);
+            Appointment::factory()->for($doctor)->create(['user_id' => $patient->id]);
             $patientIds[] = $patient->id;
         }
 
@@ -172,7 +172,7 @@ class TherapyRoomManagementTest extends TestCase
         $doctor = Doctor::factory()->create();
         $room = TherapyRoom::factory()->for($doctor)->live()->create();
         $patient = User::factory()->create();
-        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id, 'medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id]);
 
         $response = $this->actingAs($doctor, 'doctor')->post(route('doctor.therapy-rooms.participants.store', $room), [
             'patient_id' => $patient->id,
@@ -186,7 +186,7 @@ class TherapyRoomManagementTest extends TestCase
         $doctor = Doctor::factory()->create();
         $room = TherapyRoom::factory()->for($doctor)->create();
         $patient = User::factory()->create();
-        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id, 'medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id]);
 
         $this->actingAs($doctor, 'doctor')->post(route('doctor.therapy-rooms.participants.store', $room), [
             'patient_id' => $patient->id,

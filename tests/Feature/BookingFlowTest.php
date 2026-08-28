@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\BookingController;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\DoctorClinicAffiliation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -22,10 +23,21 @@ class BookingFlowTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    public function test_doctor_without_a_clinic_affiliation_cannot_be_booked(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+
+        $response = $this->actingAs($patient)->get(route('booking.schedule', $doctor));
+
+        $response->assertNotFound();
+    }
+
     public function test_patient_can_complete_the_full_booking_flow(): void
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
 
         $date = now()->addDay()->toDateString();
 
@@ -77,7 +89,7 @@ class BookingFlowTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'user_id' => $patient->id,
             'doctor_id' => $doctor->id,
-            'medical_center_id' => $doctor->medical_center_id,
+            'medical_center_id' => $affiliation->clinic_id,
             'patient_name' => 'Jane Doe',
             'appointment_date' => $date,
             'status' => 'confirmed',
@@ -99,6 +111,7 @@ class BookingFlowTest extends TestCase
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
         $date = now()->addDay()->toDateString();
 
         $this->actingAs($patient)
@@ -147,6 +160,7 @@ class BookingFlowTest extends TestCase
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
 
         $response = $this->actingAs($patient)->get(route('booking.review', $doctor));
 
@@ -157,10 +171,11 @@ class BookingFlowTest extends TestCase
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
         $date = now()->addDay()->toDateString();
 
         Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
+            'medical_center_id' => $affiliation->clinic_id,
             'appointment_date' => $date,
             'appointment_time' => '10:30',
             'status' => 'confirmed',
@@ -173,5 +188,45 @@ class BookingFlowTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('appointment_time');
+    }
+
+    public function test_patient_must_choose_a_clinic_when_doctor_has_multiple_active_affiliations(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+
+        $response = $this->actingAs($patient)->get(route('booking.schedule', $doctor));
+
+        $response->assertRedirect(route('booking.clinic', $doctor));
+    }
+
+    public function test_patient_can_select_a_clinic_when_doctor_has_multiple_active_affiliations(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliations = DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+        $chosen = $affiliations->first();
+
+        $this->actingAs($patient)->get(route('booking.clinic', $doctor))
+            ->assertOk()
+            ->assertSee($chosen->clinic->name);
+
+        $this->actingAs($patient)
+            ->post(route('booking.clinic', $doctor), ['clinic_id' => $chosen->clinic_id])
+            ->assertRedirect(route('booking.schedule', $doctor));
+
+        $this->actingAs($patient)->get(route('booking.schedule', $doctor))->assertOk();
+    }
+
+    public function test_clinic_step_is_skipped_when_doctor_has_a_single_active_affiliation(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
+
+        $response = $this->actingAs($patient)->get(route('booking.clinic', $doctor));
+
+        $response->assertRedirect(route('booking.schedule', $doctor));
     }
 }

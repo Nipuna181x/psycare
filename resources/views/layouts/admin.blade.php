@@ -29,6 +29,14 @@
                     'active' => request()->routeIs('admin.user-managment.*'),
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z\'/><path d=\'M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2\'/><path d=\'M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2\'/><path d=\'M10 6h4\'/><path d=\'M10 10h4\'/><path d=\'M10 14h4\'/><path d=\'M10 18h4\'/></svg>',
                 ],
+                [
+                    'label' => 'Doctor Approvals',
+                    'href' => route('admin.doctor-approvals.index'),
+                    'active' => request()->routeIs('admin.doctor-approvals.*'),
+                    'badge' => \App\Models\Doctor::where('status', 'pending_approval')->where('onboarding_step', 'profile_complete')->count(),
+                    'badgeTone' => 'danger',
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M8 2v4M16 2v4M3 10h18\'/><rect width=\'18\' height=\'18\' x=\'3\' y=\'4\' rx=\'2\'/><path d=\'m9 16 2 2 4-4\'/></svg>',
+                ],
             ]"
             promo-title="Platform integrity"
             promo-description="Review pending medical centre applications to keep the network trustworthy."

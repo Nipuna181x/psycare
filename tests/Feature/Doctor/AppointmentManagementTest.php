@@ -15,7 +15,6 @@ class AppointmentManagementTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
             'appointment_date' => now()->addDay(),
             'mode' => 'online',
             'pre_assessment_risk_level' => 'moderate',
@@ -50,7 +49,6 @@ class AppointmentManagementTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
             'pre_assessment_risk_level' => 'low',
             'requires_immediate_escalation' => false,
             'phq9_total' => 3,
@@ -74,7 +72,6 @@ class AppointmentManagementTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
             'pre_assessment_risk_level' => 'elevated',
             'requires_immediate_escalation' => true,
         ]);
@@ -92,7 +89,6 @@ class AppointmentManagementTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
             'pre_assessment_risk_level' => 'moderate',
             'self_harm_flag' => true,
             'requires_immediate_escalation' => false,
@@ -119,7 +115,6 @@ class AppointmentManagementTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
-            'medical_center_id' => $doctor->medical_center_id,
             'status' => 'confirmed',
         ]);
 

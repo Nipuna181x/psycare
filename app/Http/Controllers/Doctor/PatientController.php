@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\NlpClassificationResult;
 use App\Models\PatientNlpReport;
 use App\Models\User;
+use App\Services\DoctorClinicContext;
 use App\Services\PatientNlpReportGenerator;
 use App\Services\PdfFontRegistrar;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -30,13 +31,14 @@ class PatientController extends Controller
     /**
      * List every patient the authenticated doctor has an appointment history with.
      */
-    public function index(): View
+    public function index(DoctorClinicContext $clinicContext): View
     {
         $doctor = Auth::guard('doctor')->user();
+        $clinicId = $clinicContext->current($doctor);
 
         $patients = User::query()
-            ->whereHas('appointments', fn ($query) => $query->where('doctor_id', $doctor->id))
-            ->withCount(['appointments' => fn ($query) => $query->where('doctor_id', $doctor->id)])
+            ->whereHas('appointments', fn ($query) => $query->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId)))
+            ->withCount(['appointments' => fn ($query) => $query->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))])
             ->with(['patientNlpReports' => fn ($query) => $query->latest('generated_at')->limit(1)])
             ->orderBy('name')
             ->get();
@@ -50,9 +52,11 @@ class PatientController extends Controller
      * Display a single patient's profile: appointment history, a day-by-day Lumi report
      * timeline, and whether their risk level is trending up or down.
      */
-    public function show(User $patient): View
+    public function show(User $patient, DoctorClinicContext $clinicContext): View
     {
-        $this->authorizeDoctorTreatsPatient($patient);
+        $this->authorizeDoctorTreatsPatient($patient, $clinicContext);
+
+        $clinicId = $clinicContext->current(Auth::guard('doctor')->user());
 
         /** @var Collection<int, NlpClassificationResult> $classifications */
         $classifications = $patient->nlpClassificationResults()->orderBy('entry_date')->get();
@@ -69,6 +73,7 @@ class PatientController extends Controller
             'patient' => $patient,
             'appointments' => $patient->appointments()
                 ->where('doctor_id', Auth::guard('doctor')->id())
+                ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
                 ->with(['prescriptions.doctor'])
                 ->orderByDesc('appointment_date')
                 ->get(),
@@ -116,9 +121,9 @@ class PatientController extends Controller
      * yet have one — a fallback for when generation failed or was interrupted when the
      * conversation ended.
      */
-    public function generateReports(User $patient, PatientNlpReportGenerator $generator): RedirectResponse
+    public function generateReports(User $patient, PatientNlpReportGenerator $generator, DoctorClinicContext $clinicContext): RedirectResponse
     {
-        $this->authorizeDoctorTreatsPatient($patient);
+        $this->authorizeDoctorTreatsPatient($patient, $clinicContext);
 
         $sessions = $patient->aiCompanionSessions()
             ->whereNotNull('ended_at')
@@ -162,9 +167,9 @@ class PatientController extends Controller
     /**
      * Download a single AI companion NLP report as a PDF.
      */
-    public function downloadReport(User $patient, PatientNlpReport $report): Response
+    public function downloadReport(User $patient, PatientNlpReport $report, DoctorClinicContext $clinicContext): Response
     {
-        $this->authorizeDoctorTreatsPatient($patient);
+        $this->authorizeDoctorTreatsPatient($patient, $clinicContext);
         abort_unless($report->user_id === $patient->id, 404);
 
         PdfFontRegistrar::ensureSinhalaFontIsRegistered();
@@ -183,9 +188,9 @@ class PatientController extends Controller
      * Download the patient's full day-by-day Lumi report as a single PDF, showing the
      * risk progression across every recorded conversation.
      */
-    public function downloadHistory(User $patient): Response
+    public function downloadHistory(User $patient, DoctorClinicContext $clinicContext): Response
     {
-        $this->authorizeDoctorTreatsPatient($patient);
+        $this->authorizeDoctorTreatsPatient($patient, $clinicContext);
 
         PdfFontRegistrar::ensureSinhalaFontIsRegistered();
 
@@ -202,12 +207,16 @@ class PatientController extends Controller
         ])->download($filename);
     }
 
-    private function authorizeDoctorTreatsPatient(User $patient): void
+    private function authorizeDoctorTreatsPatient(User $patient, DoctorClinicContext $clinicContext): void
     {
         $doctor = Auth::guard('doctor')->user();
+        $clinicId = $clinicContext->current($doctor);
 
         abort_unless(
-            $doctor->appointments()->where('user_id', $patient->id)->exists(),
+            $doctor->appointments()
+                ->where('user_id', $patient->id)
+                ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
+                ->exists(),
             403
         );
     }

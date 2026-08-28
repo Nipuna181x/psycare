@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureDoctorOnboardingComplete;
 use App\Http\Middleware\EnsureMedicalCenterIsApproved;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'medical_center.approved' => EnsureMedicalCenterIsApproved::class,
+            'doctor.onboarding' => EnsureDoctorOnboardingComplete::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

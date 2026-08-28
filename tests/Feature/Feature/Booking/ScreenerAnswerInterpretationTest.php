@@ -3,6 +3,7 @@
 namespace Tests\Feature\Feature\Booking;
 
 use App\Models\Doctor;
+use App\Models\DoctorClinicAffiliation;
 use App\Models\ScreenerDraft;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,6 +29,7 @@ class ScreenerAnswerInterpretationTest extends TestCase
         ])]);
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
 
         $response = $this->actingAs($patient)->postJson(route('booking.assessment.interpret', $doctor), [
             'key' => 'phq_4',
@@ -60,6 +62,7 @@ class ScreenerAnswerInterpretationTest extends TestCase
         config(['services.gemini.api_key' => null]);
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
 
         $this->actingAs($patient)->postJson(route('booking.assessment.interpret', $doctor), [
             'key' => 'gad_1',

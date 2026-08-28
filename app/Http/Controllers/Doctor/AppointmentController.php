@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Notifications\DoctorPortalNotification;
+use App\Services\DoctorClinicContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +17,13 @@ class AppointmentController extends Controller
     /**
      * Display the authenticated doctor's appointments.
      */
-    public function index(): View
+    public function index(DoctorClinicContext $clinicContext): View
     {
         $doctor = Auth::guard('doctor')->user();
+        $clinicId = $clinicContext->current($doctor);
 
         $appointments = $doctor->appointments()
+            ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
             ->with('user')
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
@@ -36,9 +39,9 @@ class AppointmentController extends Controller
     /**
      * Display a single appointment, including the full pre-assessment.
      */
-    public function show(Appointment $appointment): View
+    public function show(Appointment $appointment, DoctorClinicContext $clinicContext): View
     {
-        $this->authorizeDoctorOwnsAppointment($appointment);
+        $this->authorizeDoctorOwnsAppointment($appointment, $clinicContext);
 
         return view('doctor.appointments.show', [
             'appointment' => $appointment->load('user'),
@@ -48,9 +51,9 @@ class AppointmentController extends Controller
     /**
      * Mark an appointment as completed or cancelled.
      */
-    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
+    public function updateStatus(Request $request, Appointment $appointment, DoctorClinicContext $clinicContext): RedirectResponse
     {
-        $this->authorizeDoctorOwnsAppointment($appointment);
+        $this->authorizeDoctorOwnsAppointment($appointment, $clinicContext);
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(['completed', 'cancelled'])],
@@ -69,8 +72,11 @@ class AppointmentController extends Controller
         return back()->with('status', 'Appointment marked as '.$validated['status'].'.');
     }
 
-    private function authorizeDoctorOwnsAppointment(Appointment $appointment): void
+    private function authorizeDoctorOwnsAppointment(Appointment $appointment, DoctorClinicContext $clinicContext): void
     {
         abort_unless($appointment->doctor_id === Auth::guard('doctor')->id(), 403);
+
+        $clinicId = $clinicContext->current(Auth::guard('doctor')->user());
+        abort_unless($clinicId === null || $appointment->medical_center_id === $clinicId, 403);
     }
 }

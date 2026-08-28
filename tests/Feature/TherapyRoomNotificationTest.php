@@ -24,8 +24,8 @@ class TherapyRoomNotificationTest extends TestCase
         $patientA = User::factory()->create();
         $patientB = User::factory()->create();
         $bystander = User::factory()->create();
-        Appointment::factory()->for($doctor)->create(['user_id' => $patientA->id, 'medical_center_id' => $doctor->medical_center_id]);
-        Appointment::factory()->for($doctor)->create(['user_id' => $patientB->id, 'medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patientA->id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patientB->id]);
 
         $this->actingAs($doctor, 'doctor')->post(route('doctor.therapy-rooms.store'), [
             'title' => 'Anxiety Support Circle',
@@ -56,7 +56,7 @@ class TherapyRoomNotificationTest extends TestCase
         $doctor = Doctor::factory()->create();
         $room = TherapyRoom::factory()->for($doctor)->create();
         $patient = User::factory()->create();
-        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id, 'medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($doctor)->create(['user_id' => $patient->id]);
 
         $this->actingAs($doctor, 'doctor')->post(route('doctor.therapy-rooms.participants.store', $room), [
             'patient_id' => $patient->id,

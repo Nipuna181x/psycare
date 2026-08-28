@@ -11,6 +11,7 @@
     'profileHref' => null,
     'logoutAction' => null,
     'avatarUrl' => null,
+    'contextSwitcher' => null,
 ])
 
 @php
@@ -36,6 +37,8 @@
     </div>
 
     <div class="flex items-center gap-3">
+        {{ $contextSwitcher }}
+
         @if ($notificationsRoute)
             <x-dashboard.doctor-notifications :notifications="$notifications" :count="$notificationCount" :index-route="$notificationsRoute" :read-route-name="$notificationReadRouteName" />
         @else

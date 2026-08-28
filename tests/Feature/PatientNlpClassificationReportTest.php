@@ -28,7 +28,7 @@ class PatientNlpClassificationReportTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $patient = User::factory()->create();
-        Appointment::factory()->for($patient)->for($doctor)->create(['medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($patient)->for($doctor)->create();
         NlpClassificationResult::factory()->for($patient, 'patient')->create(['risk_level' => 'low']);
 
         $this->actingAs($doctor, 'doctor')

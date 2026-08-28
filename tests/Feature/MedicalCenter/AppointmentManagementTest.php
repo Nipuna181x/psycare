@@ -15,7 +15,7 @@ class AppointmentManagementTest extends TestCase
     public function test_medical_center_can_view_its_appointments(): void
     {
         $medicalCenter = MedicalCenter::factory()->approved()->create();
-        $doctor = Doctor::factory()->for($medicalCenter)->create();
+        $doctor = Doctor::factory()->create();
         Appointment::factory()->for($doctor)->create(['medical_center_id' => $medicalCenter->id]);
 
         $response = $this->actingAs($medicalCenter, 'medical_center')->get(route('medical-center.appoinment-managment.index'));

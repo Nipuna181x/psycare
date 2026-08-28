@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Services\DoctorClinicContext;
 use App\Services\DoctorCrisisQueue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,10 +13,11 @@ use Illuminate\View\View;
 
 class CrisisQueueController extends Controller
 {
-    public function index(Request $request, DoctorCrisisQueue $crisisQueue): View
+    public function index(Request $request, DoctorCrisisQueue $crisisQueue, DoctorClinicContext $clinicContext): View
     {
+        $doctor = Auth::guard('doctor')->user();
         $sort = $request->string('sort')->toString() === 'overdue' ? 'overdue' : 'recent';
-        $appointments = $crisisQueue->forDoctor(Auth::guard('doctor')->user());
+        $appointments = $crisisQueue->forDoctor($doctor, $clinicContext->current($doctor));
         $unreviewed = $appointments->where('escalation_reviewed', false);
 
         $unreviewed = $sort === 'overdue'
