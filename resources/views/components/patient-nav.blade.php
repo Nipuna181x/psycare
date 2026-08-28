@@ -7,7 +7,7 @@
     </a>
 
     <div class="hidden items-center gap-1 rounded-full bg-card px-2 py-1.5 shadow-[0_1px_0_0_var(--border)] lg:flex">
-        @foreach ([['Home', '/'], ['Book a Doctor', route('doctors.index')], ['AI Companion', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', route('appointments.index')], ['Group Therapy', route('therapy-rooms.index')], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
+        @foreach ([['Home', '/'], ['Book a Doctor', route('doctors.index')], ['Lumi', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', route('appointments.index')], ['Group Therapy', route('therapy-rooms.index')], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
             <a href="{{ $href }}" class="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-ink-soft transition-colors hover:bg-secondary hover:text-ink {{ request()->is(ltrim($href, '/')) ? 'bg-secondary text-ink' : '' }}">{{ $label }}</a>
         @endforeach
     </div>

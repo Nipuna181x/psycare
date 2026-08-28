@@ -29,7 +29,7 @@
                         <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
                     </a>
                     <div class="hidden items-center gap-1 rounded-full bg-primary-foreground/12 px-2 py-1.5 backdrop-blur-md lg:flex">
-                        @foreach ([['Home', '/'], ['Book a Doctor', '/doctors'], ['AI Companion', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', '/appointments'], ['Group Therapy', '/group-therapy'], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
+                        @foreach ([['Home', '/'], ['Book a Doctor', '/doctors'], ['Lumi', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', '/appointments'], ['Group Therapy', '/group-therapy'], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
                             <a href="{{ $href }}" class="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground">{{ $label }}</a>
                         @endforeach
                     </div>

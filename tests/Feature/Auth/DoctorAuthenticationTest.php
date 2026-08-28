@@ -14,7 +14,11 @@ class DoctorAuthenticationTest extends TestCase
     {
         $response = $this->get('/doctor/login');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertSee('Welcome back, doctor')
+            ->assertSee('Continue to doctor portal')
+            ->assertSee('name="username"', false)
+            ->assertSee('name="password"', false);
     }
 
     public function test_doctor_can_login_with_username_and_password(): void
