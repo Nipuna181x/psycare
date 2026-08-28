@@ -6,6 +6,7 @@ use App\Events\TherapyRoomEnded;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\TherapyRoom;
+use App\Models\TherapyRoomParticipant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
@@ -14,6 +15,70 @@ use Tests\TestCase;
 class TherapyRoomManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_group_sessions_index_renders_empty_states(): void
+    {
+        $doctor = Doctor::factory()->create();
+
+        $response = $this->actingAs($doctor, 'doctor')->get(route('doctor.therapy-rooms.index'));
+
+        $response->assertOk()
+            ->assertSee('No group sessions scheduled yet.')
+            ->assertSee('No past group sessions yet.')
+            ->assertSee('Schedule a room');
+    }
+
+    public function test_upcoming_room_is_clickable_and_detail_uses_only_anonymous_participant_label(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $room = TherapyRoom::factory()->for($doctor)->create([
+            'title' => 'Anxiety Support Circle',
+            'duration_minutes' => 60,
+        ]);
+        $patient = User::factory()->create(['name' => 'Private Patient Name']);
+        TherapyRoomParticipant::factory()->for($room)->for($patient, 'patient')->create([
+            'anonymous_label' => 'Patient A',
+            'join_order' => 1,
+        ]);
+
+        $indexResponse = $this->actingAs($doctor, 'doctor')->get(route('doctor.therapy-rooms.index'));
+
+        $indexResponse->assertOk()
+            ->assertSee('Anxiety Support Circle')
+            ->assertSee(route('doctor.therapy-rooms.show', $room), false)
+            ->assertSee('60 min')
+            ->assertSee('1 participant');
+
+        $detailResponse = $this->actingAs($doctor, 'doctor')->get(route('doctor.therapy-rooms.show', $room));
+
+        $detailResponse->assertOk()
+            ->assertSee('Back to Group Sessions')
+            ->assertSee('Patient A')
+            ->assertDontSee('Private Patient Name')
+            ->assertSee('Start session')
+            ->assertSee('Edit details');
+    }
+
+    public function test_completed_room_detail_is_read_only_and_renders_notes_placeholder(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $room = TherapyRoom::factory()->for($doctor)->completed()->create([
+            'title' => 'Completed Support Circle',
+        ]);
+
+        $indexResponse = $this->actingAs($doctor, 'doctor')->get(route('doctor.therapy-rooms.index'));
+
+        $indexResponse->assertOk()
+            ->assertSee('Completed Support Circle')
+            ->assertSee('Completed');
+
+        $detailResponse = $this->actingAs($doctor, 'doctor')->get(route('doctor.therapy-rooms.show', $room));
+
+        $detailResponse->assertOk()
+            ->assertSee('Session notes')
+            ->assertSee('This session is read-only because it is completed.')
+            ->assertDontSee('Start session');
+    }
 
     public function test_doctor_can_create_room_and_labels_are_assigned_in_order(): void
     {
