@@ -15,15 +15,17 @@ class DashboardController extends Controller
     {
         $medicalCenter = Auth::guard('medical_center')->user();
 
-        $doctors = $medicalCenter->doctors();
+        $affiliations = $medicalCenter->affiliations();
 
         $statusCounts = [
-            'active' => (clone $doctors)->where('status', 'active')->count(),
-            'inactive' => (clone $doctors)->where('status', 'inactive')->count(),
+            'active' => (clone $affiliations)->where('status', 'active')->count(),
+            'requested' => (clone $affiliations)->where('status', 'requested')->count(),
         ];
 
-        $specializations = (clone $doctors)
-            ->selectRaw("COALESCE(NULLIF(specialization, ''), 'Unspecified') as specialization, COUNT(*) as total")
+        $specializations = (clone $affiliations)
+            ->where('doctor_clinic_affiliations.status', 'active')
+            ->join('doctors', 'doctors.id', '=', 'doctor_clinic_affiliations.doctor_id')
+            ->selectRaw("COALESCE(NULLIF(doctors.specialization, ''), 'Unspecified') as specialization, COUNT(*) as total")
             ->groupBy('specialization')
             ->orderByDesc('total')
             ->limit(6)
@@ -34,11 +36,11 @@ class DashboardController extends Controller
         return view('medical-center.dashboard', [
             'totalDoctors' => array_sum($statusCounts),
             'activeDoctors' => $statusCounts['active'],
-            'inactiveDoctors' => $statusCounts['inactive'],
+            'requestedDoctors' => $statusCounts['requested'],
             'specializationCount' => $specializations->count(),
             'statusCounts' => $statusCounts,
             'specializations' => $specializations,
-            'recentDoctors' => (clone $doctors)->latest()->take(5)->get(),
+            'recentDoctors' => (clone $affiliations)->where('status', 'active')->with('doctor')->latest()->take(5)->get(),
             'todayAppointments' => (clone $appointments)->where('status', 'confirmed')->today()->count(),
             'upcomingAppointments' => (clone $appointments)->upcoming()->count(),
             'completedAppointments' => (clone $appointments)->where('status', 'completed')->count(),

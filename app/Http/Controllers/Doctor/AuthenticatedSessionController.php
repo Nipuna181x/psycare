@@ -26,18 +26,8 @@ class AuthenticatedSessionController extends Controller
     {
         if (! Auth::guard('doctor')->attempt($request->validated(), $request->boolean('remember'))) {
             return back()->withErrors([
-                'username' => 'The provided credentials do not match our records.',
-            ])->onlyInput('username');
-        }
-
-        $doctor = Auth::guard('doctor')->user();
-
-        if ($doctor->status !== 'active') {
-            Auth::guard('doctor')->logout();
-
-            return back()->withErrors([
-                'username' => 'Your doctor account has been deactivated. Please contact your medical center.',
-            ])->onlyInput('username');
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
         }
 
         $request->session()->regenerate();

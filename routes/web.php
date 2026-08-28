@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DoctorApprovalController as AdminDoctorApprovalController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
 use App\Http\Controllers\AiCompanionController;
 use App\Http\Controllers\AppointmentController;
@@ -10,14 +11,24 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\AuthenticatedSessionController as DoctorAuthenticatedSessionController;
+use App\Http\Controllers\Doctor\ClinicContextController as DoctorClinicContextController;
+use App\Http\Controllers\Doctor\ClinicRequestController as DoctorClinicRequestController;
+use App\Http\Controllers\Doctor\CrisisQueueController as DoctorCrisisQueueController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\MedicationController as DoctorMedicationController;
+use App\Http\Controllers\Doctor\NotificationController as DoctorNotificationController;
+use App\Http\Controllers\Doctor\OnboardingController as DoctorOnboardingController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
+use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
+use App\Http\Controllers\Doctor\RegisteredDoctorController;
+use App\Http\Controllers\Doctor\StatusController as DoctorStatusController;
 use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
+use App\Http\Controllers\MedicalCenter\AffiliationController as MedicalCenterAffiliationController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
 use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as MedicalCenterAuthenticatedSessionController;
 use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
-use App\Http\Controllers\MedicalCenter\DoctorController;
+use App\Http\Controllers\MedicalCenter\DoctorSearchController as MedicalCenterDoctorSearchController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConversationController;
@@ -60,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 
     Route::prefix('booking/{doctor}')->name('booking.')->group(function () {
+        Route::get('clinic', [BookingController::class, 'clinic'])->name('clinic');
+        Route::post('clinic', [BookingController::class, 'storeClinic']);
         Route::get('schedule', [BookingController::class, 'schedule'])->name('schedule');
         Route::post('schedule', [BookingController::class, 'storeSchedule']);
         Route::get('slots', [BookingController::class, 'slots'])->name('slots');
@@ -104,6 +117,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('user-managment', [AdminMedicalCenterController::class, 'index'])->name('user-managment.index');
         Route::patch('user-managment/medical-centers/{medicalCenter}/approve', [AdminMedicalCenterController::class, 'approve'])->name('user-managment.medical-centers.approve');
         Route::patch('user-managment/medical-centers/{medicalCenter}/reject', [AdminMedicalCenterController::class, 'reject'])->name('user-managment.medical-centers.reject');
+
+        Route::get('doctor-approvals', [AdminDoctorApprovalController::class, 'index'])->name('doctor-approvals.index');
+        Route::patch('doctor-approvals/{doctor}/approve', [AdminDoctorApprovalController::class, 'approve'])->name('doctor-approvals.approve');
+        Route::patch('doctor-approvals/{doctor}/reject', [AdminDoctorApprovalController::class, 'reject'])->name('doctor-approvals.reject');
     });
 });
 
@@ -122,9 +139,10 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
 
         Route::get('dashboard', [MedicalCenterDashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('doctor-managment', DoctorController::class)
-            ->parameters(['doctor-managment' => 'doctor'])
-            ->except(['show']);
+        Route::get('find-doctors', [MedicalCenterDoctorSearchController::class, 'index'])->name('find-doctors.index');
+        Route::post('find-doctors/{doctor}/request', [MedicalCenterDoctorSearchController::class, 'sendRequest'])->name('find-doctors.request');
+
+        Route::get('affiliations', [MedicalCenterAffiliationController::class, 'index'])->name('affiliations.index');
 
         Route::get('appoinment-managment', [MedicalCenterAppointmentController::class, 'index'])->name('appoinment-managment.index');
         Route::get('appoinment-managment/{appointment}', [MedicalCenterAppointmentController::class, 'show'])->name('appoinment-managment.show');
@@ -134,6 +152,9 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
 // Doctor
 Route::prefix('doctor')->name('doctor.')->group(function () {
     Route::middleware('guest:doctor')->group(function () {
+        Route::get('register', [RegisteredDoctorController::class, 'create'])->name('register');
+        Route::post('register', [RegisteredDoctorController::class, 'store']);
+
         Route::get('login', [DoctorAuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('login', [DoctorAuthenticatedSessionController::class, 'store']);
     });
@@ -141,11 +162,38 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
     Route::middleware('auth:doctor')->group(function () {
         Route::post('logout', [DoctorAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+        Route::get('onboarding', [DoctorOnboardingController::class, 'edit'])->name('onboarding.edit');
+        Route::patch('onboarding', [DoctorOnboardingController::class, 'update'])->name('onboarding.update');
+
+        Route::get('pending', [DoctorStatusController::class, 'pending'])->name('pending');
+        Route::get('blocked', [DoctorStatusController::class, 'blocked'])->name('blocked');
+    });
+
+    Route::middleware(['auth:doctor', 'doctor.onboarding'])->group(function () {
         Route::get('dashboard', [DoctorDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('crisis-queue', [DoctorCrisisQueueController::class, 'index'])->name('crisis-queue.index');
+        Route::patch('crisis-queue/{appointment}/acknowledge', [DoctorCrisisQueueController::class, 'acknowledge'])->name('crisis-queue.acknowledge');
+
+        Route::get('clinic-requests', [DoctorClinicRequestController::class, 'index'])->name('clinic-requests.index');
+        Route::patch('clinic-requests/{affiliation}/accept', [DoctorClinicRequestController::class, 'accept'])->name('clinic-requests.accept');
+        Route::patch('clinic-requests/{affiliation}/decline', [DoctorClinicRequestController::class, 'decline'])->name('clinic-requests.decline');
+
+        Route::post('clinic-context', [DoctorClinicContextController::class, 'update'])->name('clinic-context.update');
+
+        Route::get('notifications', [DoctorNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/read-all', [DoctorNotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('notifications/{notification}/read', [DoctorNotificationController::class, 'read'])->name('notifications.read');
+
+        Route::get('profile', [DoctorProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('profile/information', [DoctorProfileController::class, 'updateProfile'])->name('profile.information.update');
+        Route::patch('profile/contact', [DoctorProfileController::class, 'updateContact'])->name('profile.contact.update');
+        Route::patch('profile/password', [DoctorProfileController::class, 'updatePassword'])->name('profile.password.update');
 
         Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
         Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
+        Route::post('appointments/{appointment}/medications', [DoctorMedicationController::class, 'store'])->name('appointments.medications.store');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

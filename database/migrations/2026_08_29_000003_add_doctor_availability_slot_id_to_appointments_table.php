@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('doctors', function (Blueprint $table) {
-            $table->decimal('rating', 2, 1)->nullable()->after('consultation_fee');
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->foreignId('doctor_availability_slot_id')->nullable()->after('medical_center_id')->constrained()->nullOnDelete();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('doctors', function (Blueprint $table) {
-            $table->dropColumn('rating');
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('doctor_availability_slot_id');
         });
     }
 };

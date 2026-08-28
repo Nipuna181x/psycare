@@ -19,7 +19,7 @@ class PatientConversationHistoryTest extends TestCase
     {
         $doctor = Doctor::factory()->create();
         $patient = User::factory()->create();
-        Appointment::factory()->for($patient)->for($doctor)->create(['medical_center_id' => $doctor->medical_center_id]);
+        Appointment::factory()->for($patient)->for($doctor)->create();
 
         $session = AiCompanionSession::factory()->for($patient)->create(['created_at' => now()->subDay(), 'ended_at' => now()->subDay()]);
         $session->turns()->create(['role' => 'user', 'sequence' => 1, 'content' => 'I feel anxious.']);

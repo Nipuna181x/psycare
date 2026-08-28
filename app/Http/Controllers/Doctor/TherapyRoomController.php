@@ -17,6 +17,7 @@ use App\Models\TherapyRoomParticipant;
 use App\Models\User;
 use App\Notifications\TherapyRoomParticipantRemoved;
 use App\Notifications\TherapyRoomScheduled;
+use App\Services\DoctorClinicContext;
 use App\Services\TherapyParticipantAssigner;
 use App\Services\TherapyParticipantRemover;
 use Illuminate\Contracts\Auth\Access\Gate;
@@ -35,11 +36,16 @@ class TherapyRoomController extends Controller
     /**
      * Display the authenticated doctor's therapy rooms.
      */
-    public function index(): View
+    public function index(DoctorClinicContext $clinicContext): View
     {
         $doctor = Auth::guard('doctor')->user();
+        $clinicId = $clinicContext->current($doctor);
 
-        $rooms = $doctor->therapyRooms()->withCount('activeParticipants')->orderByDesc('scheduled_at')->get();
+        $rooms = $doctor->therapyRooms()
+            ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
+            ->withCount('activeParticipants')
+            ->orderByDesc('scheduled_at')
+            ->get();
 
         return view('doctor.therapy-rooms.index', [
             'upcoming' => $rooms->whereIn('status', ['scheduled', 'live']),
@@ -63,7 +69,7 @@ class TherapyRoomController extends Controller
     /**
      * Store a newly created therapy room and assign the selected patients.
      */
-    public function store(StoreTherapyRoomRequest $request, TherapyParticipantAssigner $assigner): RedirectResponse
+    public function store(StoreTherapyRoomRequest $request, TherapyParticipantAssigner $assigner, DoctorClinicContext $clinicContext): RedirectResponse
     {
         $doctor = Auth::guard('doctor')->user();
 
@@ -73,6 +79,7 @@ class TherapyRoomController extends Controller
         abort_unless($selectedPatientIds->diff($eligiblePatientIds)->isEmpty(), 403);
 
         $room = $doctor->therapyRooms()->create([
+            'medical_center_id' => $clinicContext->current($doctor),
             'title' => $request->validated('title'),
             'topic' => $request->validated('topic'),
             'scheduled_at' => $request->validated('scheduled_at'),

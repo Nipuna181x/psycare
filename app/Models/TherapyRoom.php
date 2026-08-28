@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['doctor_id', 'title', 'topic', 'status', 'scheduled_at', 'duration_minutes', 'started_at', 'ended_at'])]
+#[Fillable(['doctor_id', 'medical_center_id', 'title', 'topic', 'status', 'scheduled_at', 'duration_minutes', 'started_at', 'ended_at'])]
 class TherapyRoom extends Model
 {
     /** @use HasFactory<TherapyRoomFactory> */
@@ -43,6 +43,14 @@ class TherapyRoom extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    /**
+     * @return BelongsTo<MedicalCenter, $this>
+     */
+    public function medicalCenter(): BelongsTo
+    {
+        return $this->belongsTo(MedicalCenter::class);
     }
 
     /**

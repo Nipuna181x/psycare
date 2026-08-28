@@ -13,14 +13,22 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medical_center_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('email')->nullable();
-            $table->string('username')->unique();
+            $table->string('email')->unique();
             $table->string('password');
-            $table->string('specialization')->nullable();
+            $table->string('license_number')->unique();
             $table->string('phone')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('specialization')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('profile_photo')->nullable();
+            $table->unsignedSmallInteger('years_of_experience')->nullable();
+            $table->decimal('consultation_fee', 8, 2)->nullable();
+            $table->enum('consultation_mode', ['in_person', 'online', 'both'])->default('both');
+            $table->decimal('rating', 3, 1)->nullable();
+            $table->enum('status', ['pending_approval', 'approved', 'rejected', 'suspended'])->default('pending_approval');
+            $table->enum('onboarding_step', ['basic_info_done', 'profile_complete'])->default('basic_info_done');
+            $table->timestamp('approved_at')->nullable();
+            $table->foreignId('approved_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Booking\InterpretScreenerAnswerRequest;
 use App\Http\Requests\Booking\StoreAssessmentRequest;
+use App\Http\Requests\Booking\StoreClinicRequest;
 use App\Http\Requests\Booking\StoreDetailsRequest;
 use App\Http\Requests\Booking\StoreScheduleRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\DoctorAvailabilitySlot;
+use App\Models\MedicalCenter;
 use App\Models\ScreenerDraft;
+use App\Notifications\DoctorPortalNotification;
 use App\Services\ScreenerAnalyzer;
 use App\Services\ScreenerAnswerInterpreter;
 use Illuminate\Http\JsonResponse;
@@ -28,11 +32,50 @@ class BookingController extends Controller
     public const ASSESSMENT_QUESTIONS = ScreenerAnalyzer::QUESTIONS;
 
     /**
-     * Step 1: choose a date, time slot and consultation mode.
+     * Optional step: choose which clinic to book at, when the doctor has more
+     * than one active affiliation. Doctors with exactly one active affiliation
+     * skip this step entirely — it is auto-selected when the schedule step loads.
      */
-    public function schedule(Doctor $doctor): View
+    public function clinic(Doctor $doctor): View|RedirectResponse
     {
         $this->ensureBookable($doctor);
+
+        $affiliations = $doctor->activeAffiliations()->with('clinic')->get();
+
+        if ($affiliations->count() <= 1) {
+            return redirect()->route('booking.schedule', $doctor);
+        }
+
+        return view('booking.clinic', [
+            'doctor' => $doctor,
+            'affiliations' => $affiliations,
+            'saved' => $this->stepData($doctor, 'clinic'),
+        ]);
+    }
+
+    public function storeClinic(StoreClinicRequest $request, Doctor $doctor): RedirectResponse
+    {
+        $this->ensureBookable($doctor);
+
+        $clinicId = (int) $request->validated('clinic_id');
+
+        abort_unless($doctor->activeAffiliations()->where('clinic_id', $clinicId)->exists(), 422);
+
+        $this->saveStep($doctor, 'clinic', ['clinic_id' => $clinicId]);
+
+        return redirect()->route('booking.schedule', $doctor);
+    }
+
+    /**
+     * Step 1: choose a date, time slot and consultation mode.
+     */
+    public function schedule(Doctor $doctor): View|RedirectResponse
+    {
+        $this->ensureBookable($doctor);
+
+        if ($redirect = $this->ensureClinicSelected($doctor)) {
+            return $redirect;
+        }
 
         return view('booking.schedule', [
             'doctor' => $doctor,
@@ -44,9 +87,14 @@ class BookingController extends Controller
     {
         $this->ensureBookable($doctor);
 
-        $data = $request->validated();
+        if ($redirect = $this->ensureClinicSelected($doctor)) {
+            return $redirect;
+        }
 
-        if ($this->isSlotTaken($doctor, $data['appointment_date'], $data['appointment_time'])) {
+        $data = $request->validated();
+        $clinicId = $this->stepData($doctor, 'clinic')['clinic_id'];
+
+        if ($this->isSlotTaken($doctor, $clinicId, $data['appointment_date'], $data['appointment_time'])) {
             return back()->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.'])->withInput();
         }
 
@@ -66,8 +114,10 @@ class BookingController extends Controller
             'date' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
+        $clinicId = $this->stepData($doctor, 'clinic')['clinic_id'] ?? null;
+
         return response()->json([
-            'slots' => $this->availableSlots($doctor, $request->string('date')->toString()),
+            'slots' => $this->availableSlots($doctor, $clinicId, $request->string('date')->toString()),
         ]);
     }
 
@@ -205,6 +255,7 @@ class BookingController extends Controller
 
         return view('booking.review', [
             'doctor' => $doctor,
+            'clinic' => MedicalCenter::find($booking['clinic']['clinic_id']),
             'schedule' => $booking['schedule'],
             'details' => $booking['details'],
             'assessment' => $booking['assessment'],
@@ -224,8 +275,9 @@ class BookingController extends Controller
         }
 
         $booking = session("booking.{$doctor->id}");
+        $clinicId = $booking['clinic']['clinic_id'];
 
-        if ($this->isSlotTaken($doctor, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
+        if ($this->isSlotTaken($doctor, $clinicId, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
             return redirect()->route('booking.schedule', $doctor)
                 ->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.']);
         }
@@ -233,10 +285,18 @@ class BookingController extends Controller
         $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
         $analysis = $skipped ? null : $analyzer->analyze($booking['assessment']['answers']);
 
+        $slot = DoctorAvailabilitySlot::query()
+            ->where('doctor_id', $doctor->id)
+            ->where('clinic_id', $clinicId)
+            ->whereDate('date', $booking['schedule']['appointment_date'])
+            ->where('start_time', $booking['schedule']['appointment_time'])
+            ->first();
+
         $appointment = Appointment::create([
             'user_id' => Auth::id(),
             'doctor_id' => $doctor->id,
-            'medical_center_id' => $doctor->medical_center_id,
+            'medical_center_id' => $clinicId,
+            'doctor_availability_slot_id' => $slot?->id,
             'appointment_date' => $booking['schedule']['appointment_date'],
             'appointment_time' => $booking['schedule']['appointment_time'],
             'mode' => $booking['schedule']['mode'],
@@ -261,6 +321,22 @@ class BookingController extends Controller
             'status' => 'confirmed',
         ]);
 
+        $slot?->update(['is_booked' => true, 'appointment_id' => $appointment->id]);
+
+        $doctor->notify((new DoctorPortalNotification(
+            type: 'new_booking',
+            message: 'New booking from '.$appointment->patient_name.' for '.$appointment->appointment_date->format('j M Y').'.',
+            link: route('doctor.appointments.show', $appointment, absolute: false),
+        ))->afterCommit());
+
+        if ($appointment->requiresCrisisEscalation()) {
+            $doctor->notify((new DoctorPortalNotification(
+                type: 'elevated_risk',
+                message: 'Elevated-risk pre-assessment flagged for '.$appointment->patient_name.'.',
+                link: route('doctor.appointments.show', $appointment, absolute: false),
+            ))->afterCommit());
+        }
+
         session()->forget("booking.{$doctor->id}");
         ScreenerDraft::query()->whereBelongsTo(Auth::user())->whereBelongsTo($doctor)->delete();
 
@@ -272,13 +348,35 @@ class BookingController extends Controller
         abort_unless($appointment->user_id === Auth::id(), 403);
 
         return view('booking.confirmed', [
-            'appointment' => $appointment->load('doctor.medicalCenter'),
+            'appointment' => $appointment->load('doctor', 'medicalCenter'),
         ]);
     }
 
     private function ensureBookable(Doctor $doctor): void
     {
-        abort_unless($doctor->isBookable(), 404);
+        abort_unless($doctor->isBookable() && $doctor->hasActiveAffiliation(), 404);
+    }
+
+    /**
+     * Ensure a clinic has been selected for this booking session. Doctors with
+     * exactly one active affiliation get it auto-selected transparently; doctors
+     * with more than one are sent to the clinic-select step first.
+     */
+    private function ensureClinicSelected(Doctor $doctor): ?RedirectResponse
+    {
+        if ($this->stepData($doctor, 'clinic')) {
+            return null;
+        }
+
+        $affiliations = $doctor->activeAffiliations;
+
+        if ($affiliations->count() === 1) {
+            $this->saveStep($doctor, 'clinic', ['clinic_id' => $affiliations->first()->clinic_id]);
+
+            return null;
+        }
+
+        return redirect()->route('booking.clinic', $doctor);
     }
 
     /**
@@ -369,10 +467,11 @@ class BookingController extends Controller
         return null;
     }
 
-    private function isSlotTaken(Doctor $doctor, string $date, string $time): bool
+    private function isSlotTaken(Doctor $doctor, int $clinicId, string $date, string $time): bool
     {
         return Appointment::query()
             ->where('doctor_id', $doctor->id)
+            ->where('medical_center_id', $clinicId)
             ->where('status', 'confirmed')
             ->whereDate('appointment_date', $date)
             ->where('appointment_time', $time)
@@ -380,12 +479,35 @@ class BookingController extends Controller
     }
 
     /**
-     * @return array<int, array{time: string, label: string}>
+     * Clinic-scoped time slots for the given date. When the clinic has published
+     * availability slots for this doctor+date, those are used (with a `disabled`
+     * flag for already-booked ones, so patients see why). Otherwise, falls back
+     * to a fixed 9AM-5PM/30-minute grid checked against existing appointments.
+     *
+     * @return array<int, array{time: string, label: string, disabled: bool}>
      */
-    private function availableSlots(Doctor $doctor, string $date): array
+    private function availableSlots(Doctor $doctor, ?int $clinicId, string $date): array
     {
+        if ($clinicId) {
+            $publishedSlots = DoctorAvailabilitySlot::query()
+                ->where('doctor_id', $doctor->id)
+                ->where('clinic_id', $clinicId)
+                ->whereDate('date', $date)
+                ->orderBy('start_time')
+                ->get();
+
+            if ($publishedSlots->isNotEmpty()) {
+                return $publishedSlots->map(fn (DoctorAvailabilitySlot $slot): array => [
+                    'time' => Carbon::parse($slot->start_time)->format('H:i'),
+                    'label' => Carbon::parse($slot->start_time)->format('g:i A'),
+                    'disabled' => $slot->is_booked,
+                ])->all();
+            }
+        }
+
         $taken = Appointment::query()
             ->where('doctor_id', $doctor->id)
+            ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
             ->where('status', 'confirmed')
             ->whereDate('appointment_date', $date)
             ->pluck('appointment_time')
@@ -402,8 +524,8 @@ class BookingController extends Controller
         while ($cursor->lt($end)) {
             $time = $cursor->format('H:i');
 
-            if (! in_array($time, $taken, true) && (! $isToday || $cursor->gt($now))) {
-                $slots[] = ['time' => $time, 'label' => $cursor->format('g:i A')];
+            if (! $isToday || $cursor->gt($now)) {
+                $slots[] = ['time' => $time, 'label' => $cursor->format('g:i A'), 'disabled' => in_array($time, $taken, true)];
             }
 
             $cursor->addMinutes(30);

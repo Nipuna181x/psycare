@@ -77,6 +77,15 @@
                     button.type = 'button';
                     button.textContent = slot.label;
                     button.dataset.time = slot.time;
+
+                    if (slot.disabled) {
+                        button.disabled = true;
+                        button.title = 'Already booked';
+                        button.className = 'cursor-not-allowed rounded-xl bg-secondary px-3 py-2.5 text-[12px] font-medium text-ink-soft opacity-40 line-through';
+                        slotsContainer.append(button);
+                        return;
+                    }
+
                     button.className = slot.time === timeInput.value
                         ? 'rounded-xl bg-ink px-3 py-2.5 text-[12px] font-medium text-primary-foreground'
                         : 'rounded-xl bg-secondary px-3 py-2.5 text-[12px] font-medium text-ink transition-colors hover:bg-border';
@@ -84,6 +93,7 @@
                         timeInput.value = slot.time;
                         continueButton.disabled = false;
                         [...slotsContainer.children].forEach((child) => {
+                            if (child.disabled) return;
                             child.className = 'rounded-xl bg-secondary px-3 py-2.5 text-[12px] font-medium text-ink transition-colors hover:bg-border';
                         });
                         button.className = 'rounded-xl bg-ink px-3 py-2.5 text-[12px] font-medium text-primary-foreground';
@@ -98,7 +108,7 @@
                 const response = await fetch(`${slotsUrl}?date=${dateInput.value}`, { headers: { Accept: 'application/json' } });
                 const data = await response.json();
                 renderSlots(data.slots);
-                if (data.slots.some((slot) => slot.time === timeInput.value)) {
+                if (data.slots.some((slot) => slot.time === timeInput.value && ! slot.disabled)) {
                     continueButton.disabled = false;
                 } else {
                     timeInput.value = '';

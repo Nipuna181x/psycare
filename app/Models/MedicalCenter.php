@@ -6,6 +6,7 @@ use Database\Factories\MedicalCenterFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,11 +31,20 @@ class MedicalCenter extends Authenticatable
     }
 
     /**
-     * @return HasMany<Doctor, $this>
+     * @return HasMany<DoctorClinicAffiliation, $this>
      */
-    public function doctors(): HasMany
+    public function affiliations(): HasMany
     {
-        return $this->hasMany(Doctor::class);
+        return $this->hasMany(DoctorClinicAffiliation::class, 'clinic_id');
+    }
+
+    /**
+     * @return BelongsToMany<Doctor, $this>
+     */
+    public function affiliatedDoctors(): BelongsToMany
+    {
+        return $this->belongsToMany(Doctor::class, 'doctor_clinic_affiliations', 'clinic_id', 'doctor_id')
+            ->wherePivot('status', 'active');
     }
 
     /**

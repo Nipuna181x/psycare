@@ -44,7 +44,7 @@
 
                     <p class="eyebrow mt-10 lg:mt-0">Secure clinical access</p>
                     <h1 class="display-head mt-3 max-w-[17ch] text-[clamp(2rem,4.2vw,3.2rem)] text-ink">Welcome back, doctor</h1>
-                    <p class="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-ink-soft">Sign in with the credentials provided by your medical centre to continue to your clinical dashboard.</p>
+                    <p class="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-ink-soft">Sign in with your PsyCare account to continue to your clinical dashboard.</p>
 
                     <div class="mt-8 grid gap-2 sm:grid-cols-2">
                         <div class="rounded-2xl bg-ink p-4 text-primary-foreground">
@@ -66,10 +66,10 @@
                     <form method="POST" action="{{ route('doctor.login') }}" class="mt-8 space-y-4">
                         @csrf
 
-                        <label for="username" class="block">
-                            <span class="text-[12px] text-ink-soft">Username</span>
-                            <input id="username" name="username" type="text" value="{{ old('username') }}" placeholder="Enter your username" required autofocus autocomplete="username" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('username') ring-2 ring-red-300 @enderror">
-                            @error('username')
+                        <label for="email" class="block">
+                            <span class="text-[12px] text-ink-soft">Email</span>
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="you@email.com" required autofocus autocomplete="email" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('email') ring-2 ring-red-300 @enderror">
+                            @error('email')
                                 <span class="mt-1.5 block text-[12px] text-red-700">{{ $message }}</span>
                             @enderror
                         </label>
@@ -83,14 +83,16 @@
                         </label>
 
                         <div class="flex items-center justify-between gap-4 text-[12px] text-ink-soft">
-                            <span>Credentials are issued by your medical centre.</span>
+                            <span>Your account, your credentials.</span>
                             <span class="shrink-0 text-muted-foreground">Authorised access only</span>
                         </div>
 
                         <button type="submit" class="w-full rounded-full bg-ink px-6 py-4 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-deep">Continue to doctor portal</button>
                     </form>
 
-                    <p class="mt-6 text-[11px] leading-relaxed text-muted-foreground">Need help accessing your account? Contact the medical centre that issued your credentials.</p>
+                    @if (Route::has('doctor.register'))
+                        <p class="mt-6 text-[11px] leading-relaxed text-muted-foreground">New to PsyCare? <a href="{{ route('doctor.register') }}" class="text-ink underline-offset-4 hover:underline">Register as a doctor</a>.</p>
+                    @endif
                 </div>
             </section>
         </div>

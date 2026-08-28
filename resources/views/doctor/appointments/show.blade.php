@@ -4,7 +4,7 @@
     $title = 'Appointment #'.str_pad($appointment->id, 6, '0', STR_PAD_LEFT);
     $subtitle = $appointment->patient_name;
     $riskLevel = $appointment->pre_assessment_risk_level;
-    $requiresCrisisEscalation = $appointment->requires_immediate_escalation || $appointment->self_harm_flag;
+    $requiresCrisisEscalation = $appointment->requiresCrisisEscalation();
 @endphp
 
 @section('content')
@@ -60,7 +60,7 @@
                     </dl>
 
                     <a href="{{ route('doctor.patients.show', $appointment->user) }}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[11px] font-semibold tracking-[0.08em] text-sky-700 uppercase transition-colors hover:border-sky-300 hover:bg-sky-100 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-sky-500">
-                        View patient profile
+                        Patient profile
                         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                     </a>
                 </section>
@@ -131,6 +131,34 @@
                     <div class="mt-4 rounded-2xl border border-dashed border-border bg-secondary/50 p-4">
                         <p class="text-[12px] leading-relaxed text-ink-soft">Clinical notes are not yet available for this appointment. A notes field must be added to the appointment data model before this section can accept or save content.</p>
                     </div>
+                </section>
+
+                <section class="rounded-3xl bg-card p-5 shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-6" aria-labelledby="medication-heading">
+                    <h2 id="medication-heading" class="font-display text-[15px] font-medium text-ink">Add medication</h2>
+                    <p class="mt-1 text-[11px] leading-relaxed text-ink-soft">Record medication prescribed during this appointment.</p>
+
+                    @if ($errors->any())
+                        <div class="mt-4 rounded-xl bg-red-50 px-3 py-2 text-[11px] text-red-700">{{ $errors->first() }}</div>
+                    @endif
+
+                    <form method="POST" action="{{ route('doctor.appointments.medications.store', $appointment) }}" class="mt-4 grid gap-3">
+                        @csrf
+                        <label class="grid gap-1.5 text-[10px] font-semibold tracking-[0.08em] text-ink-soft uppercase">Medication name
+                            <input name="medication_name" value="{{ old('medication_name') }}" required class="rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-normal tracking-normal text-ink normal-case outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                        </label>
+                        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                            <label class="grid gap-1.5 text-[10px] font-semibold tracking-[0.08em] text-ink-soft uppercase">Dosage
+                                <input name="dosage" value="{{ old('dosage') }}" required class="rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-normal tracking-normal text-ink normal-case outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                            </label>
+                            <label class="grid gap-1.5 text-[10px] font-semibold tracking-[0.08em] text-ink-soft uppercase">Frequency
+                                <input name="frequency" value="{{ old('frequency') }}" required class="rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-normal tracking-normal text-ink normal-case outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">
+                            </label>
+                        </div>
+                        <label class="grid gap-1.5 text-[10px] font-semibold tracking-[0.08em] text-ink-soft uppercase">Duration / notes
+                            <textarea name="notes" rows="3" class="resize-y rounded-xl border border-border bg-white px-3 py-2.5 text-[12px] font-normal leading-relaxed tracking-normal text-ink normal-case outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100">{{ old('notes') }}</textarea>
+                        </label>
+                        <button type="submit" class="rounded-xl bg-sky-700 px-4 py-3 text-[11px] font-semibold tracking-[0.1em] text-white uppercase transition-colors hover:bg-sky-800">Save medication</button>
+                    </form>
                 </section>
             </aside>
 

@@ -17,16 +17,16 @@ class DoctorAuthenticationTest extends TestCase
         $response->assertStatus(200)
             ->assertSee('Welcome back, doctor')
             ->assertSee('Continue to doctor portal')
-            ->assertSee('name="username"', false)
+            ->assertSee('name="email"', false)
             ->assertSee('name="password"', false);
     }
 
-    public function test_doctor_can_login_with_username_and_password(): void
+    public function test_doctor_can_login_with_email_and_password(): void
     {
         $doctor = Doctor::factory()->create();
 
         $response = $this->post('/doctor/login', [
-            'username' => $doctor->username,
+            'email' => $doctor->email,
             'password' => 'password',
         ]);
 
@@ -39,25 +39,12 @@ class DoctorAuthenticationTest extends TestCase
         $doctor = Doctor::factory()->create();
 
         $response = $this->from('/doctor/login')->post('/doctor/login', [
-            'username' => $doctor->username,
+            'email' => $doctor->email,
             'password' => 'wrong-password',
         ]);
 
         $this->assertGuest('doctor');
-        $response->assertSessionHasErrors('username');
-    }
-
-    public function test_inactive_doctor_cannot_login(): void
-    {
-        $doctor = Doctor::factory()->create(['status' => 'inactive']);
-
-        $response = $this->from('/doctor/login')->post('/doctor/login', [
-            'username' => $doctor->username,
-            'password' => 'password',
-        ]);
-
-        $this->assertGuest('doctor');
-        $response->assertSessionHasErrors('username');
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_dashboard_requires_authentication(): void

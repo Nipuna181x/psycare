@@ -6,21 +6,34 @@
 @endphp
 
 @section('content')
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    @if ($noClinicAffiliation)
+        <div class="rounded-3xl bg-card p-6 text-center shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-8">
+            <span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sky-100 text-sky-700">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z"/><path d="M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/><path d="M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            </span>
+            <h2 class="mt-4 font-display text-[16px] font-medium text-ink">You're not currently affiliated with any clinic</h2>
+            <p class="mx-auto mt-2 max-w-[48ch] text-[13px] leading-relaxed text-ink-soft">Complete your profile and wait for a clinic to send you a work request, or browse clinics to see who's active on PsyCare.</p>
+            <a href="{{ route('doctor.clinic-requests.index') }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">
+                View clinic requests
+            </a>
+        </div>
+    @endif
+
+    <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <x-dashboard.stat-card label="Specialisation" :value="$doctor->specialization ?? 'Not set'" chip="rose">
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v6a4 4 0 0 0 8 0V2"/><circle cx="20" cy="10" r="2"/><path d="M20 12a2 2 0 0 0-2 2v2a6 6 0 0 1-6 6 6 6 0 0 1-6-6v-2a2 2 0 0 0-2-2"/></svg>
         </x-dashboard.stat-card>
 
-        <x-dashboard.stat-card label="Medical centre" :value="$doctor->medicalCenter->name ?? 'Unassigned'" chip="amber">
+        <x-dashboard.stat-card label="Active clinics" :value="$doctor->activeAffiliations->pluck('clinic.name')->implode(', ') ?: 'None yet'" chip="amber">
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z"/><path d="M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/><path d="M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
         </x-dashboard.stat-card>
 
         <x-dashboard.stat-card
             label="Account status"
-            :value="ucfirst($doctor->status)"
+            :value="ucfirst(str_replace('_', ' ', $doctor->status))"
             chip="emerald"
-            :delta="$doctor->status === 'active' ? 'Visible to patients' : 'Hidden from patients'"
-            :delta-tone="$doctor->status === 'active' ? 'positive' : 'neutral'"
+            :delta="$doctor->status === 'approved' ? 'Visible to patients' : 'Hidden from patients'"
+            :delta-tone="$doctor->status === 'approved' ? 'positive' : 'neutral'"
         >
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
         </x-dashboard.stat-card>

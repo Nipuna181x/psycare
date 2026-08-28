@@ -23,9 +23,17 @@
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect width=\'7\' height=\'9\' x=\'3\' y=\'3\' rx=\'1\'/><rect width=\'7\' height=\'5\' x=\'14\' y=\'3\' rx=\'1\'/><rect width=\'7\' height=\'9\' x=\'14\' y=\'12\' rx=\'1\'/><rect width=\'7\' height=\'5\' x=\'3\' y=\'16\' rx=\'1\'/></svg>',
                 ],
                 [
-                    'label' => 'Doctors',
-                    'href' => route('medical-center.doctor-managment.index'),
-                    'active' => request()->routeIs('medical-center.doctor-managment.*'),
+                    'label' => 'Find Doctors',
+                    'href' => route('medical-center.find-doctors.index'),
+                    'active' => request()->routeIs('medical-center.find-doctors.*'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><circle cx=\'11\' cy=\'11\' r=\'8\'/><path d=\'m21 21-4.3-4.3\'/></svg>',
+                ],
+                [
+                    'label' => 'Pending Requests',
+                    'href' => route('medical-center.affiliations.index'),
+                    'active' => request()->routeIs('medical-center.affiliations.*'),
+                    'badge' => auth('medical_center')->user()->affiliations()->where('status', 'requested')->count(),
+                    'badgeTone' => 'danger',
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\'/><circle cx=\'9\' cy=\'7\' r=\'4\'/><path d=\'M22 21v-2a4 4 0 0 0-3-3.87\'/><path d=\'M16 3.13a4 4 0 0 1 0 7.75\'/></svg>',
                 ],
                 [
@@ -36,9 +44,9 @@
                 ],
             ]"
             promo-title="Grow your team"
-            promo-description="Add clinicians to your roster so patients can find and book them."
-            promo-cta-label="Add a doctor"
-            :promo-cta-href="route('medical-center.doctor-managment.create')"
+            promo-description="Search doctors by licence number and send them a work request to join your clinic."
+            promo-cta-label="Find doctors"
+            :promo-cta-href="route('medical-center.find-doctors.index')"
         />
 
         <div class="flex flex-1 flex-col gap-5">

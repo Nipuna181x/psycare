@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'user_id', 'doctor_id', 'medical_center_id',
+    'user_id', 'doctor_id', 'medical_center_id', 'doctor_availability_slot_id',
     'appointment_date', 'appointment_time', 'mode',
     'patient_name', 'patient_age', 'patient_gender', 'patient_phone', 'patient_email', 'reason',
     'consultation_fee',
     'pre_assessment', 'pre_assessment_mood_rating', 'pre_assessment_summary', 'pre_assessment_risk_level',
     'phq9_total', 'phq9_severity', 'gad7_total', 'gad7_severity', 'self_harm_flag',
     'requires_immediate_escalation', 'screener_open_notes', 'screener_completed_at',
+    'escalation_reviewed', 'escalation_reviewed_at',
     'status',
 ])]
 class Appointment extends Model
@@ -37,6 +38,8 @@ class Appointment extends Model
             'pre_assessment' => 'array',
             'self_harm_flag' => 'boolean',
             'requires_immediate_escalation' => 'boolean',
+            'escalation_reviewed' => 'boolean',
+            'escalation_reviewed_at' => 'datetime',
             'screener_completed_at' => 'datetime',
         ];
     }
@@ -65,10 +68,29 @@ class Appointment extends Model
         return $this->belongsTo(MedicalCenter::class);
     }
 
+    /**
+     * @return BelongsTo<DoctorAvailabilitySlot, $this>
+     */
+    public function availabilitySlot(): BelongsTo
+    {
+        return $this->belongsTo(DoctorAvailabilitySlot::class, 'doctor_availability_slot_id');
+    }
+
     /** @return HasMany<PatientNlpReport, $this> */
     public function patientNlpReports(): HasMany
     {
         return $this->hasMany(PatientNlpReport::class);
+    }
+
+    /** @return HasMany<Prescription, $this> */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
+    public function requiresCrisisEscalation(): bool
+    {
+        return $this->requires_immediate_escalation || $this->self_harm_flag;
     }
 
     /**

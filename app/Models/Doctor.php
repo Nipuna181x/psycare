@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 
-#[Fillable(['medical_center_id', 'name', 'email', 'username', 'password', 'specialization', 'avatar', 'bio', 'years_experience', 'consultation_fee', 'consultation_mode', 'rating', 'phone', 'status'])]
+#[Fillable(['name', 'email', 'password', 'license_number', 'phone', 'specialization', 'bio', 'profile_photo', 'years_of_experience', 'consultation_fee', 'consultation_mode', 'rating', 'status', 'onboarding_step', 'approved_at', 'approved_by'])]
 #[Hidden(['password', 'remember_token'])]
 class Doctor extends Authenticatable
 {
@@ -31,15 +33,42 @@ class Doctor extends Authenticatable
             'password' => 'hashed',
             'consultation_fee' => 'decimal:2',
             'rating' => 'decimal:1',
+            'approved_at' => 'datetime',
         ];
     }
 
     /**
-     * @return BelongsTo<MedicalCenter, $this>
+     * @return HasMany<DoctorClinicAffiliation, $this>
      */
-    public function medicalCenter(): BelongsTo
+    public function affiliations(): HasMany
     {
-        return $this->belongsTo(MedicalCenter::class);
+        return $this->hasMany(DoctorClinicAffiliation::class);
+    }
+
+    /**
+     * @return HasMany<DoctorClinicAffiliation, $this>
+     */
+    public function activeAffiliations(): HasMany
+    {
+        return $this->affiliations()->where('status', 'active');
+    }
+
+    /**
+     * @return BelongsToMany<MedicalCenter, $this>
+     */
+    public function clinics(): BelongsToMany
+    {
+        return $this->belongsToMany(MedicalCenter::class, 'doctor_clinic_affiliations', 'doctor_id', 'clinic_id')
+            ->wherePivot('status', 'active')
+            ->withPivot(['status', 'requested_by_clinic_at', 'responded_by_doctor_at']);
+    }
+
+    /**
+     * @return HasMany<DoctorAvailabilitySlot, $this>
+     */
+    public function availabilitySlots(): HasMany
+    {
+        return $this->hasMany(DoctorAvailabilitySlot::class);
     }
 
     /**
@@ -58,9 +87,28 @@ class Doctor extends Authenticatable
         return $this->hasMany(TherapyRoom::class);
     }
 
+    /** @return HasMany<Prescription, $this> */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
+    /**
+     * @return BelongsTo<Admin, $this>
+     */
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'approved_by');
+    }
+
     public function isBookable(): bool
     {
-        return $this->status === 'active' && $this->medicalCenter?->isApproved();
+        return $this->status === 'approved' && $this->onboarding_step === 'profile_complete';
+    }
+
+    public function hasActiveAffiliation(): bool
+    {
+        return $this->activeAffiliations()->exists();
     }
 
     public function nextAvailableLabel(): string
@@ -87,7 +135,13 @@ class Doctor extends Authenticatable
 
     public function avatarUrl(): ?string
     {
-        return $this->avatar ? Vite::asset('resources/images/psycare/'.$this->avatar) : null;
+        if (! $this->profile_photo) {
+            return null;
+        }
+
+        return str_starts_with($this->profile_photo, 'doctor-avatars/')
+            ? Storage::disk('public')->url($this->profile_photo)
+            : Vite::asset('resources/images/psycare/'.$this->profile_photo);
     }
 
     public function consultationModeLabel(): string

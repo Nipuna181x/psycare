@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Requests\MedicalCenter;
+namespace App\Http\Requests\Doctor;
 
+use App\Models\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-class StoreDoctorRequest extends FormRequest
+class RegisterDoctorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,14 +26,10 @@ class StoreDoctorRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:doctors,username'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Doctor::class],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'specialization' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'bio' => ['nullable', 'string', 'max:2000'],
-            'years_experience' => ['nullable', 'integer', 'min:0', 'max:80'],
-            'consultation_fee' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'license_number' => ['required', 'string', 'max:255', 'unique:'.Doctor::class],
+            'phone' => ['nullable', 'string', 'max:30'],
         ];
     }
 }
