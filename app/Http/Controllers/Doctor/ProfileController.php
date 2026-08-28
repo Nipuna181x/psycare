@@ -15,7 +15,7 @@ class ProfileController extends Controller
     public function edit(): View
     {
         return view('doctor.profile.edit', [
-            'doctor' => Auth::guard('doctor')->user()->load('medicalCenter'),
+            'doctor' => Auth::guard('doctor')->user()->load('activeAffiliations.clinic'),
         ]);
     }
 
@@ -25,7 +25,7 @@ class ProfileController extends Controller
         $validated = $request->safe()->except('profile_photo');
 
         if ($request->hasFile('profile_photo')) {
-            $validated['avatar'] = $request->file('profile_photo')->store('doctor-avatars', 'public');
+            $validated['profile_photo'] = $request->file('profile_photo')->store('doctor-avatars', 'public');
         }
 
         $doctor->update($validated);

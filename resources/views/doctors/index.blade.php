@@ -33,12 +33,40 @@
                         <button type="button" data-specialty="{{ $specialty }}" class="rounded-full px-4 py-2 text-[12px]">{{ $specialty }}</button>
                     @endforeach
                 </div>
+                <div class="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+                    <label class="flex items-center gap-3 rounded-2xl bg-secondary px-4 py-3">
+                        <svg class="h-4 w-4 shrink-0 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <select id="city-filter" class="w-full bg-transparent text-[13px] text-ink outline-none">
+                            <option value="All">All locations</option>
+                            @foreach ($cities as $city)
+                                <option value="{{ $city }}">{{ $city }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label class="flex items-center gap-3 rounded-2xl bg-secondary px-4 py-3">
+                        <svg class="h-4 w-4 shrink-0 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
+                        <input id="date-filter" type="date" min="{{ now()->toDateString() }}" class="w-full bg-transparent text-[13px] text-ink outline-none" placeholder="Any date">
+                        <button type="button" id="date-filter-clear" hidden class="shrink-0 text-[11px] text-ink-soft underline-offset-4 hover:underline">Clear</button>
+                    </label>
+                </div>
             </form>
 
             <p id="results-count" class="mt-8 text-[13px] text-ink-soft"></p>
             <div id="doctor-grid" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse ($doctors as $doctor)
-                    <article data-doctor data-specialty="{{ $doctor->specialization ?? '' }}" data-search="{{ Str::lower($doctor->name.' '.$doctor->medicalCenter->name.' '.$doctor->specialization) }}" class="group overflow-hidden rounded-3xl bg-card">
+                    @php
+                        $clinicNames = $doctor->activeAffiliations->pluck('clinic.name')->implode(', ');
+                        $doctorCities = $doctor->activeAffiliations->pluck('clinic.address')->filter()->map(fn ($address) => trim(Str::afterLast($address, ',')))->filter()->unique()->values();
+                        $availableDates = $doctor->availabilitySlots->pluck('date')->map(fn ($date) => $date->toDateString())->unique()->values();
+                    @endphp
+                    <article
+                        data-doctor
+                        data-specialty="{{ $doctor->specialization ?? '' }}"
+                        data-search="{{ Str::lower($doctor->name.' '.$clinicNames.' '.$doctor->specialization) }}"
+                        data-cities="{{ $doctorCities->implode('|') }}"
+                        data-available-dates="{{ $availableDates->implode('|') }}"
+                        class="group overflow-hidden rounded-3xl bg-card"
+                    >
                         <div class="relative overflow-hidden bg-secondary">
                             @if ($doctor->avatarUrl())
                                 <img src="{{ $doctor->avatarUrl() }}" alt="{{ $doctor->name }}" width="800" height="1000" loading="lazy" class="h-[280px] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]">
@@ -64,7 +92,7 @@
                             </div>
                             <p class="mt-4 flex items-center gap-1.5 text-[12px] text-ink-soft">
                                 <svg class="h-3.5 w-3.5 shrink-0 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                <span class="truncate">{{ $doctor->medicalCenter->name }} &middot; {{ $doctor->medicalCenter->address }}</span>
+                                <span class="truncate">{{ $clinicNames ?: 'Not currently affiliated with a clinic' }}</span>
                             </p>
                             <div class="mt-2 flex items-center justify-between gap-4">
                                 <span class="text-[12px] text-ink-soft">{{ $doctor->consultationModeLabel() }}</span>
@@ -73,7 +101,7 @@
                                 @endif
                             </div>
                             <div class="mt-5 flex items-center gap-2">
-                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3.5 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Book appointment</a>
+                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3.5 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">{{ $doctor->activeAffiliations->isNotEmpty() ? 'Book appointment' : 'View profile' }}</a>
                                 <a href="{{ route('doctors.show', $doctor) }}" aria-label="View {{ $doctor->name }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
                             </div>
                         </div>
@@ -91,14 +119,26 @@
     <script>
         (() => {
             const query = document.getElementById('query-filter');
+            const cityFilter = document.getElementById('city-filter');
+            const dateFilter = document.getElementById('date-filter');
+            const dateFilterClear = document.getElementById('date-filter-clear');
             const cards = [...document.querySelectorAll('[data-doctor]')];
             const buttons = [...document.querySelectorAll('button[data-specialty]')];
             let specialty = 'All';
             const update = () => {
                 const term = query.value.trim().toLowerCase();
+                const city = cityFilter.value;
+                const date = dateFilter.value;
+                dateFilterClear.hidden = !date;
                 let count = 0;
                 cards.forEach((card) => {
-                    const visible = (specialty === 'All' || card.dataset.specialty === specialty) && (!term || card.dataset.search.includes(term));
+                    const cities = card.dataset.cities ? card.dataset.cities.split('|') : [];
+                    const availableDates = card.dataset.availableDates ? card.dataset.availableDates.split('|') : [];
+                    const matchesSpecialty = specialty === 'All' || card.dataset.specialty === specialty;
+                    const matchesSearch = !term || card.dataset.search.includes(term);
+                    const matchesCity = city === 'All' || cities.includes(city);
+                    const matchesDate = !date || availableDates.length === 0 || availableDates.includes(date);
+                    const visible = matchesSpecialty && matchesSearch && matchesCity && matchesDate;
                     card.hidden = !visible;
                     if (visible) count++;
                 });
@@ -108,6 +148,9 @@
             };
             document.getElementById('doctor-filters').addEventListener('submit', (event) => { event.preventDefault(); update(); });
             query.addEventListener('input', update);
+            cityFilter.addEventListener('change', update);
+            dateFilter.addEventListener('change', update);
+            dateFilterClear.addEventListener('click', () => { dateFilter.value = ''; update(); });
             buttons.forEach((button) => button.addEventListener('click', () => { specialty = button.dataset.specialty; update(); }));
             update();
         })();

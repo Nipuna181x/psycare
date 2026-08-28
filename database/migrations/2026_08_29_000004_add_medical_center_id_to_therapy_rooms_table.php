@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('doctors', function (Blueprint $table) {
-            $table->enum('consultation_mode', ['in_person', 'online', 'both'])->default('both')->after('consultation_fee');
+        Schema::table('therapy_rooms', function (Blueprint $table) {
+            $table->foreignId('medical_center_id')->nullable()->after('doctor_id')->constrained()->nullOnDelete();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('doctors', function (Blueprint $table) {
-            $table->dropColumn('consultation_mode');
+        Schema::table('therapy_rooms', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('medical_center_id');
         });
     }
 };

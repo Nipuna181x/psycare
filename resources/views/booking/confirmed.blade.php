@@ -20,7 +20,7 @@
                 </span>
                 <p class="eyebrow mt-5">Booking confirmed</p>
                 <h1 class="display-head mt-2 text-[clamp(1.6rem,3.4vw,2.2rem)] text-ink">You're all set, {{ Str::before($appointment->patient_name, ' ') }}</h1>
-                <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">Your appointment with {{ $appointment->doctor->name }} is confirmed. A summary has been shared with {{ $appointment->doctor->medicalCenter->name }} so they can prepare.</p>
+                <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">Your appointment with {{ $appointment->doctor->name }} is confirmed. A summary has been shared with {{ $appointment->medicalCenter->name }} so they can prepare.</p>
 
                 <div class="mt-8 space-y-3 rounded-2xl bg-secondary p-5 text-left">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Booking reference</span><span class="font-medium text-ink">#{{ str_pad($appointment->id, 6, '0', STR_PAD_LEFT) }}</span></div>

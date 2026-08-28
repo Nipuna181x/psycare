@@ -17,7 +17,7 @@
             <div class="mt-8 rounded-3xl bg-card p-6 md:p-8">
                 <p class="eyebrow">Step 2 of 4</p>
                 <h1 class="display-head mt-2 text-[clamp(1.5rem,3vw,2rem)] text-ink">A few details for your visit</h1>
-                <p class="mt-2 text-[13px] text-ink-soft">This information is shared only with {{ $doctor->name }} and {{ $doctor->medicalCenter->name }}.</p>
+                <p class="mt-2 text-[13px] text-ink-soft">This information is shared only with {{ $doctor->name }} and their clinic.</p>
 
                 <form method="POST" action="{{ route('booking.details', $doctor) }}" class="mt-6 space-y-5">
                     @csrf

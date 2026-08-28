@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\MedicalCenter;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,12 +20,10 @@ class AppointmentFactory extends Factory
      */
     public function definition(): array
     {
-        $doctor = Doctor::factory()->create();
-
         return [
             'user_id' => User::factory(),
-            'doctor_id' => $doctor,
-            'medical_center_id' => $doctor->medical_center_id,
+            'doctor_id' => Doctor::factory(),
+            'medical_center_id' => MedicalCenter::factory()->approved(),
             'appointment_date' => fake()->dateTimeBetween('now', '+2 weeks')->format('Y-m-d'),
             'appointment_time' => fake()->randomElement(['09:00', '10:30', '13:00', '15:30', '16:30']),
             'mode' => fake()->randomElement(['in_person', 'online']),

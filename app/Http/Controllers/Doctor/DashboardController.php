@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
+use App\Services\DoctorClinicContext;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -11,11 +12,12 @@ class DashboardController extends Controller
     /**
      * Display the doctor's dashboard.
      */
-    public function index(): View
+    public function index(DoctorClinicContext $clinicContext): View
     {
-        $doctor = Auth::guard('doctor')->user()->load('medicalCenter');
+        $doctor = Auth::guard('doctor')->user()->load('activeAffiliations.clinic');
+        $clinicId = $clinicContext->current($doctor);
 
-        $appointments = $doctor->appointments();
+        $appointments = $doctor->appointments()->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId));
 
         $todayCount = (clone $appointments)->where('status', 'confirmed')->today()->count();
         $upcomingCount = (clone $appointments)->upcoming()->count();
@@ -29,6 +31,7 @@ class DashboardController extends Controller
 
         return view('doctor.dashboard', [
             'doctor' => $doctor,
+            'noClinicAffiliation' => $doctor->activeAffiliations->isEmpty(),
             'todayCount' => $todayCount,
             'upcomingCount' => $upcomingCount,
             'completedCount' => $completedCount,

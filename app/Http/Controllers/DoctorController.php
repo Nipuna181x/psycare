@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Doctor;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DoctorController extends Controller
@@ -13,15 +14,25 @@ class DoctorController extends Controller
     public function index(): View
     {
         $doctors = Doctor::query()
-            ->where('status', 'active')
-            ->whereHas('medicalCenter', fn ($query) => $query->where('status', 'approved'))
-            ->with('medicalCenter')
+            ->where('status', 'approved')
+            ->where('onboarding_step', 'profile_complete')
+            ->with(['activeAffiliations.clinic', 'availabilitySlots' => fn ($query) => $query->available()])
             ->orderBy('name')
             ->get();
+
+        $cities = $doctors
+            ->flatMap(fn (Doctor $doctor) => $doctor->activeAffiliations->pluck('clinic.address'))
+            ->filter()
+            ->map(fn (string $address): string => trim(Str::afterLast($address, ',')))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('doctors.index', [
             'doctors' => $doctors,
             'specializations' => $doctors->pluck('specialization')->filter()->unique()->sort()->values(),
+            'cities' => $cities,
         ]);
     }
 
@@ -30,10 +41,11 @@ class DoctorController extends Controller
      */
     public function show(Doctor $doctor): View
     {
-        abort_unless($doctor->isBookable(), 404);
+        abort_unless($doctor->status === 'approved' && $doctor->onboarding_step === 'profile_complete', 404);
 
         return view('doctors.show', [
-            'doctor' => $doctor->load('medicalCenter'),
+            'doctor' => $doctor->load('activeAffiliations.clinic'),
+            'hasActiveAffiliation' => $doctor->hasActiveAffiliation(),
         ]);
     }
 }

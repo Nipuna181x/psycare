@@ -26,7 +26,7 @@
                 @csrf @method('PATCH')
                 <label class="text-[11px] font-medium text-ink">Name<input name="name" value="{{ old('name', $doctor->name) }}" required class="{{ $inputClasses }}"></label>
                 <label class="text-[11px] font-medium text-ink">Specialization<input name="specialization" value="{{ old('specialization', $doctor->specialization) }}" class="{{ $inputClasses }}"></label>
-                <label class="text-[11px] font-medium text-ink">Medical centre<input value="{{ $doctor->medicalCenter?->name ?? 'Not assigned' }}" disabled class="{{ $inputClasses }} bg-secondary text-ink-soft"></label>
+                <label class="text-[11px] font-medium text-ink">Active clinics<input value="{{ $doctor->activeAffiliations->pluck('clinic.name')->implode(', ') ?: 'No active clinic affiliations' }}" disabled class="{{ $inputClasses }} bg-secondary text-ink-soft"></label>
                 <label class="text-[11px] font-medium text-ink">Bio / about<textarea name="bio" rows="4" class="{{ $inputClasses }} resize-y">{{ old('bio', $doctor->bio) }}</textarea></label>
                 <label class="text-[11px] font-medium text-ink">Profile photo<input type="file" name="profile_photo" accept="image/png,image/jpeg,image/webp" class="{{ $inputClasses }} file:mr-3 file:rounded-lg file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-[10px] file:font-semibold file:text-ink"></label>
                 @error('profile_photo')<p class="text-[11px] text-red-700">{{ $message }}</p>@enderror

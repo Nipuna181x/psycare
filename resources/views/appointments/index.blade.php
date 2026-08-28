@@ -25,7 +25,7 @@
                                 <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-ink text-[13px] font-semibold text-primary-foreground">{{ $appointment->doctor->initials() }}</span>
                                 <div>
                                     <p class="text-[14px] font-medium text-ink">{{ $appointment->doctor->name }}</p>
-                                    <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->doctor->medicalCenter->name }}</p>
+                                    <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->medicalCenter->name }}</p>
                                     <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }} · {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }} · {{ $appointment->mode === 'online' ? 'Online' : 'In person' }}</p>
                                 </div>
                             </div>

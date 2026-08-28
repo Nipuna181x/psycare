@@ -22,7 +22,7 @@
                     <div class="rounded-2xl bg-secondary p-5">
                         <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">Doctor</p>
                         <p class="mt-1 font-display text-[15px] font-medium text-ink">{{ $doctor->name }}</p>
-                        <p class="mt-0.5 text-[12px] text-ink-soft">{{ $doctor->medicalCenter->name }}</p>
+                        <p class="mt-0.5 text-[12px] text-ink-soft">{{ $clinic?->name }}</p>
                     </div>
                     <div class="rounded-2xl bg-secondary p-5">
                         <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">When</p>

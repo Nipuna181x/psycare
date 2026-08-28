@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'user_id', 'doctor_id', 'medical_center_id',
+    'user_id', 'doctor_id', 'medical_center_id', 'doctor_availability_slot_id',
     'appointment_date', 'appointment_time', 'mode',
     'patient_name', 'patient_age', 'patient_gender', 'patient_phone', 'patient_email', 'reason',
     'consultation_fee',
@@ -66,6 +66,14 @@ class Appointment extends Model
     public function medicalCenter(): BelongsTo
     {
         return $this->belongsTo(MedicalCenter::class);
+    }
+
+    /**
+     * @return BelongsTo<DoctorAvailabilitySlot, $this>
+     */
+    public function availabilitySlot(): BelongsTo
+    {
+        return $this->belongsTo(DoctorAvailabilitySlot::class, 'doctor_availability_slot_id');
     }
 
     /** @return HasMany<PatientNlpReport, $this> */

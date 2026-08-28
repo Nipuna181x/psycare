@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Doctor;
-use App\Models\MedicalCenter;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,18 +21,28 @@ class DoctorFactory extends Factory
     public function definition(): array
     {
         return [
-            'medical_center_id' => MedicalCenter::factory()->approved(),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'username' => fake()->unique()->userName(),
             'password' => static::$password ??= Hash::make('password'),
+            'license_number' => fake()->unique()->bothify('SLMC-####'),
             'specialization' => fake()->randomElement(['Psychiatry', 'Psychology', 'Counseling', 'Neurology']),
-            'years_experience' => fake()->numberBetween(2, 20),
+            'years_of_experience' => fake()->numberBetween(2, 20),
             'consultation_fee' => fake()->numberBetween(2500, 6000),
             'consultation_mode' => fake()->randomElement(['in_person', 'online', 'both']),
             'rating' => fake()->randomFloat(1, 4.0, 5.0),
             'phone' => fake()->phoneNumber(),
-            'status' => 'active',
+            'status' => 'approved',
+            'onboarding_step' => 'profile_complete',
+            'approved_at' => now(),
         ];
+    }
+
+    public function pendingApproval(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'pending_approval',
+            'onboarding_step' => 'basic_info_done',
+            'approved_at' => null,
+        ]);
     }
 }
