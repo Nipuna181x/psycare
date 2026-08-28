@@ -15,7 +15,7 @@ class PatientConsentTest extends TestCase
 
     public function test_guest_is_redirected_to_login(): void
     {
-        $this->get(route('settings.care-access.index'))->assertRedirect(route('login'));
+        $this->get(route('settings.index'))->assertRedirect(route('login'));
     }
 
     public function test_patient_sees_only_doctors_they_have_been_treated_by(): void
@@ -25,7 +25,7 @@ class PatientConsentTest extends TestCase
         $otherDoctor = Doctor::factory()->create(['name' => 'Unrelated Doctor']);
         Appointment::factory()->for($treatingDoctor)->create(['user_id' => $patient->id]);
 
-        $response = $this->actingAs($patient)->get(route('settings.care-access.index'));
+        $response = $this->actingAs($patient)->get(route('settings.index'));
 
         $response->assertOk()->assertSee('Treating Doctor')->assertDontSee('Unrelated Doctor');
     }

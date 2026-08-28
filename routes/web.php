@@ -24,6 +24,7 @@ use App\Http\Controllers\Doctor\RegisteredDoctorController;
 use App\Http\Controllers\Doctor\StatusController as DoctorStatusController;
 use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
+use App\Http\Controllers\HealthRecordsController;
 use App\Http\Controllers\MedicalCenter\AffiliationController as MedicalCenterAffiliationController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
 use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as MedicalCenterAuthenticatedSessionController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
 use App\Http\Controllers\PatientNlpClassificationReportController;
+use App\Http\Controllers\PatientProfileController;
 use App\Http\Controllers\TherapyRoomController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +73,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 
+    Route::get('health-records', [HealthRecordsController::class, 'index'])->name('health-records.index');
+
     Route::prefix('booking/{doctor}')->name('booking.')->group(function () {
         Route::get('clinic', [BookingController::class, 'clinic'])->name('clinic');
         Route::post('clinic', [BookingController::class, 'storeClinic']);
@@ -97,7 +101,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
-    Route::get('settings/care-access', [PatientConsentController::class, 'index'])->name('settings.care-access.index');
+    Route::get('settings', [PatientProfileController::class, 'edit'])->name('settings.index');
+    Route::patch('settings/profile', [PatientProfileController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::patch('settings/password', [PatientProfileController::class, 'updatePassword'])->name('settings.password.update');
     Route::patch('settings/care-access/{doctor}', [PatientConsentController::class, 'update'])->name('settings.care-access.update');
 });
 

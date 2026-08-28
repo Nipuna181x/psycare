@@ -7,29 +7,14 @@ use App\Models\Doctor;
 use App\Models\PatientConsent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
 
 class PatientConsentController extends Controller
 {
     /**
-     * List every doctor the authenticated patient has been treated by, with their
-     * current cross-provider access status.
-     */
-    public function index(): View
-    {
-        $patient = Auth::user();
-
-        $treatingDoctors = Doctor::query()
-            ->whereHas('appointments', fn ($query) => $query->where('user_id', $patient->id))
-            ->with(['consentsReceived' => fn ($query) => $query->where('patient_id', $patient->id)])
-            ->orderBy('name')
-            ->get();
-
-        return view('patient.consents.index', ['doctors' => $treatingDoctors]);
-    }
-
-    /**
      * Grant or revoke a doctor's access to the patient's cross-provider history.
+     * The list of doctors and their current status is rendered from the Settings
+     * page (see PatientProfileController::edit()); this controller only handles
+     * the toggle action itself.
      */
     public function update(PatientConsentRequest $request, Doctor $doctor): RedirectResponse
     {
