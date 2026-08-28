@@ -10,7 +10,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-background text-ink selection:bg-sky-500/15">
-    <div class="flex min-h-screen gap-5 p-3 md:p-5">
+    <div class="flex min-h-screen gap-5 p-3 md:p-5 lg:h-dvh lg:overflow-hidden">
         <x-dashboard.sidebar
             class="print:hidden"
             accent="doctor"
@@ -69,7 +69,7 @@
             :show-logout="false"
         />
 
-        <div class="flex flex-1 flex-col gap-5">
+        <div class="flex min-w-0 flex-1 flex-col gap-5 lg:h-[calc(100dvh-2.5rem)] lg:overflow-y-auto">
             <x-dashboard.topbar
                 class="print:hidden"
                 accent="doctor"
