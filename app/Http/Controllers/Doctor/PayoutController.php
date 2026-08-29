@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\DoctorPayout;
 use App\Models\Payment;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * Read-only internal payout ledger. PsyCare uses one Stripe account and no
- * Stripe Connect; clinics mark externally completed doctor payments as paid.
+ * Internal payout ledger. PsyCare uses one Stripe account and no Stripe
+ * Connect; clinics record payment and doctors may only acknowledge receipt.
  * This controller never calls a transfer or payout API.
  */
 class PayoutController extends Controller
@@ -44,5 +46,27 @@ class PayoutController extends Controller
                 ->whereBetween('doctor_paid_at', [now()->startOfMonth(), now()->endOfMonth()])
                 ->sum('doctor_amount'),
         ]);
+    }
+
+    public function received(DoctorPayout $doctorPayout): RedirectResponse
+    {
+        abort_unless($doctorPayout->doctor_id === Auth::guard('doctor')->id(), 403);
+
+        $completed = DB::transaction(function () use ($doctorPayout): bool {
+            $payout = DoctorPayout::query()->lockForUpdate()->findOrFail($doctorPayout->id);
+
+            if ($payout->status === 'completed') {
+                return false;
+            }
+
+            abort_unless($payout->status === 'paid', 422);
+            $payout->update(['status' => 'completed', 'received_at' => now()]);
+
+            return true;
+        }, attempts: 3);
+
+        return back()->with('status', $completed
+            ? 'Payout marked as received.'
+            : 'This payout was already marked as received.');
     }
 }

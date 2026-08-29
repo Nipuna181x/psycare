@@ -41,6 +41,11 @@ class Payment extends Model
         ];
     }
 
+    public function reference(): string
+    {
+        return 'PAY-'.str_pad((string) $this->getKey(), 8, '0', STR_PAD_LEFT);
+    }
+
     /** @return BelongsTo<Appointment, $this> */
     public function appointment(): BelongsTo
     {

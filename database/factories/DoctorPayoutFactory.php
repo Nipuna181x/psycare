@@ -28,6 +28,15 @@ class DoctorPayoutFactory extends Factory
             'amount' => fake()->randomFloat(2, 1000, 25000),
             'payment_count' => fake()->numberBetween(1, 8),
             'paid_at' => now(),
+            'status' => 'paid',
         ];
+    }
+
+    public function completed(): static
+    {
+        return $this->state(fn (): array => [
+            'status' => 'completed',
+            'received_at' => now(),
+        ]);
     }
 }

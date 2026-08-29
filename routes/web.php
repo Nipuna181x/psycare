@@ -47,6 +47,7 @@ use App\Http\Controllers\PatientConversationController;
 use App\Http\Controllers\PatientNlpClassificationReportController;
 use App\Http\Controllers\PatientProfileController;
 use App\Http\Controllers\PaymentCheckoutController;
+use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\TherapyRoomController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,7 @@ Route::middleware('auth')->group(function () {
         ->name('ai-companion.finish');
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('payments/{payment}/receipt', PaymentReceiptController::class)->name('payments.receipt.download');
 
     Route::get('health-records', [HealthRecordsController::class, 'index'])->name('health-records.index');
 
@@ -254,6 +256,7 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
 
         Route::get('earnings', [DoctorEarningsController::class, 'index'])->name('earnings.index');
         Route::get('payouts', [DoctorPayoutController::class, 'index'])->name('payouts.index');
+        Route::patch('payouts/{doctorPayout}/received', [DoctorPayoutController::class, 'received'])->name('payouts.received');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

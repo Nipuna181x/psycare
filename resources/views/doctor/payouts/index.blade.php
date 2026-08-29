@@ -13,7 +13,7 @@
     </div>
 
     <div class="mt-5 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-[11px] leading-relaxed text-sky-900">
-        Payout status is managed by each clinic after they complete payment through their normal payout method. This page is read-only.
+        Each clinic records when it sends a payout. Once the money reaches you, use <strong>I've received it</strong> to complete the audit record. This does not move money.
     </div>
 
     <div class="mt-5 grid gap-5 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
@@ -39,9 +39,18 @@
                 <div class="overflow-hidden rounded-2xl border border-border">
                     <ul class="divide-y divide-border bg-white">
                         @foreach ($history as $payout)
-                            <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5">
-                                <div><p class="text-[12px] font-semibold text-ink">{{ $payout->clinic->name }}</p><p class="mt-0.5 text-[10px] text-ink-soft">Paid {{ $payout->paid_at->format('D, j M Y · g:i A') }} · {{ $payout->payment_count }} {{ Str::plural('payment', $payout->payment_count) }}</p></div>
-                                <div class="text-right"><p class="text-[13px] font-semibold text-ink">LKR {{ number_format((float) $payout->amount, 2) }}</p><span class="mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 uppercase">Paid</span></div>
+                            <li class="flex flex-wrap items-center justify-between gap-4 px-4 py-4">
+                                <div class="min-w-0 flex-1"><p class="text-[12px] font-semibold text-ink">{{ $payout->clinic->name }}</p><p class="mt-0.5 text-[10px] text-ink-soft">Paid {{ $payout->paid_at->format('D, j M Y · g:i A') }} · {{ $payout->payment_count }} {{ Str::plural('payment', $payout->payment_count) }}</p>@if ($payout->received_at)<p class="mt-1 text-[10px] text-emerald-700">Received {{ $payout->received_at->format('D, j M Y · g:i A') }}</p>@endif</div>
+                                <div class="flex flex-wrap items-center justify-end gap-2 text-right">
+                                    <div><p class="text-[13px] font-semibold text-ink">LKR {{ number_format((float) $payout->amount, 2) }}</p><span class="mt-1 inline-flex rounded-full {{ $payout->status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800' }} px-2 py-0.5 text-[9px] font-semibold uppercase">{{ $payout->status }}</span></div>
+                                    @if ($payout->status === 'paid')
+                                        <form method="POST" action="{{ route('doctor.payouts.received', $payout) }}" onsubmit="return confirm('Confirm that you received this LKR {{ number_format((float) $payout->amount, 2) }} payout from {{ addslashes($payout->clinic->name) }}?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="rounded-xl bg-blue-800 px-3.5 py-2.5 text-[9px] font-semibold tracking-[0.06em] text-white uppercase transition-colors hover:bg-blue-900">I've received it</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </li>
                         @endforeach
                     </ul>

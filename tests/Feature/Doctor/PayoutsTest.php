@@ -19,7 +19,7 @@ class PayoutsTest extends TestCase
         $this->get(route('doctor.payouts.index'))->assertRedirect(route('doctor.login'));
     }
 
-    public function test_doctor_sees_pending_by_clinic_and_paid_history_read_only(): void
+    public function test_doctor_sees_pending_by_clinic_and_paid_history(): void
     {
         $doctor = Doctor::factory()->create();
         $otherDoctor = Doctor::factory()->create();
@@ -65,14 +65,69 @@ class PayoutsTest extends TestCase
         $response = $this->actingAs($doctor, 'doctor')->get(route('doctor.payouts.index'));
 
         $response->assertOk()
-            ->assertSee('Payout status is managed by each clinic')
+            ->assertSee('Once the money reaches you')
             ->assertSee('LKR 3,000.00')
             ->assertSee('LKR 12,000.00')
             ->assertSee('LKR 5,000.00')
             ->assertSee('Calm Clinic')
             ->assertSee('Hope Centre')
+            ->assertSee(route('doctor.payouts.received', $currentPayout))
             ->assertDontSee('LKR 9,999.00')
             ->assertDontSee(route('medical-center.payments.doctors.mark-paid', $doctor));
+    }
+
+    public function test_doctor_can_acknowledge_a_paid_payout_as_received(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $clinic = MedicalCenter::factory()->approved()->create(['name' => 'Wellbeing Clinic']);
+        $payout = DoctorPayout::factory()->create([
+            'doctor_id' => $doctor->id,
+            'clinic_id' => $clinic->id,
+            'status' => 'paid',
+        ]);
+        $appointment = Appointment::factory()->for($doctor)->create(['medical_center_id' => $clinic->id]);
+        $payment = Payment::factory()->for($appointment)->paidToDoctor()->create([
+            'doctor_payout_id' => $payout->id,
+        ]);
+
+        $this->actingAs($doctor, 'doctor')
+            ->patch(route('doctor.payouts.received', $payout))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'Payout marked as received.');
+
+        $this->assertSame('completed', $payout->fresh()->status);
+        $this->assertNotNull($payout->fresh()->received_at);
+        $this->assertSame('paid', $payment->fresh()->doctor_payout_status);
+
+        $this->actingAs($clinic, 'medical_center')
+            ->get(route('medical-center.payments.index'))
+            ->assertOk()
+            ->assertSee('completed');
+    }
+
+    public function test_doctor_cannot_acknowledge_another_doctors_payout(): void
+    {
+        $payout = DoctorPayout::factory()->create();
+
+        $this->actingAs(Doctor::factory()->create(), 'doctor')
+            ->patch(route('doctor.payouts.received', $payout))
+            ->assertForbidden();
+
+        $this->assertSame('paid', $payout->fresh()->status);
+        $this->assertNull($payout->fresh()->received_at);
+    }
+
+    public function test_received_acknowledgment_is_idempotent(): void
+    {
+        $payout = DoctorPayout::factory()->completed()->create();
+        $receivedAt = $payout->received_at;
+
+        $this->actingAs($payout->doctor, 'doctor')
+            ->patch(route('doctor.payouts.received', $payout))
+            ->assertRedirect()
+            ->assertSessionHas('status', 'This payout was already marked as received.');
+
+        $this->assertTrue($receivedAt->equalTo($payout->fresh()->received_at));
     }
 
     public function test_empty_state_is_clear(): void

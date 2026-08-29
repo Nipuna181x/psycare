@@ -15,12 +15,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Fillable([
     'clinic_id', 'doctor_id', 'marked_by_type', 'marked_by_id', 'marked_by_name',
-    'amount', 'payment_count', 'paid_at',
+    'amount', 'payment_count', 'paid_at', 'status', 'received_at',
 ])]
 class DoctorPayout extends Model
 {
     /** @use HasFactory<DoctorPayoutFactory> */
     use HasFactory;
+
+    protected $attributes = [
+        'status' => 'paid',
+    ];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -29,6 +33,7 @@ class DoctorPayout extends Model
             'amount' => 'decimal:2',
             'payment_count' => 'integer',
             'paid_at' => 'datetime',
+            'received_at' => 'datetime',
         ];
     }
 

@@ -29,7 +29,7 @@ class PaymentController extends Controller
         $clinicPayments = Payment::query()->succeeded()->whereBelongsTo($clinic, 'clinic');
 
         $payments = (clone $clinicPayments)
-            ->with(['appointment:id,patient_name', 'doctor:id,name', 'patient:id,name'])
+            ->with(['appointment:id,patient_name', 'doctor:id,name', 'patient:id,name', 'doctorPayout:id,status,received_at'])
             ->when($filters['from'] ?? null, fn ($query, $from) => $query->whereDate('processed_at', '>=', $from))
             ->when($filters['to'] ?? null, fn ($query, $to) => $query->whereDate('processed_at', '<=', $to))
             ->when($filters['doctor_id'] ?? null, fn ($query, $doctorId) => $query->where('doctor_id', $doctorId))
