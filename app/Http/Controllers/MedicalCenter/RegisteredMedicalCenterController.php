@@ -4,9 +4,12 @@ namespace App\Http\Controllers\MedicalCenter;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MedicalCenter\RegisterMedicalCenterRequest;
+use App\Models\Admin;
 use App\Models\MedicalCenter;
+use App\Notifications\AdminApprovalRequested;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class RegisteredMedicalCenterController extends Controller
@@ -24,7 +27,7 @@ class RegisteredMedicalCenterController extends Controller
      */
     public function store(RegisterMedicalCenterRequest $request): RedirectResponse
     {
-        MedicalCenter::create([
+        $medicalCenter = MedicalCenter::create([
             'name' => $request->validated('name'),
             'email' => $request->validated('email'),
             'phone' => $request->validated('phone'),
@@ -33,6 +36,13 @@ class RegisteredMedicalCenterController extends Controller
             'password' => Hash::make($request->validated('password')),
             'status' => 'pending',
         ]);
+
+        Notification::send(Admin::all(), new AdminApprovalRequested(
+            type: 'medical_center_application',
+            message: "{$medicalCenter->name} submitted a medical center application.",
+            link: route('admin.medical-centers.show', $medicalCenter, absolute: false),
+            subjectId: $medicalCenter->id,
+        ));
 
         return redirect()->route('medical-center.login')
             ->with('status', 'Registration submitted. Your account will be reviewed by an admin before you can log in.');

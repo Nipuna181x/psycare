@@ -51,14 +51,14 @@
                             <p class="mt-0.5 text-[11px] text-ink-soft">{{ $center->created_at->diffForHumans() }}</p>
                         </div>
                         <div class="flex shrink-0 items-center gap-1.5">
-                            <form method="POST" action="{{ route('admin.user-managment.medical-centers.approve', $center) }}">
+                            <form method="POST" action="{{ route('admin.medical-centers.approve', $center) }}">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="grid h-8 w-8 place-items-center rounded-full bg-emerald-100 text-emerald-700 transition-colors hover:bg-emerald-200" title="Approve">
                                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.user-managment.medical-centers.reject', $center) }}">
+                            <form method="POST" action="{{ route('admin.medical-centers.reject', $center) }}">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="grid h-8 w-8 place-items-center rounded-full bg-red-100 text-red-700 transition-colors hover:bg-red-200" title="Reject">

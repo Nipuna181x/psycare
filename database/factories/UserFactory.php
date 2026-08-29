@@ -43,4 +43,12 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function banned(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'is_banned' => true,
+            'banned_at' => now(),
+        ]);
+    }
 }

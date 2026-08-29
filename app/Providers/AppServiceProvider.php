@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\StripeCheckoutGateway;
 use App\Services\StripeHttpCheckoutGateway;
+use App\View\Composers\AdminPortalComposer;
 use App\View\Composers\DoctorPortalComposer;
 use App\View\Composers\MedicalCenterPortalComposer;
 use Illuminate\Support\Facades\View;
@@ -26,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('layouts.doctor', DoctorPortalComposer::class);
         View::composer('layouts.medical-center', MedicalCenterPortalComposer::class);
+        View::composer('layouts.admin', AdminPortalComposer::class);
     }
 }
