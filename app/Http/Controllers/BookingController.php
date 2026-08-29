@@ -395,11 +395,13 @@ class BookingController extends Controller
      */
     private function ensureClinicSelected(Doctor $doctor): ?RedirectResponse
     {
-        if ($this->stepData($doctor, 'clinic')) {
+        $affiliations = $doctor->activeAffiliations;
+
+        $selectedClinicId = $this->stepData($doctor, 'clinic')['clinic_id'] ?? null;
+
+        if ($selectedClinicId && $affiliations->contains('clinic_id', $selectedClinicId)) {
             return null;
         }
-
-        $affiliations = $doctor->activeAffiliations;
 
         if ($affiliations->count() === 1) {
             $this->saveStep($doctor, 'clinic', ['clinic_id' => $affiliations->first()->clinic_id]);

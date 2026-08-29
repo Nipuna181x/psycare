@@ -237,6 +237,22 @@ class BookingFlowTest extends TestCase
         $response->assertRedirect(route('booking.schedule', $doctor));
     }
 
+    public function test_stale_clinic_selection_from_an_earlier_session_does_not_bypass_clinic_selection(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+
+        // Simulate a leftover/invalid clinic_id lingering in the session from an
+        // abandoned booking or a since-ended affiliation — this must not silently
+        // bypass clinic selection on a fresh visit to the schedule step.
+        session(["booking.{$doctor->id}.clinic" => ['clinic_id' => 999999]]);
+
+        $response = $this->actingAs($patient)->get(route('booking.schedule', $doctor));
+
+        $response->assertRedirect(route('booking.clinic', $doctor));
+    }
+
     public function test_booking_is_blocked_at_checkout_when_doctor_has_no_price_set(): void
     {
         $patient = User::factory()->create();
