@@ -1,6 +1,6 @@
 <nav class="border-b border-gray-200 bg-white">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-lg font-semibold text-gray-900">
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-lg font-semibold tracking-[0.08em] text-gray-900 uppercase">
             <span class="h-9 w-9 shrink-0 overflow-hidden rounded-full">
                 <img src="{{ asset('logo-psycare.jpg') }}" alt="PsyCare" class="h-full w-full scale-[1.75] object-cover">
             </span>

@@ -6,7 +6,7 @@
             <span class="h-8 w-8 shrink-0 overflow-hidden rounded-full">
                 <img src="{{ asset('logo-psycare.jpg') }}" alt="PsyCare" class="h-full w-full scale-[1.75] object-cover">
             </span>
-            <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
+            <span class="font-display text-lg font-semibold tracking-[0.08em] uppercase">PsyCare</span>
         </a>
 
         <div class="hidden items-center gap-1 rounded-full bg-card px-2 py-1.5 shadow-[0_1px_0_0_var(--border)] transition-shadow duration-300 ease-out lg:flex [.is-stuck_&]:shadow-none">

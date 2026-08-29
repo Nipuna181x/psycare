@@ -15,7 +15,7 @@
     <main class="min-h-screen bg-background p-3 text-ink selection:bg-blue-800/15 md:p-6 lg:flex lg:items-center">
         <div class="mx-auto w-full max-w-[520px] rounded-3xl bg-card px-6 py-10 md:px-10">
             <div class="flex items-center justify-between gap-4">
-                <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink"><span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span><span class="font-display text-lg font-medium">PsyCare</span></a>
+                <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink"><span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span><span class="font-display text-lg font-semibold tracking-[0.08em] uppercase">PsyCare</span></a>
                 <span class="text-[10px] font-medium tracking-[0.12em] text-ink-soft uppercase">Clinic portal</span>
             </div>
 

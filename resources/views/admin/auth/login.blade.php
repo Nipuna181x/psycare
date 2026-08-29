@@ -21,7 +21,7 @@
 
                 <a href="{{ route('home') }}" class="absolute top-8 left-8 flex items-center gap-2.5 text-primary-foreground">
                     <span class="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/20 backdrop-blur-md"><span class="h-2.5 w-2.5 rounded-full bg-primary-foreground"></span></span>
-                    <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
+                    <span class="font-display text-lg font-semibold tracking-[0.08em] uppercase">PsyCare</span>
                 </a>
 
                 <div class="absolute inset-x-0 bottom-0 p-8 md:p-10">
@@ -37,7 +37,7 @@
             <section class="flex items-center rounded-3xl bg-card px-6 py-10 md:px-10 lg:px-14 xl:px-16">
                 <div class="mx-auto w-full max-w-[600px]">
                     <div class="flex items-center justify-between gap-4 lg:hidden">
-                        <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink"><span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span><span class="font-display text-lg font-medium">PsyCare</span></a>
+                        <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink"><span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span><span class="font-display text-lg font-semibold tracking-[0.08em] uppercase">PsyCare</span></a>
                         <span class="text-[10px] font-medium tracking-[0.12em] text-ink-soft uppercase">Admin portal</span>
                     </div>
 
