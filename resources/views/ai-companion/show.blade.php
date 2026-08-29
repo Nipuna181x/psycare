@@ -12,9 +12,9 @@
 <body class="overflow-hidden bg-black">
     <main id="voice-companion" data-start-endpoint="{{ route('ai-companion.start') }}" data-endpoint="{{ route('ai-companion.respond') }}" data-finish-endpoint="{{ route('ai-companion.finish') }}" data-home="{{ route('home') }}" class="relative flex min-h-dvh flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#211c28_0%,#0d0b10_38%,#050505_72%)] text-white">
         <header class="relative z-20 flex items-center justify-between gap-4 px-5 py-5 md:px-8">
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-white/90">
-                <span class="grid size-8 place-items-center rounded-full border border-white/15 bg-white/10"><span class="size-2.5 rounded-full bg-[#bac5ff]"></span></span>
-                <span class="text-sm font-medium tracking-tight">Lumi <span class="font-normal text-white/35">· AI Companion</span></span>
+            <a href="{{ route('home') }}" class="flex items-center gap-2 rounded-full border border-white/10 bg-white/6 py-2 pr-4 pl-2.5 text-white/80 transition hover:bg-white/10 hover:text-white">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                <span class="text-[12px] font-medium tracking-tight">Back to site</span>
             </a>
             <div class="flex rounded-full border border-white/10 bg-white/6 p-1" role="radiogroup" aria-label="Conversation language">
                 <button type="button" data-language="en" role="radio" aria-checked="true" class="companion-language rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold text-black">EN</button>
