@@ -18,7 +18,10 @@ class ProfileManagementTest extends TestCase
         Storage::fake('public');
         $doctor = Doctor::factory()->create();
 
-        $this->actingAs($doctor, 'doctor')->get(route('doctor.profile.edit'))->assertOk()->assertSee('Profile &amp; Settings', false);
+        $this->actingAs($doctor, 'doctor')->get(route('doctor.profile.edit'))
+            ->assertOk()
+            ->assertSee('Profile &amp; Settings', false)
+            ->assertSee(route('doctor.profile.edit'));
 
         $this->actingAs($doctor, 'doctor')->patch(route('doctor.profile.information.update'), [
             'name' => 'Dr. Maya Fernando',
