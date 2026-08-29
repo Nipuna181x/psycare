@@ -77,7 +77,7 @@ class BookingSlotsTest extends TestCase
         $this->assertSame([], $response->json('slots'));
     }
 
-    public function test_published_availability_slots_are_not_filtered_by_operating_hours(): void
+    public function test_published_availability_slots_cannot_override_a_closed_clinic_day(): void
     {
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create();
@@ -97,7 +97,58 @@ class BookingSlotsTest extends TestCase
         $response = $this->actingAs($patient)->getJson(route('booking.slots', $doctor).'?date='.$day->toDateString());
 
         $response->assertOk();
+        $this->assertSame([], $response->json('slots'));
+    }
+
+    public function test_updated_clinic_hours_immediately_replace_old_published_slot_times(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
+        $day = now()->addWeek()->next('Wednesday');
+
+        foreach (['09:00', '10:00', '15:00'] as $time) {
+            DoctorAvailabilitySlot::factory()->create([
+                'doctor_id' => $doctor->id,
+                'clinic_id' => $affiliation->clinic_id,
+                'date' => $day->toDateString(),
+                'start_time' => $time,
+                'is_booked' => false,
+            ]);
+        }
+
+        $this->actingAs($patient)->get(route('booking.schedule', $doctor));
+
+        $this->actingAs($affiliation->clinic, 'medical_center')
+            ->patch(route('medical-center.settings.hours.update'), [
+                'hours' => $this->operatingHours('Wednesday', '10:00', '12:00'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $response = $this->actingAs($patient)->getJson(route('booking.slots', $doctor).'?date='.$day->toDateString());
+
+        $response->assertOk();
         $times = collect($response->json('slots'))->pluck('time');
-        $this->assertTrue($times->contains('11:00'));
+        $this->assertSame(['10:00', '10:30', '11:00', '11:30'], $times->all());
+        $this->assertFalse($times->contains('09:00'));
+        $this->assertFalse($times->contains('15:00'));
+    }
+
+    public function test_patient_cannot_submit_a_time_outside_current_clinic_hours(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
+        $day = now()->addWeek()->next('Wednesday');
+        $affiliation->clinic->update(['operating_hours' => $this->operatingHours('Wednesday', '10:00', '12:00')]);
+
+        $this->actingAs($patient)->get(route('booking.schedule', $doctor));
+
+        $this->actingAs($patient)
+            ->post(route('booking.schedule', $doctor), [
+                'appointment_date' => $day->toDateString(),
+                'appointment_time' => '09:00',
+            ])
+            ->assertSessionHasErrors('appointment_time');
     }
 }

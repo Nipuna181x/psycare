@@ -60,6 +60,17 @@ class Doctor extends Authenticatable
     }
 
     /**
+     * Active affiliations that patients may use for a new booking.
+     *
+     * @return HasMany<DoctorClinicAffiliation, $this>
+     */
+    public function bookableAffiliations(): HasMany
+    {
+        return $this->activeAffiliations()
+            ->whereHas('clinic', fn ($query) => $query->where('status', 'approved'));
+    }
+
+    /**
      * @return BelongsToMany<MedicalCenter, $this>
      */
     public function clinics(): BelongsToMany
@@ -133,6 +144,11 @@ class Doctor extends Authenticatable
     public function hasActiveAffiliation(): bool
     {
         return $this->activeAffiliations()->exists();
+    }
+
+    public function hasBookableAffiliation(): bool
+    {
+        return $this->bookableAffiliations()->exists();
     }
 
     public function isPriced(): bool

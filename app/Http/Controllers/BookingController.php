@@ -47,7 +47,7 @@ class BookingController extends Controller
     {
         $this->ensureBookable($doctor);
 
-        $affiliations = $doctor->activeAffiliations()->with('clinic')->get();
+        $affiliations = $doctor->bookableAffiliations()->with('clinic')->get();
 
         if ($affiliations->count() <= 1) {
             return redirect()->route('booking.schedule', $doctor);
@@ -66,9 +66,9 @@ class BookingController extends Controller
 
         $clinicId = (int) $request->validated('clinic_id');
 
-        abort_unless($doctor->activeAffiliations()->where('clinic_id', $clinicId)->exists(), 422);
+        abort_unless($doctor->bookableAffiliations()->where('clinic_id', $clinicId)->exists(), 422);
 
-        $this->saveStep($doctor, 'clinic', ['clinic_id' => $clinicId]);
+        $this->selectClinic($doctor, $clinicId);
 
         return redirect()->route('booking.schedule', $doctor);
     }
@@ -84,8 +84,12 @@ class BookingController extends Controller
             return $redirect;
         }
 
+        $clinicId = (int) $this->stepData($doctor, 'clinic')['clinic_id'];
+
         return view('booking.schedule', [
             'doctor' => $doctor,
+            'clinic' => MedicalCenter::findOrFail($clinicId),
+            'canChangeClinic' => $doctor->bookableAffiliations()->where('clinic_id', '!=', $clinicId)->exists(),
             'saved' => $this->stepData($doctor, 'schedule'),
         ]);
     }
@@ -101,8 +105,8 @@ class BookingController extends Controller
         $data = [...$request->validated(), 'mode' => 'in_person'];
         $clinicId = $this->stepData($doctor, 'clinic')['clinic_id'];
 
-        if ($this->isSlotTaken($doctor, $clinicId, $data['appointment_date'], $data['appointment_time'])) {
-            return back()->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.'])->withInput();
+        if (! $this->isSlotAvailable($doctor, $clinicId, $data['appointment_date'], $data['appointment_time'])) {
+            return back()->withErrors(['appointment_time' => 'That time is no longer available at this clinic. Please choose another.'])->withInput();
         }
 
         $this->saveStep($doctor, 'schedule', $data);
@@ -122,6 +126,10 @@ class BookingController extends Controller
         ]);
 
         $clinicId = $this->stepData($doctor, 'clinic')['clinic_id'] ?? null;
+
+        if (! $clinicId || ! $doctor->bookableAffiliations()->where('clinic_id', $clinicId)->exists()) {
+            return response()->json(['slots' => []]);
+        }
 
         return response()->json([
             'slots' => $this->availableSlots($doctor, $clinicId, $request->string('date')->toString()),
@@ -252,6 +260,10 @@ class BookingController extends Controller
     {
         $this->ensureBookable($doctor);
 
+        if ($redirect = $this->ensureClinicSelected($doctor)) {
+            return $redirect;
+        }
+
         if ($redirect = $this->ensureStepComplete($doctor, ['schedule', 'details', 'assessment'])) {
             return $redirect;
         }
@@ -286,6 +298,10 @@ class BookingController extends Controller
     {
         $this->ensureBookable($doctor);
 
+        if ($redirect = $this->ensureClinicSelected($doctor)) {
+            return $redirect;
+        }
+
         if ($redirect = $this->ensureStepComplete($doctor, ['schedule', 'details', 'assessment'])) {
             return $redirect;
         }
@@ -298,9 +314,9 @@ class BookingController extends Controller
             return $redirect;
         }
 
-        if ($this->isSlotTaken($doctor, $clinicId, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
+        if (! $this->isSlotAvailable($doctor, $clinicId, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
             return redirect()->route('booking.schedule', $doctor)
-                ->withErrors(['appointment_time' => 'That time slot was just booked. Please choose another.']);
+                ->withErrors(['appointment_time' => 'That time is no longer available at this clinic. Please choose another.']);
         }
 
         $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
@@ -388,7 +404,7 @@ class BookingController extends Controller
 
     private function ensureBookable(Doctor $doctor): void
     {
-        abort_unless($doctor->isBookable() && $doctor->hasActiveAffiliation(), 404);
+        abort_unless($doctor->isBookable() && $doctor->hasBookableAffiliation(), 404);
     }
 
     /**
@@ -413,7 +429,7 @@ class BookingController extends Controller
      */
     private function ensureClinicSelected(Doctor $doctor): ?RedirectResponse
     {
-        $affiliations = $doctor->activeAffiliations;
+        $affiliations = $doctor->bookableAffiliations()->get();
 
         $selectedClinicId = $this->stepData($doctor, 'clinic')['clinic_id'] ?? null;
 
@@ -422,12 +438,27 @@ class BookingController extends Controller
         }
 
         if ($affiliations->count() === 1) {
-            $this->saveStep($doctor, 'clinic', ['clinic_id' => $affiliations->first()->clinic_id]);
+            $this->selectClinic($doctor, $affiliations->first()->clinic_id);
 
             return null;
         }
 
         return redirect()->route('booking.clinic', $doctor);
+    }
+
+    private function selectClinic(Doctor $doctor, int $clinicId): void
+    {
+        $previousClinicId = $this->stepData($doctor, 'clinic')['clinic_id'] ?? null;
+
+        if ($previousClinicId !== null && (int) $previousClinicId !== $clinicId) {
+            session()->forget([
+                "booking.{$doctor->id}.schedule",
+                "booking.{$doctor->id}.details",
+                "booking.{$doctor->id}.assessment",
+            ]);
+        }
+
+        $this->saveStep($doctor, 'clinic', ['clinic_id' => $clinicId]);
     }
 
     /**
@@ -529,40 +560,34 @@ class BookingController extends Controller
             ->exists();
     }
 
+    private function isSlotAvailable(Doctor $doctor, int $clinicId, string $date, string $time): bool
+    {
+        return collect($this->availableSlots($doctor, $clinicId, $date))
+            ->contains(fn (array $slot): bool => $slot['time'] === $time && ! $slot['disabled']);
+    }
+
     /**
-     * Clinic-scoped time slots for the given date. When the clinic has published
-     * availability slots for this doctor+date, those are used (with a `disabled`
-     * flag for already-booked ones, so patients see why) — trusted as-is since a
-     * clinic admin explicitly created them. Otherwise, falls back to a 30-minute
-     * grid bounded by the clinic's operating hours for that day of the week (or
-     * 9AM-5PM if the clinic hasn't set any), checked against existing appointments.
+     * Clinic-scoped time slots for the given date. The current clinic operating
+     * hours always define the visible 30-minute grid, so a settings change takes
+     * effect immediately. Stored availability rows and existing appointments are
+     * then overlaid to disable times that are already reserved or booked.
      *
      * @return array<int, array{time: string, label: string, disabled: bool}>
      */
     private function availableSlots(Doctor $doctor, ?int $clinicId, string $date): array
     {
-        if ($clinicId) {
-            $publishedSlots = DoctorAvailabilitySlot::query()
-                ->where('doctor_id', $doctor->id)
-                ->where('clinic_id', $clinicId)
-                ->whereDate('date', $date)
-                ->orderBy('start_time')
-                ->get();
-
-            if ($publishedSlots->isNotEmpty()) {
-                return $publishedSlots->map(fn (DoctorAvailabilitySlot $slot): array => [
-                    'time' => Carbon::parse($slot->start_time)->format('H:i'),
-                    'label' => Carbon::parse($slot->start_time)->format('g:i A'),
-                    'disabled' => $slot->is_booked,
-                ])->all();
-            }
-        }
-
         [$opens, $closes] = $this->clinicHoursFor($clinicId, $date);
 
         if ($opens === null) {
             return [];
         }
+
+        $publishedSlots = DoctorAvailabilitySlot::query()
+            ->where('doctor_id', $doctor->id)
+            ->when($clinicId, fn ($query) => $query->where('clinic_id', $clinicId))
+            ->whereDate('date', $date)
+            ->get()
+            ->keyBy(fn (DoctorAvailabilitySlot $slot): string => Carbon::parse($slot->start_time)->format('H:i'));
 
         $taken = Appointment::query()
             ->where('doctor_id', $doctor->id)
@@ -584,7 +609,11 @@ class BookingController extends Controller
             $time = $cursor->format('H:i');
 
             if (! $isToday || $cursor->gt($now)) {
-                $slots[] = ['time' => $time, 'label' => $cursor->format('g:i A'), 'disabled' => in_array($time, $taken, true)];
+                $slots[] = [
+                    'time' => $time,
+                    'label' => $cursor->format('g:i A'),
+                    'disabled' => ($publishedSlots->get($time)?->is_booked ?? false) || in_array($time, $taken, true),
+                ];
             }
 
             $cursor->addMinutes(30);

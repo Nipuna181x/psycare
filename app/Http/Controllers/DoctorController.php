@@ -16,12 +16,12 @@ class DoctorController extends Controller
         $doctors = Doctor::query()
             ->where('status', 'approved')
             ->where('onboarding_step', 'profile_complete')
-            ->with(['activeAffiliations.clinic', 'availabilitySlots' => fn ($query) => $query->available()])
+            ->with(['bookableAffiliations.clinic', 'availabilitySlots' => fn ($query) => $query->available()])
             ->orderBy('name')
             ->get();
 
         $cities = $doctors
-            ->flatMap(fn (Doctor $doctor) => $doctor->activeAffiliations->pluck('clinic.address'))
+            ->flatMap(fn (Doctor $doctor) => $doctor->bookableAffiliations->pluck('clinic.address'))
             ->filter()
             ->map(fn (string $address): string => trim(Str::afterLast($address, ',')))
             ->filter()
@@ -44,8 +44,8 @@ class DoctorController extends Controller
         abort_unless($doctor->status === 'approved' && $doctor->onboarding_step === 'profile_complete', 404);
 
         return view('doctors.show', [
-            'doctor' => $doctor->load('activeAffiliations.clinic'),
-            'hasActiveAffiliation' => $doctor->hasActiveAffiliation(),
+            'doctor' => $doctor->load('bookableAffiliations.clinic'),
+            'hasActiveAffiliation' => $doctor->hasBookableAffiliation(),
         ]);
     }
 }

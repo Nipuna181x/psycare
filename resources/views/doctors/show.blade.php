@@ -33,7 +33,7 @@
                             <h1 class="display-head mt-1 text-[clamp(1.7rem,3.2vw,2.4rem)] text-ink">{{ $doctor->name }}</h1>
                             <p class="mt-2 flex items-center gap-1.5 text-[13px] text-ink-soft">
                                 <svg class="h-3.5 w-3.5 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                                {{ $doctor->activeAffiliations->pluck('clinic.name')->implode(', ') ?: 'Not currently affiliated with a clinic' }}
+                                {{ $doctor->bookableAffiliations->pluck('clinic.name')->implode(', ') ?: 'Not currently affiliated with a clinic' }}
                             </p>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     <p class="font-display text-[16px] font-medium">Book with {{ $doctor->name }}</p>
                     @if ($hasActiveAffiliation)
                         <p class="mt-2 text-[13px] leading-relaxed text-primary-foreground/70">Booking takes about 3 minutes, including a short AI-assisted voice pre-assessment so your doctor is prepared before you arrive.</p>
-                        <a href="{{ route('booking.schedule', $doctor) }}" class="mt-6 flex items-center justify-center gap-2 rounded-full bg-card px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">
+                        <a href="{{ route('booking.clinic', $doctor) }}" class="mt-6 flex items-center justify-center gap-2 rounded-full bg-card px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">
                             Book appointment
                             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                         </a>
