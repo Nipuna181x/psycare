@@ -8,6 +8,7 @@ use App\Models\NlpClassificationResult;
 use App\Models\PatientNlpReport;
 use App\Models\User;
 use App\Services\DoctorClinicContext;
+use App\Services\MoodTrend;
 use App\Services\PatientHistoryVisibility;
 use App\Services\PatientNlpReportGenerator;
 use App\Services\PatientRiskInsights;
@@ -22,7 +23,10 @@ use Throwable;
 
 class PatientController extends Controller
 {
-    public function __construct(private readonly PatientRiskInsights $riskInsights) {}
+    public function __construct(
+        private readonly PatientRiskInsights $riskInsights,
+        private readonly MoodTrend $moodTrend,
+    ) {}
 
     /**
      * List every patient the authenticated doctor has an appointment history with.
@@ -80,6 +84,8 @@ class PatientController extends Controller
             'latestReport' => $reports->last(),
             'pendingSessions' => $pendingSessions,
             'chartData' => $this->riskInsights->chartData($classifications),
+            'moodEntries' => $patient->moodEntries()->latest('entry_date')->limit(30)->get(),
+            'moodChartData' => $this->moodTrend->forPatient($patient),
         ]);
     }
 

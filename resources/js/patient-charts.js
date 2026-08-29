@@ -55,3 +55,43 @@ if (symptomsCanvas) {
         },
     });
 }
+
+const moodLabels = ['Very low', 'Low', 'Neutral', 'Good', 'Great'];
+document.querySelectorAll('[data-mood-trend-chart]').forEach((moodCanvas) => {
+    const data = JSON.parse(moodCanvas.dataset.chart);
+
+    new Chart(moodCanvas, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Mood',
+                data: data.scores,
+                borderColor: '#d97706',
+                backgroundColor: 'rgba(251, 191, 36, 0.16)',
+                pointBackgroundColor: '#f59e0b',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.35,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: { stepSize: 1, callback: (value) => moodLabels[value - 1] ?? value },
+                    grid: { color: 'rgba(148, 163, 184, 0.16)' },
+                },
+                x: { grid: { display: false } },
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (context) => moodLabels[context.raw - 1] ?? `Mood ${context.raw}` } },
+            },
+        },
+    });
+});
