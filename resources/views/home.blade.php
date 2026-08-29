@@ -18,28 +18,12 @@
 </head>
 <body>
     <div class="min-h-screen bg-background text-ink selection:bg-teal/20">
-        <section id="top" class="px-3 pt-3 md:px-5 md:pt-5">
+        <x-patient-nav />
+
+        <section id="top" class="px-3 pb-3 md:px-5 md:pb-5">
             <div class="relative overflow-hidden rounded-3xl bg-ink">
                 <img src="{{ Vite::asset('resources/images/psycare/hero-consult.jpg') }}" alt="A psychiatrist listening to a patient in a sunlit consulting room in Sri Lanka" width="1920" height="1200" class="h-[720px] w-full object-cover object-center md:h-[780px]">
                 <div class="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-ink/55"></div>
-
-                <nav class="absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-4 px-5 py-5 md:px-9 md:py-7">
-                    <a href="#top" class="flex items-center gap-2.5 text-primary-foreground">
-                        <span class="grid h-8 w-8 place-items-center rounded-full bg-primary-foreground/20 backdrop-blur-sm"><span class="h-2.5 w-2.5 rounded-full bg-primary-foreground"></span></span>
-                        <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
-                    </a>
-                    <div class="hidden items-center gap-1 rounded-full bg-primary-foreground/12 px-2 py-1.5 backdrop-blur-md lg:flex">
-                        @foreach ([['Home', '/'], ['Book a Doctor', '/doctors'], ['Lumi', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', '/appointments'], ['Group Therapy', route('therapy-rooms.index')], ['Mood Tracker', '/mood-tracker']] as [$label, $href])
-                            <a href="{{ $href }}" class="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-primary-foreground/80 transition-colors hover:bg-primary-foreground/20 hover:text-primary-foreground">{{ $label }}</a>
-                        @endforeach
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <x-home-account-control />
-                        <button type="button" aria-label="Open menu" class="grid h-11 w-11 place-items-center rounded-full bg-primary-foreground/15 text-primary-foreground backdrop-blur-md lg:hidden">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 6h16M4 18h16"/></svg>
-                        </button>
-                    </div>
-                </nav>
 
                 <div class="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-9 md:pb-9">
                     <div class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
