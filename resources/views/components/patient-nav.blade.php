@@ -2,7 +2,9 @@
 
 <nav class="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-5 py-6 md:px-9 md:py-7">
     <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink">
-        <span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span>
+        <span class="h-8 w-8 shrink-0 overflow-hidden rounded-full">
+            <img src="{{ asset('logo-psycare.jpg') }}" alt="PsyCare" class="h-full w-full scale-[1.75] object-cover">
+        </span>
         <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
     </a>
 
