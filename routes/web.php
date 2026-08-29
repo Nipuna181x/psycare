@@ -38,6 +38,7 @@ use App\Http\Controllers\MedicalCenter\PatientController as MedicalCenterPatient
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use App\Http\Controllers\MedicalCenter\SettingsController as MedicalCenterSettingsController;
 use App\Http\Controllers\MedicalCenter\StaffAuthenticatedSessionController;
+use App\Http\Controllers\MoodTrackerController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
@@ -81,6 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
 
     Route::get('health-records', [HealthRecordsController::class, 'index'])->name('health-records.index');
+
+    Route::get('mood-tracker', [MoodTrackerController::class, 'index'])->name('mood-tracker.index');
+    Route::post('mood-tracker', [MoodTrackerController::class, 'store'])->name('mood-tracker.store');
 
     Route::prefix('booking/{doctor}')->name('booking.')->group(function () {
         Route::get('clinic', [BookingController::class, 'clinic'])->name('clinic');

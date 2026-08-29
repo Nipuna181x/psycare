@@ -107,11 +107,17 @@
         @if ($reportsByDay->isNotEmpty())
             <x-dashboard.panel title="Day-by-day Lumi reports" subtitle="Each day's conversation, most recent first" class="lg:col-span-3">
                 <div class="space-y-4">
-                    @php($isFirstEntry = true)
+                    @php
+                        $isFirstEntry = true;
+                    @endphp
                     @foreach ($reportsByDay as $day => $dayReports)
                         @foreach ($dayReports as $dayReport)
-                            @php($dayReportData = $dayReport->report)
-                            <details class="rounded-2xl border border-border" @if ($isFirstEntry) open @php($isFirstEntry = false) @endif>
+                            @php
+                                $dayReportData = $dayReport->report;
+                                $isOpen = $isFirstEntry;
+                                $isFirstEntry = false;
+                            @endphp
+                            <details class="rounded-2xl border border-border" @if ($isOpen) open @endif>
                                 <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
                                     <div class="flex items-center gap-3">
                                         <span class="font-display text-[14px] font-medium text-ink">{{ \Illuminate\Support\Carbon::parse($day)->format('l, j M Y') }}</span>
@@ -134,7 +140,9 @@
         @endif
 
         <x-dashboard.panel title="Medication History" subtitle="Prescriptions recorded during appointments with you" class="lg:col-span-3">
-            @php($appointmentsWithPrescription = $appointments->filter(fn ($appointment) => $appointment->prescription))
+            @php
+                $appointmentsWithPrescription = $appointments->filter(fn ($appointment) => $appointment->prescription);
+            @endphp
             @if ($appointmentsWithPrescription->isEmpty())
                 <div class="grid min-h-32 place-items-center rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-center">
                     <div>
@@ -229,6 +237,49 @@
                         </li>
                     @endforeach
                 </ul>
+            @endif
+        </x-dashboard.panel>
+
+        <x-dashboard.panel title="Mood Tracker" subtitle="Patient-recorded daily wellbeing over the last 30 days" class="lg:col-span-3">
+            @if ($moodEntries->isEmpty())
+                <div class="grid min-h-40 place-items-center rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-center">
+                    <div>
+                        <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-sky-50 text-xl" aria-hidden="true">☀️</span>
+                        <p class="mt-3 text-[12px] font-medium text-ink">This patient hasn't logged any mood entries yet.</p>
+                    </div>
+                </div>
+            @else
+                @php
+                    $doctorMoodLabels = [1 => ['emoji' => '😞', 'label' => 'Very low'], 2 => ['emoji' => '🙁', 'label' => 'Low'], 3 => ['emoji' => '😐', 'label' => 'Neutral'], 4 => ['emoji' => '🙂', 'label' => 'Good'], 5 => ['emoji' => '😊', 'label' => 'Great']];
+                @endphp
+                <div class="grid gap-5 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
+                    <div class="rounded-2xl border border-border bg-white p-4 md:p-5">
+                        <p class="text-[10px] font-semibold tracking-[0.1em] text-ink-soft uppercase">30-day mood trend</p>
+                        <x-mood-trend-chart :chart-data="$moodChartData" class="mt-4" />
+                    </div>
+
+                    <div class="overflow-hidden rounded-2xl border border-border">
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[650px] text-left">
+                                <thead class="bg-secondary/70 text-[9px] font-semibold tracking-[0.08em] text-ink-soft uppercase">
+                                    <tr><th class="px-4 py-3">Date</th><th class="px-4 py-3">Mood</th><th class="px-4 py-3">Tags</th><th class="px-4 py-3">Sleep</th><th class="px-4 py-3">Note</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-border bg-white">
+                                    @foreach ($moodEntries as $entry)
+                                        @php($mood = $doctorMoodLabels[$entry->mood_score])
+                                        <tr class="align-top">
+                                            <td class="whitespace-nowrap px-4 py-3 text-[11px] font-medium text-ink">{{ $entry->entry_date->format('j M Y') }}</td>
+                                            <td class="whitespace-nowrap px-4 py-3 text-[11px] text-ink"><span class="mr-1" aria-hidden="true">{{ $mood['emoji'] }}</span>{{ $mood['label'] }} ({{ $entry->mood_score }}/5)</td>
+                                            <td class="px-4 py-3"><div class="flex max-w-48 flex-wrap gap-1">@forelse ($entry->mood_tags as $tag)<span class="rounded-full bg-secondary px-2 py-1 text-[9px] text-ink-soft">{{ ucfirst($tag) }}</span>@empty<span class="text-[10px] text-ink-soft">—</span>@endforelse</div></td>
+                                            <td class="whitespace-nowrap px-4 py-3 text-[11px] text-ink-soft">{{ $entry->sleep_hours !== null ? rtrim(rtrim($entry->sleep_hours, '0'), '.').'h' : '—' }}</td>
+                                            <td class="max-w-64 px-4 py-3 text-[11px] leading-relaxed text-ink-soft">{{ $entry->note ?: '—' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             @endif
         </x-dashboard.panel>
     </div>
