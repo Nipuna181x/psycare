@@ -52,6 +52,12 @@
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\'/></svg>',
                 ],
                 [
+                    'label' => 'Payouts',
+                    'href' => route('doctor.payouts.index'),
+                    'active' => request()->routeIs('doctor.payouts.*'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M4 7h16v10H4z\'/><path d=\'M8 12h.01M16 12h.01\'/><path d=\'M12 10v4\'/></svg>',
+                ],
+                [
                     'label' => 'Patients',
                     'href' => route('doctor.patients.index'),
                     'active' => request()->routeIs('doctor.patients.*'),

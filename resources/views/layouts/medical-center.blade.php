@@ -49,6 +49,12 @@
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M3 3v18h18\'/><path d=\'M18 17V9\'/><path d=\'M13 17V5\'/><path d=\'M8 17v-3\'/></svg>',
                 ],
                 [
+                    'label' => 'Payments',
+                    'href' => route('medical-center.payments.index'),
+                    'active' => request()->routeIs('medical-center.payments.*'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'2\' y=\'5\' width=\'20\' height=\'14\' rx=\'2\'/><path d=\'M2 10h20\'/></svg>',
+                ],
+                [
                     'label' => 'Settings',
                     'href' => route('medical-center.settings.edit'),
                     'active' => request()->routeIs('medical-center.settings.*'),

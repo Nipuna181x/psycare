@@ -25,6 +25,7 @@ class AppointmentController extends Controller
         $dateTo = trim((string) $request->string('date_to'));
 
         $appointments = $currentClinic->model()->appointments()
+            ->visibleToCareTeam()
             ->when($name !== '', fn ($query) => $query->where('patient_name', 'like', "%{$name}%"))
             ->when($dateFrom !== '', fn ($query) => $query->whereDate('appointment_date', '>=', $dateFrom))
             ->when($dateTo !== '', fn ($query) => $query->whereDate('appointment_date', '<=', $dateTo))
@@ -50,6 +51,7 @@ class AppointmentController extends Controller
     public function show(Appointment $appointment, CurrentClinic $currentClinic): View
     {
         abort_unless($appointment->medical_center_id === $currentClinic->id(), 403);
+        abort_if($appointment->status === 'pending_payment', 404);
 
         return view('medical-center.appoinment-managment.show', [
             'appointment' => $appointment->load(['doctor', 'user', 'prescription.items']),
@@ -64,6 +66,7 @@ class AppointmentController extends Controller
     public function updateStatus(Request $request, Appointment $appointment, CurrentClinic $currentClinic): RedirectResponse
     {
         abort_unless($appointment->medical_center_id === $currentClinic->id(), 403);
+        abort_if($appointment->status === 'pending_payment', 404);
 
         $request->validate([
             'status' => ['required', Rule::in(['cancelled'])],
@@ -81,6 +84,7 @@ class AppointmentController extends Controller
     public function downloadPrescription(Appointment $appointment, CurrentClinic $currentClinic, PrescriptionPdf $prescriptionPdf): Response
     {
         abort_unless($appointment->medical_center_id === $currentClinic->id(), 403);
+        abort_if($appointment->status === 'pending_payment', 404);
 
         return $prescriptionPdf->download($appointment);
     }

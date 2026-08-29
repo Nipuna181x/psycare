@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\StripeCheckoutGateway;
+use App\Services\StripeHttpCheckoutGateway;
 use App\View\Composers\DoctorPortalComposer;
 use App\View\Composers\MedicalCenterPortalComposer;
 use Illuminate\Support\Facades\View;
@@ -14,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(StripeCheckoutGateway::class, StripeHttpCheckoutGateway::class);
     }
 
     /**

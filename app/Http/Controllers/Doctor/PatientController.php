@@ -37,8 +37,8 @@ class PatientController extends Controller
         $clinicId = $clinicContext->current($doctor);
 
         $patients = User::query()
-            ->whereHas('appointments', fn ($query) => $query->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId)))
-            ->withCount(['appointments' => fn ($query) => $query->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))])
+            ->whereHas('appointments', fn ($query) => $query->visibleToCareTeam()->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId)))
+            ->withCount(['appointments' => fn ($query) => $query->visibleToCareTeam()->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))])
             ->with(['patientNlpReports' => fn ($query) => $query->latest('generated_at')->limit(1)])
             ->orderBy('name')
             ->get();
@@ -73,6 +73,7 @@ class PatientController extends Controller
         return view('doctor.patients.show', [
             'patient' => $patient,
             'appointments' => $patient->appointments()
+                ->visibleToCareTeam()
                 ->where('doctor_id', $doctor->id)
                 ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
                 ->with(['prescription.items', 'prescription.doctor', 'prescription.clinic'])
@@ -187,6 +188,7 @@ class PatientController extends Controller
 
         abort_unless(
             $doctor->appointments()
+                ->visibleToCareTeam()
                 ->where('user_id', $patient->id)
                 ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
                 ->exists(),

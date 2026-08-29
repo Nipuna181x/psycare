@@ -8,9 +8,14 @@ use App\Models\ClinicStaff;
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
 use App\Models\MedicalCenter;
+use App\Models\Payment;
 use App\Models\User;
+use App\Notifications\ClinicRequestResponded;
 use App\Notifications\MedicalCenterPortalNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -97,9 +102,65 @@ class NotificationsTest extends TestCase
         $this->assertSame('doctor_declined', $clinic->notifications()->first()->data['type']);
     }
 
+    public function test_doctor_accepting_a_request_emails_the_clinic(): void
+    {
+        Notification::fake();
+
+        $clinic = MedicalCenter::factory()->approved()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->requested()->create(['clinic_id' => $clinic->id]);
+
+        $this->actingAs($doctor, 'doctor')->patch(route('doctor.clinic-requests.accept', $affiliation));
+
+        Notification::assertSentTo(
+            $clinic,
+            ClinicRequestResponded::class,
+            fn (ClinicRequestResponded $notification) => $notification->accepted === true
+        );
+    }
+
+    public function test_doctor_declining_a_request_emails_the_clinic(): void
+    {
+        Notification::fake();
+
+        $clinic = MedicalCenter::factory()->approved()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->requested()->create(['clinic_id' => $clinic->id]);
+
+        $this->actingAs($doctor, 'doctor')->patch(route('doctor.clinic-requests.decline', $affiliation));
+
+        Notification::assertSentTo(
+            $clinic,
+            ClinicRequestResponded::class,
+            fn (ClinicRequestResponded $notification) => $notification->accepted === false
+        );
+    }
+
     public function test_new_booking_notifies_the_clinic(): void
     {
         Notification::fake();
+        Mail::fake();
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'POST') {
+                return Http::response([
+                    'id' => 'cs_test_clinic_notification',
+                    'url' => 'https://checkout.stripe.com/c/pay/clinic-notification',
+                    'expires_at' => now()->addMinutes(30)->timestamp,
+                ]);
+            }
+
+            $payment = Payment::query()->sole();
+
+            return Http::response([
+                'id' => 'cs_test_clinic_notification',
+                'payment_status' => 'paid',
+                'status' => 'complete',
+                'amount_total' => (int) round(((float) $payment->amount) * 100),
+                'currency' => $payment->currency,
+                'metadata' => ['appointment_id' => (string) $payment->appointment_id],
+                'payment_intent' => ['id' => 'pi_test_clinic_notification'],
+            ]);
+        });
 
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
@@ -140,6 +201,10 @@ class NotificationsTest extends TestCase
         ]);
 
         $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+
+        $this->actingAs($patient)->get(route('booking.payment.success', [
+            'session_id' => 'cs_test_clinic_notification',
+        ]));
 
         Notification::assertSentTo($affiliation->clinic, MedicalCenterPortalNotification::class, fn ($notification) => $notification->type === 'new_booking');
     }

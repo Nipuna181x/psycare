@@ -59,4 +59,11 @@ return [
         'credential' => env('TURN_CREDENTIAL'),
     ],
 
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'currency' => env('STRIPE_CURRENCY', 'lkr'),
+        'timeout' => env('STRIPE_TIMEOUT', 15),
+    ],
+
 ];

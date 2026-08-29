@@ -7,8 +7,13 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
 use App\Models\MedicalCenter;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class BookingFlowTest extends TestCase
@@ -36,6 +41,10 @@ class BookingFlowTest extends TestCase
 
     public function test_patient_can_complete_the_full_booking_flow(): void
     {
+        Mail::fake();
+        Notification::fake();
+        $this->fakeSuccessfulStripeCheckout();
+
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
         $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
@@ -89,7 +98,15 @@ class BookingFlowTest extends TestCase
             ->assertSee('LKR '.number_format(4000))
             ->assertSee('LKR '.number_format(4000 + $affiliation->clinic->facility_fee));
 
-        $confirmResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+        $checkoutResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+
+        $checkoutResponse->assertRedirect('https://checkout.stripe.com/c/pay/booking-flow');
+
+        $appointment = $patient->appointments()->firstOrFail();
+
+        $confirmResponse = $this->actingAs($patient)->get(route('booking.payment.success', [
+            'session_id' => 'cs_test_booking_flow',
+        ]));
 
         $this->assertDatabaseHas('appointments', [
             'user_id' => $patient->id,
@@ -106,7 +123,6 @@ class BookingFlowTest extends TestCase
             'clinic_fee_charged' => $affiliation->clinic->facility_fee,
         ]);
 
-        $appointment = $patient->appointments()->first();
         $confirmResponse->assertRedirect(route('booking.confirmed', $appointment));
 
         $this->actingAs($patient)
@@ -116,6 +132,10 @@ class BookingFlowTest extends TestCase
 
     public function test_patient_can_skip_the_voice_screening_step(): void
     {
+        Mail::fake();
+        Notification::fake();
+        $this->fakeSuccessfulStripeCheckout();
+
         $patient = User::factory()->create();
         $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
         DoctorClinicAffiliation::factory()->for($doctor)->create();
@@ -145,7 +165,14 @@ class BookingFlowTest extends TestCase
             ->assertOk()
             ->assertSee('chose to skip the screening');
 
-        $confirmResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+        $checkoutResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+
+        $checkoutResponse->assertRedirect('https://checkout.stripe.com/c/pay/booking-flow');
+
+        $appointment = $patient->appointments()->firstOrFail();
+        $confirmResponse = $this->actingAs($patient)->get(route('booking.payment.success', [
+            'session_id' => 'cs_test_booking_flow',
+        ]));
 
         $this->assertDatabaseHas('appointments', [
             'user_id' => $patient->id,
@@ -159,7 +186,6 @@ class BookingFlowTest extends TestCase
             'screener_completed_at' => null,
         ]);
 
-        $appointment = $patient->appointments()->first();
         $confirmResponse->assertRedirect(route('booking.confirmed', $appointment));
     }
 
@@ -304,5 +330,30 @@ class BookingFlowTest extends TestCase
         ]);
 
         $this->actingAs($patient)->post(route('booking.assessment', $doctor), ['skipped' => true]);
+    }
+
+    private function fakeSuccessfulStripeCheckout(): void
+    {
+        Http::fake(function (Request $request) {
+            if ($request->method() === 'POST') {
+                return Http::response([
+                    'id' => 'cs_test_booking_flow',
+                    'url' => 'https://checkout.stripe.com/c/pay/booking-flow',
+                    'expires_at' => now()->addMinutes(30)->timestamp,
+                ]);
+            }
+
+            $payment = Payment::query()->sole();
+
+            return Http::response([
+                'id' => 'cs_test_booking_flow',
+                'payment_status' => 'paid',
+                'status' => 'complete',
+                'amount_total' => (int) round(((float) $payment->amount) * 100),
+                'currency' => $payment->currency,
+                'metadata' => ['appointment_id' => (string) $payment->appointment_id],
+                'payment_intent' => ['id' => 'pi_test_booking_flow'],
+            ]);
+        });
     }
 }

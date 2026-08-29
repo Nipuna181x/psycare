@@ -16,7 +16,7 @@ class EarningsController extends Controller
         $doctor = Auth::guard('doctor')->user();
 
         $earningAppointments = $doctor->appointments()
-            ->where('status', '!=', 'cancelled')
+            ->whereIn('status', ['confirmed', 'completed'])
             ->whereNotNull('doctor_fee_charged');
 
         $totalEarned = (clone $earningAppointments)->sum('doctor_fee_charged');
@@ -35,7 +35,7 @@ class EarningsController extends Controller
             $month = now()->subMonths($monthsAgo);
 
             $total = $doctor->appointments()
-                ->where('status', '!=', 'cancelled')
+                ->whereIn('status', ['confirmed', 'completed'])
                 ->whereNotNull('doctor_fee_charged')
                 ->whereMonth('appointment_date', $month->month)
                 ->whereYear('appointment_date', $month->year)

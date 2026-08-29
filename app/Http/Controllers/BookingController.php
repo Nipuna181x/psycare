@@ -12,8 +12,7 @@ use App\Models\Doctor;
 use App\Models\DoctorAvailabilitySlot;
 use App\Models\MedicalCenter;
 use App\Models\ScreenerDraft;
-use App\Notifications\DoctorPortalNotification;
-use App\Notifications\MedicalCenterPortalNotification;
+use App\Services\AppointmentPaymentService;
 use App\Services\ScreenerAnalyzer;
 use App\Services\ScreenerAnswerInterpreter;
 use Illuminate\Http\JsonResponse;
@@ -21,8 +20,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
+/**
+ * Checkout uses PsyCare's single Stripe account. Clinic and doctor amounts are
+ * internal ledger allocations only; Stripe Connect and fund transfers are out
+ * of scope, and payment is verified by retrieving Checkout Sessions directly.
+ */
 class BookingController extends Controller
 {
     /**
@@ -235,7 +241,7 @@ class BookingController extends Controller
             }
 
             return response()->json($interpretation);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             report($exception);
 
             return response()->json(['message' => 'We could not interpret that answer. Please record or type it again.', 'needs_clarification' => true], 503);
@@ -274,9 +280,9 @@ class BookingController extends Controller
     }
 
     /**
-     * Step 5: confirm — creates the appointment and clears the wizard session.
+     * Step 5: reserve the appointment and redirect to Stripe Checkout.
      */
-    public function confirm(Doctor $doctor, ScreenerAnalyzer $analyzer): RedirectResponse
+    public function confirm(Doctor $doctor, ScreenerAnalyzer $analyzer, AppointmentPaymentService $payments): RedirectResponse
     {
         $this->ensureBookable($doctor);
 
@@ -300,78 +306,83 @@ class BookingController extends Controller
         $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
         $analysis = $skipped ? null : $analyzer->analyze($booking['assessment']['answers']);
 
-        $slot = DoctorAvailabilitySlot::query()
-            ->where('doctor_id', $doctor->id)
-            ->where('clinic_id', $clinicId)
-            ->whereDate('date', $booking['schedule']['appointment_date'])
-            ->where('start_time', $booking['schedule']['appointment_time'])
-            ->first();
+        $appointment = DB::transaction(function () use ($doctor, $clinic, $clinicId, $booking, $skipped, $analysis): ?Appointment {
+            $slot = DoctorAvailabilitySlot::query()
+                ->where('doctor_id', $doctor->id)
+                ->where('clinic_id', $clinicId)
+                ->whereDate('date', $booking['schedule']['appointment_date'])
+                ->where('start_time', $booking['schedule']['appointment_time'])
+                ->lockForUpdate()
+                ->first();
 
-        $appointment = Appointment::create([
-            'user_id' => Auth::id(),
-            'doctor_id' => $doctor->id,
-            'medical_center_id' => $clinicId,
-            'doctor_availability_slot_id' => $slot?->id,
-            'appointment_date' => $booking['schedule']['appointment_date'],
-            'appointment_time' => $booking['schedule']['appointment_time'],
-            'mode' => $booking['schedule']['mode'],
-            'patient_name' => $booking['details']['patient_name'],
-            'patient_age' => $booking['details']['patient_age'] ?? null,
-            'patient_gender' => $booking['details']['patient_gender'] ?? null,
-            'patient_phone' => $booking['details']['patient_phone'],
-            'patient_email' => $booking['details']['patient_email'] ?? null,
-            'reason' => $booking['details']['reason'] ?? null,
-            'consultation_fee' => $doctor->consultation_fee,
-            'doctor_fee_charged' => $doctor->consultation_fee,
-            'clinic_fee_charged' => $clinic->facility_fee,
-            'pre_assessment' => $skipped ? null : $booking['assessment']['answers'],
-            'pre_assessment_summary' => $skipped ? null : $this->screenerSummary($analysis),
-            'pre_assessment_risk_level' => $skipped ? null : ($analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate')),
-            'phq9_total' => $skipped ? null : $analysis['phq9']['total'],
-            'phq9_severity' => $skipped ? null : $analysis['phq9']['severity'],
-            'gad7_total' => $skipped ? null : $analysis['gad7']['total'],
-            'gad7_severity' => $skipped ? null : $analysis['gad7']['severity'],
-            'self_harm_flag' => $skipped ? false : $analysis['phq9']['self_harm_flag'],
-            'requires_immediate_escalation' => $skipped ? false : $analysis['requires_immediate_escalation'],
-            'screener_open_notes' => $booking['assessment']['open_notes'] ?? null,
-            'screener_completed_at' => $skipped ? null : now(),
-            'status' => 'confirmed',
-        ]);
+            if ($slot?->is_booked || $this->isSlotTaken($doctor, $clinicId, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
+                return null;
+            }
 
-        $slot?->update(['is_booked' => true, 'appointment_id' => $appointment->id]);
+            $appointment = Appointment::query()->create([
+                'user_id' => Auth::id(),
+                'doctor_id' => $doctor->id,
+                'medical_center_id' => $clinicId,
+                'doctor_availability_slot_id' => $slot?->id,
+                'appointment_date' => $booking['schedule']['appointment_date'],
+                'appointment_time' => $booking['schedule']['appointment_time'],
+                'mode' => $booking['schedule']['mode'],
+                'patient_name' => $booking['details']['patient_name'],
+                'patient_age' => $booking['details']['patient_age'] ?? null,
+                'patient_gender' => $booking['details']['patient_gender'] ?? null,
+                'patient_phone' => $booking['details']['patient_phone'],
+                'patient_email' => $booking['details']['patient_email'] ?? null,
+                'reason' => $booking['details']['reason'] ?? null,
+                'consultation_fee' => $doctor->consultation_fee,
+                'doctor_fee_charged' => $doctor->consultation_fee,
+                'clinic_fee_charged' => $clinic->facility_fee,
+                'pre_assessment' => $skipped ? null : $booking['assessment']['answers'],
+                'pre_assessment_summary' => $skipped ? null : $this->screenerSummary($analysis),
+                'pre_assessment_risk_level' => $skipped ? null : ($analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate')),
+                'phq9_total' => $skipped ? null : $analysis['phq9']['total'],
+                'phq9_severity' => $skipped ? null : $analysis['phq9']['severity'],
+                'gad7_total' => $skipped ? null : $analysis['gad7']['total'],
+                'gad7_severity' => $skipped ? null : $analysis['gad7']['severity'],
+                'self_harm_flag' => $skipped ? false : $analysis['phq9']['self_harm_flag'],
+                'requires_immediate_escalation' => $skipped ? false : $analysis['requires_immediate_escalation'],
+                'screener_open_notes' => $booking['assessment']['open_notes'] ?? null,
+                'screener_completed_at' => $skipped ? null : now(),
+                'status' => 'pending_payment',
+            ]);
 
-        $doctor->notify((new DoctorPortalNotification(
-            type: 'new_booking',
-            message: 'New booking from '.$appointment->patient_name.' for '.$appointment->appointment_date->format('j M Y').'.',
-            link: route('doctor.appointments.show', $appointment, absolute: false),
-        ))->afterCommit());
+            $slot?->update(['is_booked' => true, 'appointment_id' => $appointment->id]);
 
-        $clinic->notify((new MedicalCenterPortalNotification(
-            type: 'new_booking',
-            message: 'New booking: '.$appointment->patient_name.' with Dr. '.$doctor->name.' on '.$appointment->appointment_date->format('j M Y').'.',
-            link: route('medical-center.appoinment-managment.show', $appointment, absolute: false),
-        ))->afterCommit());
+            return $appointment;
+        }, attempts: 3);
 
-        if ($appointment->requiresCrisisEscalation()) {
-            $doctor->notify((new DoctorPortalNotification(
-                type: 'elevated_risk',
-                message: 'Elevated-risk pre-assessment flagged for '.$appointment->patient_name.'.',
-                link: route('doctor.appointments.show', $appointment, absolute: false),
-            ))->afterCommit());
+        if (! $appointment) {
+            return redirect()->route('booking.schedule', $doctor)
+                ->withErrors(['appointment_time' => 'That time slot was just reserved. Please choose another.']);
+        }
+
+        try {
+            $checkout = $payments->start($appointment);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('booking.review', $doctor)
+                ->with('status', 'We could not start secure payment. Your slot was released; please try again.');
         }
 
         session()->forget("booking.{$doctor->id}");
         ScreenerDraft::query()->whereBelongsTo(Auth::user())->whereBelongsTo($doctor)->delete();
 
-        return redirect()->route('booking.confirmed', $appointment);
+        return redirect()->away($checkout['checkout_url']);
     }
 
     public function confirmed(Appointment $appointment): View
     {
         abort_unless($appointment->user_id === Auth::id(), 403);
+        abort_unless($appointment->status === 'confirmed', 404);
+        abort_if($appointment->payment && $appointment->payment->status !== 'succeeded', 404);
 
         return view('booking.confirmed', [
-            'appointment' => $appointment->load('doctor', 'medicalCenter'),
+            'appointment' => $appointment->load('doctor', 'medicalCenter', 'payment'),
         ]);
     }
 
@@ -512,7 +523,7 @@ class BookingController extends Controller
         return Appointment::query()
             ->where('doctor_id', $doctor->id)
             ->where('medical_center_id', $clinicId)
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['pending_payment', 'confirmed'])
             ->whereDate('appointment_date', $date)
             ->where('appointment_time', $time)
             ->exists();
@@ -556,7 +567,7 @@ class BookingController extends Controller
         $taken = Appointment::query()
             ->where('doctor_id', $doctor->id)
             ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['pending_payment', 'confirmed'])
             ->whereDate('appointment_date', $date)
             ->pluck('appointment_time')
             ->map(fn (string $time): string => Carbon::parse($time)->format('H:i'))

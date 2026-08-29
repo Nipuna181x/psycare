@@ -39,6 +39,12 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'patient_id');
+    }
+
     /** @return HasMany<AiCompanionSession, $this> */
     public function aiCompanionSessions(): HasMany
     {

@@ -82,6 +82,7 @@ class AppointmentController extends Controller
     private function authorizeDoctorOwnsAppointment(Appointment $appointment, DoctorClinicContext $clinicContext): void
     {
         abort_unless($appointment->doctor_id === Auth::guard('doctor')->id(), 403);
+        abort_if($appointment->status === 'pending_payment', 404);
 
         $clinicId = $clinicContext->current(Auth::guard('doctor')->user());
         abort_unless($clinicId === null || $appointment->medical_center_id === $clinicId, 403);

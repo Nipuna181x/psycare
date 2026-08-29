@@ -79,6 +79,18 @@ class Doctor extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /** @return HasMany<DoctorPayout, $this> */
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(DoctorPayout::class);
+    }
+
     /**
      * @return HasMany<TherapyRoom, $this>
      */

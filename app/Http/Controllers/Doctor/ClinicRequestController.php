@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\DoctorClinicAffiliation;
+use App\Notifications\ClinicRequestResponded;
 use App\Notifications\MedicalCenterPortalNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,8 @@ class ClinicRequestController extends Controller
             link: route('medical-center.doctors.index', ['tab' => 'my-doctors'], absolute: false),
         ))->afterCommit());
 
+        $affiliation->clinic->notify((new ClinicRequestResponded($affiliation, accepted: true))->afterCommit());
+
         return back()->with('status', "You are now affiliated with {$affiliation->clinic->name}.");
     }
 
@@ -64,6 +67,8 @@ class ClinicRequestController extends Controller
             message: 'Dr. '.$affiliation->doctor->name.' declined your work request.',
             link: route('medical-center.doctors.index', ['tab' => 'pending'], absolute: false),
         ))->afterCommit());
+
+        $affiliation->clinic->notify((new ClinicRequestResponded($affiliation, accepted: false))->afterCommit());
 
         return back()->with('status', 'Request declined.');
     }

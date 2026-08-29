@@ -12,6 +12,7 @@ class DoctorCrisisQueue
     public function forDoctor(Doctor $doctor, ?int $clinicId = null): Collection
     {
         return $doctor->appointments()
+            ->visibleToCareTeam()
             ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
             ->whereNotNull('screener_completed_at')
             ->with('user')

@@ -16,7 +16,7 @@ class PatientHistoryVisibility
      */
     public function otherProvidersHistoryFor(User $patient, Doctor $doctor): array
     {
-        $hasOtherDoctorHistory = $patient->appointments()->where('doctor_id', '!=', $doctor->id)->exists();
+        $hasOtherDoctorHistory = $patient->appointments()->visibleToCareTeam()->where('doctor_id', '!=', $doctor->id)->exists();
 
         if (! $hasOtherDoctorHistory) {
             return ['status' => 'not_applicable', 'appointments' => collect()];
@@ -30,6 +30,7 @@ class PatientHistoryVisibility
         }
 
         $appointments = $patient->appointments()
+            ->visibleToCareTeam()
             ->where('doctor_id', '!=', $doctor->id)
             ->with(['doctor', 'medicalCenter', 'prescription.items'])
             ->orderByDesc('appointment_date')
@@ -50,6 +51,7 @@ class PatientHistoryVisibility
     private function patientHasCurrentEmergencyStatus(User $patient): bool
     {
         return $patient->appointments()
+            ->visibleToCareTeam()
             ->whereNotNull('screener_completed_at')
             ->latest('screener_completed_at')
             ->get()
