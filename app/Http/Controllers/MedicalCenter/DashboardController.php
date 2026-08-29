@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\MedicalCenter;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Services\CurrentClinic;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -11,9 +11,9 @@ class DashboardController extends Controller
     /**
      * Display the medical centre's dashboard.
      */
-    public function index(): View
+    public function index(CurrentClinic $currentClinic): View
     {
-        $medicalCenter = Auth::guard('medical_center')->user();
+        $medicalCenter = $currentClinic->model();
 
         $affiliations = $medicalCenter->affiliations();
 

@@ -26,13 +26,18 @@ use App\Http\Controllers\Doctor\StatusController as DoctorStatusController;
 use App\Http\Controllers\Doctor\TherapyRoomController as DoctorTherapyRoomController;
 use App\Http\Controllers\DoctorController as PublicDoctorController;
 use App\Http\Controllers\HealthRecordsController;
-use App\Http\Controllers\MedicalCenter\AffiliationController as MedicalCenterAffiliationController;
+use App\Http\Controllers\MedicalCenter\AnalyticsController as MedicalCenterAnalyticsController;
 use App\Http\Controllers\MedicalCenter\AppointmentController as MedicalCenterAppointmentController;
 use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as MedicalCenterAuthenticatedSessionController;
+use App\Http\Controllers\MedicalCenter\ClinicSessionController;
+use App\Http\Controllers\MedicalCenter\ClinicStaffController;
 use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
-use App\Http\Controllers\MedicalCenter\DoctorSearchController as MedicalCenterDoctorSearchController;
+use App\Http\Controllers\MedicalCenter\DoctorsController as MedicalCenterDoctorsController;
+use App\Http\Controllers\MedicalCenter\NotificationController as MedicalCenterNotificationController;
+use App\Http\Controllers\MedicalCenter\PatientController as MedicalCenterPatientController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use App\Http\Controllers\MedicalCenter\SettingsController as MedicalCenterSettingsController;
+use App\Http\Controllers\MedicalCenter\StaffAuthenticatedSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
@@ -146,20 +151,44 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
         Route::post('login', [MedicalCenterAuthenticatedSessionController::class, 'store']);
     });
 
-    Route::middleware(['auth:medical_center', 'medical_center.approved'])->group(function () {
-        Route::post('logout', [MedicalCenterAuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::middleware('guest:clinic_staff')->group(function () {
+        Route::get('staff/login', [StaffAuthenticatedSessionController::class, 'create'])->name('staff.login');
+        Route::post('staff/login', [StaffAuthenticatedSessionController::class, 'store']);
+    });
+
+    Route::middleware(['auth:medical_center,clinic_staff', 'medical_center.approved', 'clinic_staff.active'])->group(function () {
+        Route::post('logout', [ClinicSessionController::class, 'destroy'])->name('logout');
 
         Route::get('dashboard', [MedicalCenterDashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('find-doctors', [MedicalCenterDoctorSearchController::class, 'index'])->name('find-doctors.index');
-        Route::post('find-doctors/{doctor}/request', [MedicalCenterDoctorSearchController::class, 'sendRequest'])->name('find-doctors.request');
+        Route::get('doctors', [MedicalCenterDoctorsController::class, 'index'])->name('doctors.index');
+        Route::post('doctors/{doctor}/request', [MedicalCenterDoctorsController::class, 'sendRequest'])->name('doctors.request');
 
-        Route::get('affiliations', [MedicalCenterAffiliationController::class, 'index'])->name('affiliations.index');
+        Route::get('patients', [MedicalCenterPatientController::class, 'index'])->name('patients.index');
+        Route::get('patients/{patient}', [MedicalCenterPatientController::class, 'show'])->name('patients.show');
+
+        Route::get('analytics', [MedicalCenterAnalyticsController::class, 'index'])->name('analytics.index');
+
+        Route::get('notifications', [MedicalCenterNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/read-all', [MedicalCenterNotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('notifications/{notification}/read', [MedicalCenterNotificationController::class, 'read'])->name('notifications.read');
+
+        Route::middleware('medical_center.primary')->group(function () {
+            Route::get('staff', [ClinicStaffController::class, 'index'])->name('staff.index');
+            Route::post('staff', [ClinicStaffController::class, 'store'])->name('staff.store');
+            Route::delete('staff/{staffMember}', [ClinicStaffController::class, 'destroy'])->name('staff.destroy');
+        });
 
         Route::get('appoinment-managment', [MedicalCenterAppointmentController::class, 'index'])->name('appoinment-managment.index');
         Route::get('appoinment-managment/{appointment}', [MedicalCenterAppointmentController::class, 'show'])->name('appoinment-managment.show');
+        Route::patch('appoinment-managment/{appointment}/status', [MedicalCenterAppointmentController::class, 'updateStatus'])->name('appoinment-managment.status');
+        Route::get('appoinment-managment/{appointment}/prescription/download', [MedicalCenterAppointmentController::class, 'downloadPrescription'])->name('appoinment-managment.prescription.download');
 
         Route::get('settings', [MedicalCenterSettingsController::class, 'edit'])->name('settings.edit');
+        Route::patch('settings/profile', [MedicalCenterSettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::patch('settings/contact', [MedicalCenterSettingsController::class, 'updateContact'])->name('settings.contact.update');
+        Route::patch('settings/logo', [MedicalCenterSettingsController::class, 'updateLogo'])->name('settings.logo.update');
+        Route::patch('settings/hours', [MedicalCenterSettingsController::class, 'updateHours'])->name('settings.hours.update');
         Route::patch('settings/pricing', [MedicalCenterSettingsController::class, 'updatePricing'])->name('settings.pricing.update');
     });
 });

@@ -27,7 +27,7 @@
                     <div class="rounded-2xl bg-secondary p-5">
                         <p class="text-[11px] text-ink-soft uppercase tracking-[0.08em]">When</p>
                         <p class="mt-1 font-display text-[15px] font-medium text-ink">{{ \Illuminate\Support\Carbon::parse($schedule['appointment_date'])->format('D, j M Y') }}</p>
-                        <p class="mt-0.5 text-[12px] text-ink-soft">{{ \Illuminate\Support\Carbon::parse($schedule['appointment_time'])->format('g:i A') }} · {{ $schedule['mode'] === 'online' ? 'Online' : 'In person' }}</p>
+                        <p class="mt-0.5 text-[12px] text-ink-soft">{{ \Illuminate\Support\Carbon::parse($schedule['appointment_time'])->format('g:i A') }}</p>
                     </div>
                 </div>
 

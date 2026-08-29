@@ -50,16 +50,6 @@
                     <input type="hidden" name="appointment_time" id="appointment_time" value="{{ old('appointment_time', $saved['appointment_time'] ?? '') }}" required>
                     <p id="no-slots" hidden class="mt-2 text-[13px] text-ink-soft">No open slots on this date — try another day.</p>
 
-                    <p class="mt-6 text-[12px] font-medium text-ink-soft">Consultation mode</p>
-                    <div class="mt-2 grid grid-cols-2 gap-2">
-                        @foreach (['in_person' => 'In person', 'online' => 'Online'] as $value => $label)
-                            <label class="flex cursor-pointer items-center justify-center rounded-2xl border border-border bg-secondary px-4 py-3 text-[13px] font-medium text-ink has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-primary-foreground">
-                                <input type="radio" name="mode" value="{{ $value }}" class="sr-only" {{ old('mode', $saved['mode'] ?? 'in_person') === $value ? 'checked' : '' }}>
-                                {{ $label }}
-                            </label>
-                        @endforeach
-                    </div>
-
                     <button type="submit" id="continue-button" disabled class="mt-8 w-full rounded-2xl bg-ink px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform enabled:hover:-translate-y-0.5 disabled:opacity-40">Continue</button>
                 </form>
             </div>

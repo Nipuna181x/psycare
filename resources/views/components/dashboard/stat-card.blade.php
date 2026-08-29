@@ -13,7 +13,7 @@
         'amber' => 'bg-amber-100 text-amber-600',
         'emerald' => 'bg-emerald-100 text-emerald-600',
         'accent' => match ($accent) {
-            'clinic' => 'bg-purple-600 text-white',
+            'clinic' => 'bg-blue-900 text-white',
             'doctor' => 'bg-sky-500 text-white',
             default => 'bg-ink text-primary-foreground',
         },

@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Doctor\StorePrescriptionRequest;
 use App\Models\Appointment;
 use App\Services\DoctorClinicContext;
-use App\Services\PdfFontRegistrar;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PrescriptionPdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,21 +50,11 @@ class PrescriptionController extends Controller
     /**
      * Download the appointment's prescription as a PDF.
      */
-    public function download(Appointment $appointment, DoctorClinicContext $clinicContext): Response
+    public function download(Appointment $appointment, DoctorClinicContext $clinicContext, PrescriptionPdf $prescriptionPdf): Response
     {
         $this->authorizeDoctorOwnsAppointment($appointment, $clinicContext);
-        abort_unless($appointment->prescription, 404);
 
-        PdfFontRegistrar::ensureSinhalaFontIsRegistered();
-
-        $appointment->load(['prescription.items', 'prescription.doctor', 'prescription.clinic', 'medicalCenter', 'doctor']);
-
-        $filename = 'prescription-'.$appointment->id.'-'.now()->format('Ymd-His').'.pdf';
-
-        return Pdf::loadView('doctor.appointments.prescription-pdf', [
-            'appointment' => $appointment,
-            'prescription' => $appointment->prescription,
-        ])->download($filename);
+        return $prescriptionPdf->download($appointment);
     }
 
     private function authorizeDoctorOwnsAppointment(Appointment $appointment, DoctorClinicContext $clinicContext): void

@@ -4,7 +4,7 @@
     $max = max(1, collect($items)->max('value') ?? 1);
 
     $barColor = match ($accent) {
-        'clinic' => 'bg-purple-500',
+        'clinic' => 'bg-blue-800',
         'doctor' => 'bg-sky-500',
         default => 'bg-ink',
     };

@@ -13,6 +13,7 @@ use App\Models\DoctorAvailabilitySlot;
 use App\Models\MedicalCenter;
 use App\Models\ScreenerDraft;
 use App\Notifications\DoctorPortalNotification;
+use App\Notifications\MedicalCenterPortalNotification;
 use App\Services\ScreenerAnalyzer;
 use App\Services\ScreenerAnswerInterpreter;
 use Illuminate\Http\JsonResponse;
@@ -91,7 +92,7 @@ class BookingController extends Controller
             return $redirect;
         }
 
-        $data = $request->validated();
+        $data = [...$request->validated(), 'mode' => 'in_person'];
         $clinicId = $this->stepData($doctor, 'clinic')['clinic_id'];
 
         if ($this->isSlotTaken($doctor, $clinicId, $data['appointment_date'], $data['appointment_time'])) {
@@ -345,6 +346,12 @@ class BookingController extends Controller
             link: route('doctor.appointments.show', $appointment, absolute: false),
         ))->afterCommit());
 
+        $clinic->notify((new MedicalCenterPortalNotification(
+            type: 'new_booking',
+            message: 'New booking: '.$appointment->patient_name.' with Dr. '.$doctor->name.' on '.$appointment->appointment_date->format('j M Y').'.',
+            link: route('medical-center.appoinment-managment.show', $appointment, absolute: false),
+        ))->afterCommit());
+
         if ($appointment->requiresCrisisEscalation()) {
             $doctor->notify((new DoctorPortalNotification(
                 type: 'elevated_risk',
@@ -514,8 +521,10 @@ class BookingController extends Controller
     /**
      * Clinic-scoped time slots for the given date. When the clinic has published
      * availability slots for this doctor+date, those are used (with a `disabled`
-     * flag for already-booked ones, so patients see why). Otherwise, falls back
-     * to a fixed 9AM-5PM/30-minute grid checked against existing appointments.
+     * flag for already-booked ones, so patients see why) — trusted as-is since a
+     * clinic admin explicitly created them. Otherwise, falls back to a 30-minute
+     * grid bounded by the clinic's operating hours for that day of the week (or
+     * 9AM-5PM if the clinic hasn't set any), checked against existing appointments.
      *
      * @return array<int, array{time: string, label: string, disabled: bool}>
      */
@@ -538,6 +547,12 @@ class BookingController extends Controller
             }
         }
 
+        [$opens, $closes] = $this->clinicHoursFor($clinicId, $date);
+
+        if ($opens === null) {
+            return [];
+        }
+
         $taken = Appointment::query()
             ->where('doctor_id', $doctor->id)
             ->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))
@@ -551,8 +566,8 @@ class BookingController extends Controller
         $now = Carbon::now();
 
         $slots = [];
-        $cursor = Carbon::parse($date)->setTime(9, 0);
-        $end = Carbon::parse($date)->setTime(17, 0);
+        $cursor = Carbon::parse($date.' '.$opens);
+        $end = Carbon::parse($date.' '.$closes);
 
         while ($cursor->lt($end)) {
             $time = $cursor->format('H:i');
@@ -565,5 +580,31 @@ class BookingController extends Controller
         }
 
         return $slots;
+    }
+
+    /**
+     * The clinic's opening/closing time for the given date's day of the week, as
+     * ['H:i', 'H:i']. Falls back to a default 9AM-5PM window when the clinic has
+     * not set operating hours at all. Returns [null, null] when the clinic has
+     * set hours and marked that day closed.
+     *
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function clinicHoursFor(?int $clinicId, string $date): array
+    {
+        $hours = $clinicId ? MedicalCenter::find($clinicId)?->operating_hours : null;
+
+        if (! $hours) {
+            return ['09:00', '17:00'];
+        }
+
+        $dayName = Carbon::parse($date)->format('l');
+        $row = collect($hours)->firstWhere('day', $dayName);
+
+        if (! $row || ($row['closed'] ?? false) || empty($row['opens']) || empty($row['closes'])) {
+            return [null, null];
+        }
+
+        return [$row['opens'], $row['closes']];
     }
 }

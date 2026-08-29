@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Admin;
+use App\Models\ClinicStaff;
 use App\Models\Doctor;
 use App\Models\MedicalCenter;
 use App\Models\User;
@@ -60,6 +61,11 @@ return [
             'driver' => 'session',
             'provider' => 'doctors',
         ],
+
+        'clinic_staff' => [
+            'driver' => 'session',
+            'provider' => 'clinic_staff',
+        ],
     ],
 
     /*
@@ -98,6 +104,11 @@ return [
         'doctors' => [
             'driver' => 'eloquent',
             'model' => Doctor::class,
+        ],
+
+        'clinic_staff' => [
+            'driver' => 'eloquent',
+            'model' => ClinicStaff::class,
         ],
 
         // 'users' => [

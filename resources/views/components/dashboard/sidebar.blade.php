@@ -13,7 +13,7 @@
 
 @php
     $theme = match ($accent) {
-        'clinic' => ['solid' => 'bg-purple-600', 'text' => 'text-white', 'softText' => 'text-purple-700'],
+        'clinic' => ['solid' => 'bg-blue-900', 'text' => 'text-white', 'softText' => 'text-blue-800'],
         'doctor' => ['solid' => 'bg-sky-500', 'text' => 'text-white', 'softText' => 'text-sky-700'],
         default => ['solid' => 'bg-ink', 'text' => 'text-primary-foreground', 'softText' => 'text-ink'],
     };

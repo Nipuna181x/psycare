@@ -44,13 +44,30 @@
 
     <div class="mt-5 grid gap-5 lg:grid-cols-3">
         <x-dashboard.panel title="Affiliations by status" subtitle="Active vs. pending requests" class="lg:col-span-2">
-            <x-dashboard.column-chart
-                accent="clinic"
-                :items="[
-                    ['label' => 'Active', 'value' => $statusCounts['active']],
-                    ['label' => 'Requested', 'value' => $statusCounts['requested'], 'tone' => 'muted'],
-                ]"
-            />
+            @php
+                $affiliationTotal = max(1, $statusCounts['active'] + $statusCounts['requested']);
+                $activePct = round($statusCounts['active'] / $affiliationTotal * 100);
+            @endphp
+            <div class="grid grid-cols-2 gap-4">
+                <div class="rounded-2xl bg-secondary p-4">
+                    <div class="flex items-center gap-2">
+                        <span class="h-2.5 w-2.5 rounded-full bg-blue-900"></span>
+                        <p class="text-[11px] font-medium text-ink-soft">Active</p>
+                    </div>
+                    <p class="mt-2 font-display text-[24px] font-medium text-ink">{{ $statusCounts['active'] }}</p>
+                </div>
+                <div class="rounded-2xl bg-secondary p-4">
+                    <div class="flex items-center gap-2">
+                        <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+                        <p class="text-[11px] font-medium text-ink-soft">Requested</p>
+                    </div>
+                    <p class="mt-2 font-display text-[24px] font-medium text-ink">{{ $statusCounts['requested'] }}</p>
+                </div>
+            </div>
+            <div class="mt-4 flex h-2.5 w-full overflow-hidden rounded-full bg-secondary">
+                <div class="h-full bg-blue-900" style="width: {{ $activePct }}%"></div>
+                <div class="h-full bg-amber-500" style="width: {{ 100 - $activePct }}%"></div>
+            </div>
         </x-dashboard.panel>
 
         <x-dashboard.panel title="Specialisations" subtitle="Coverage across your roster">
@@ -65,7 +82,7 @@
     <div class="mt-5 grid gap-5">
         <x-dashboard.panel title="Recent appointments" subtitle="Newest first">
             <x-slot:action>
-                <a href="{{ route('medical-center.appoinment-managment.index') }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-purple-700 transition-colors hover:text-purple-800">
+                <a href="{{ route('medical-center.appoinment-managment.index') }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-blue-800 transition-colors hover:text-blue-900">
                     View all
                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                 </a>
@@ -74,7 +91,7 @@
                 @forelse ($recentAppointments as $appointment)
                     <li class="flex items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0">
                         <div class="flex min-w-0 items-center gap-3">
-                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-purple-100 text-[12px] font-semibold text-purple-700">{{ mb_strtoupper(mb_substr($appointment->patient_name, 0, 1)) }}</span>
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-100 text-[12px] font-semibold text-blue-800">{{ mb_strtoupper(mb_substr($appointment->patient_name, 0, 1)) }}</span>
                             <div class="min-w-0">
                                 <p class="truncate text-[13px] font-medium text-ink">{{ $appointment->patient_name }} <span class="text-ink-soft">with</span> {{ $appointment->doctor->name }}</p>
                                 <p class="mt-0.5 truncate text-[11px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }}</p>
@@ -92,7 +109,7 @@
     <div class="mt-5 grid gap-5">
         <x-dashboard.panel title="Recently affiliated doctors" subtitle="Newest first">
             <x-slot:action>
-                <a href="{{ route('medical-center.affiliations.index') }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-purple-700 transition-colors hover:text-purple-800">
+                <a href="{{ route('medical-center.doctors.index', ['tab' => 'my-doctors']) }}" class="inline-flex items-center gap-1.5 text-[12px] font-medium text-blue-800 transition-colors hover:text-blue-900">
                     View all
                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                 </a>
@@ -102,7 +119,7 @@
                 @forelse ($recentDoctors as $affiliation)
                     <li class="flex items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0">
                         <div class="flex min-w-0 items-center gap-3">
-                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-purple-100 text-[12px] font-semibold text-purple-700">{{ mb_strtoupper(mb_substr($affiliation->doctor->name, 0, 1)) }}</span>
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-100 text-[12px] font-semibold text-blue-800">{{ mb_strtoupper(mb_substr($affiliation->doctor->name, 0, 1)) }}</span>
                             <div class="min-w-0">
                                 <p class="truncate text-[13px] font-medium text-ink">{{ $affiliation->doctor->name }}</p>
                                 <p class="mt-0.5 truncate text-[11px] text-ink-soft">{{ $affiliation->doctor->specialization ?? 'No specialisation set' }}</p>

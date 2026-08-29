@@ -16,7 +16,6 @@ class AppointmentManagementTest extends TestCase
         $doctor = Doctor::factory()->create();
         $appointment = Appointment::factory()->for($doctor)->create([
             'appointment_date' => now()->addDay(),
-            'mode' => 'online',
             'pre_assessment_risk_level' => 'moderate',
             'screener_completed_at' => now(),
         ]);
@@ -26,7 +25,7 @@ class AppointmentManagementTest extends TestCase
         $response->assertOk()
             ->assertSee($appointment->patient_name)
             ->assertSee('Moderate risk')
-            ->assertSee('Video consultation')
+            ->assertSee('In person')
             ->assertSee('Pre-assessment: Ready')
             ->assertSee('Filter appointments')
             ->assertSee('Filtered results')

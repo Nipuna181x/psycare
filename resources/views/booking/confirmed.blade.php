@@ -26,7 +26,6 @@
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Booking reference</span><span class="font-medium text-ink">#{{ str_pad($appointment->id, 6, '0', STR_PAD_LEFT) }}</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Doctor</span><span class="font-medium text-ink">{{ $appointment->doctor->name }}</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Date & time</span><span class="font-medium text-ink">{{ $appointment->appointment_date->format('D, j M Y') }}, {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</span></div>
-                    <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Mode</span><span class="font-medium text-ink">{{ $appointment->mode === 'online' ? 'Online' : 'In person' }}</span></div>
                 </div>
 
                 <div class="mt-8 flex flex-col gap-2.5 sm:flex-row">
