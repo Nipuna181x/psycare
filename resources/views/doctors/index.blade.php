@@ -55,8 +55,8 @@
             <div id="doctor-grid" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse ($doctors as $doctor)
                     @php
-                        $clinicNames = $doctor->activeAffiliations->pluck('clinic.name')->implode(', ');
-                        $doctorCities = $doctor->activeAffiliations->pluck('clinic.address')->filter()->map(fn ($address) => trim(Str::afterLast($address, ',')))->filter()->unique()->values();
+                        $clinicNames = $doctor->bookableAffiliations->pluck('clinic.name')->implode(', ');
+                        $doctorCities = $doctor->bookableAffiliations->pluck('clinic.address')->filter()->map(fn ($address) => trim(Str::afterLast($address, ',')))->filter()->unique()->values();
                         $availableDates = $doctor->availabilitySlots->pluck('date')->map(fn ($date) => $date->toDateString())->unique()->values();
                     @endphp
                     <article
@@ -103,7 +103,7 @@
                                 @endif
                             </div>
                             <div class="mt-5 flex items-center gap-2">
-                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3.5 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">{{ $doctor->activeAffiliations->isNotEmpty() ? 'Book appointment' : 'View profile' }}</a>
+                                <a href="{{ route('doctors.show', $doctor) }}" class="flex-1 rounded-full bg-ink px-5 py-3.5 text-center text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">{{ $doctor->bookableAffiliations->isNotEmpty() ? 'Book appointment' : 'View profile' }}</a>
                                 <a href="{{ route('doctors.show', $doctor) }}" aria-label="View {{ $doctor->name }}" class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
                             </div>
                         </div>

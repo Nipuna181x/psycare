@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
+use App\Models\MedicalCenter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -75,7 +76,24 @@ class DoctorDirectoryTest extends TestCase
 
         $response = $this->get(route('doctors.show', $doctor));
 
-        $response->assertOk()->assertSee('Book appointment');
+        $response
+            ->assertOk()
+            ->assertSee('Book appointment')
+            ->assertSee(route('booking.clinic', $doctor), false);
+    }
+
+    public function test_doctor_with_only_an_unapproved_clinic_is_not_offered_for_booking(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $clinic = MedicalCenter::factory()->create(['status' => 'pending']);
+        DoctorClinicAffiliation::factory()->for($doctor)->create(['clinic_id' => $clinic->id]);
+
+        $response = $this->get(route('doctors.show', $doctor));
+
+        $response
+            ->assertOk()
+            ->assertSee('Not currently accepting bookings')
+            ->assertDontSee(route('booking.clinic', $doctor), false);
     }
 
     public function test_doctor_without_active_affiliation_shows_view_only_profile(): void

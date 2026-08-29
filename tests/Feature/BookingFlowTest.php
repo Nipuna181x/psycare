@@ -249,7 +249,37 @@ class BookingFlowTest extends TestCase
             ->post(route('booking.clinic', $doctor), ['clinic_id' => $chosen->clinic_id])
             ->assertRedirect(route('booking.schedule', $doctor));
 
-        $this->actingAs($patient)->get(route('booking.schedule', $doctor))->assertOk();
+        $this->actingAs($patient)
+            ->get(route('booking.schedule', $doctor))
+            ->assertOk()
+            ->assertSee($chosen->clinic->name)
+            ->assertSee('Change clinic');
+    }
+
+    public function test_selecting_a_different_clinic_clears_stale_downstream_booking_steps(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create();
+        $affiliations = DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+        $previousClinic = $affiliations->first();
+        $newClinic = $affiliations->last();
+
+        session(["booking.{$doctor->id}" => [
+            'clinic' => ['clinic_id' => $previousClinic->clinic_id],
+            'schedule' => ['appointment_date' => now()->addDay()->toDateString(), 'appointment_time' => '10:30'],
+            'details' => ['patient_name' => 'Saved patient'],
+            'assessment' => ['skipped' => true],
+        ]]);
+
+        $this->actingAs($patient)
+            ->post(route('booking.clinic', $doctor), ['clinic_id' => $newClinic->clinic_id])
+            ->assertRedirect(route('booking.schedule', $doctor))
+            ->assertSessionHas("booking.{$doctor->id}.clinic.clinic_id", $newClinic->clinic_id)
+            ->assertSessionMissing([
+                "booking.{$doctor->id}.schedule",
+                "booking.{$doctor->id}.details",
+                "booking.{$doctor->id}.assessment",
+            ]);
     }
 
     public function test_clinic_step_is_skipped_when_doctor_has_a_single_active_affiliation(): void

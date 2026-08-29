@@ -30,6 +30,21 @@
                     </div>
                 @endif
 
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-secondary px-4 py-3">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-card text-ink">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z"/><path d="M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/><path d="M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2"/><path d="M10 7h4"/><path d="M10 11h4"/></svg>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-[10px] font-medium tracking-[0.08em] text-ink-soft uppercase">Medical center</span>
+                            <span class="block truncate text-[13px] font-medium text-ink">{{ $clinic->name }}</span>
+                        </span>
+                    </div>
+                    @if ($canChangeClinic)
+                        <a href="{{ route('booking.clinic', $doctor) }}" class="shrink-0 text-[11px] font-semibold text-teal-deep transition-colors hover:text-ink">Change clinic</a>
+                    @endif
+                </div>
+
                 <form method="POST" action="{{ route('booking.schedule', $doctor) }}" id="schedule-form" class="mt-6">
                     @csrf
 

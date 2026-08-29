@@ -128,6 +128,25 @@ class SettingsTest extends TestCase
         $this->assertNull($clinic->fresh()->operating_hours);
     }
 
+    public function test_open_day_requires_a_closing_time_after_its_opening_time(): void
+    {
+        $clinic = MedicalCenter::factory()->approved()->create();
+        $hours = collect(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+            ->map(fn ($day) => [
+                'day' => $day,
+                'opens' => $day === 'Monday' ? '17:00' : '09:00',
+                'closes' => $day === 'Monday' ? '17:00' : '17:00',
+                'closed' => false,
+            ])
+            ->all();
+
+        $this->actingAs($clinic, 'medical_center')
+            ->patch(route('medical-center.settings.hours.update'), ['hours' => $hours])
+            ->assertSessionHasErrors('hours');
+
+        $this->assertNull($clinic->fresh()->operating_hours);
+    }
+
     public function test_staff_can_also_update_settings(): void
     {
         $clinic = MedicalCenter::factory()->approved()->create();
