@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureClinicStaffIsActive;
 use App\Http\Middleware\EnsureDoctorOnboardingComplete;
 use App\Http\Middleware\EnsureMedicalCenterIsApproved;
+use App\Http\Middleware\EnsurePrimaryClinicAccount;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'medical_center.approved' => EnsureMedicalCenterIsApproved::class,
             'doctor.onboarding' => EnsureDoctorOnboardingComplete::class,
+            'clinic_staff.active' => EnsureClinicStaffIsActive::class,
+            'medical_center.primary' => EnsurePrimaryClinicAccount::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

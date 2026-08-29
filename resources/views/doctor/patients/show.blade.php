@@ -220,7 +220,7 @@
                         <li class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
                             <div>
                                 <p class="text-[13px] font-medium text-ink">{{ $appointment->appointment_date->format('D, j M Y') }}</p>
-                                <p class="text-[11px] text-ink-soft">{{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }} · {{ $appointment->mode === 'online' ? 'Online' : 'In person' }}</p>
+                                <p class="text-[11px] text-ink-soft">{{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
                                 <x-dashboard.badge :status="$appointment->status" />

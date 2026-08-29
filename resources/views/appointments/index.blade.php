@@ -26,7 +26,7 @@
                                 <div>
                                     <p class="text-[14px] font-medium text-ink">{{ $appointment->doctor->name }}</p>
                                     <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->medicalCenter->name }}</p>
-                                    <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }} · {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }} · {{ $appointment->mode === 'online' ? 'Online' : 'In person' }}</p>
+                                    <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }} · {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</p>
                                 </div>
                             </div>
                             <x-dashboard.badge :status="$appointment->status" />

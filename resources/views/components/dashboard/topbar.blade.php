@@ -16,7 +16,7 @@
 
 @php
     $theme = match ($accent) {
-        'clinic' => ['avatarBg' => 'bg-purple-600', 'avatarText' => 'text-white'],
+        'clinic' => ['avatarBg' => 'bg-blue-900', 'avatarText' => 'text-white'],
         'doctor' => ['avatarBg' => 'bg-sky-500', 'avatarText' => 'text-white'],
         default => ['avatarBg' => 'bg-ink', 'avatarText' => 'text-primary-foreground'],
     };

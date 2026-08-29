@@ -5,26 +5,29 @@ namespace App\Http\Controllers\MedicalCenter;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
+use App\Services\CurrentClinic;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class DoctorSearchController extends Controller
+class DoctorsController extends Controller
 {
     /**
-     * Search approved doctors by licence number (primary) or name (secondary).
+     * Display the Doctors page: My Doctors, Pending Requests, and Search & Request tabs.
      */
-    public function index(Request $request): View
+    public function index(Request $request, CurrentClinic $currentClinic): View
     {
-        $clinic = Auth::guard('medical_center')->user();
+        $clinic = $currentClinic->model();
+        $tab = in_array($request->string('tab')->value(), ['my-doctors', 'pending', 'search'], true)
+            ? $request->string('tab')->value()
+            : 'my-doctors';
+
         $licenseNumber = trim((string) $request->string('license_number'));
         $name = trim((string) $request->string('name'));
 
-        $doctors = collect();
-
-        if ($licenseNumber !== '' || $name !== '') {
-            $doctors = Doctor::query()
+        $searchResults = collect();
+        if ($tab === 'search' && ($licenseNumber !== '' || $name !== '')) {
+            $searchResults = Doctor::query()
                 ->where('status', 'approved')
                 ->where('onboarding_step', 'profile_complete')
                 ->when($licenseNumber !== '', fn ($query) => $query->where('license_number', 'like', "%{$licenseNumber}%"))
@@ -38,8 +41,24 @@ class DoctorSearchController extends Controller
                 ]);
         }
 
-        return view('medical-center.doctor-search.index', [
-            'results' => $doctors,
+        $myDoctors = $clinic->affiliations()
+            ->where('status', 'active')
+            ->with(['doctor' => fn ($query) => $query->withCount(['appointments' => fn ($q) => $q->where('medical_center_id', $clinic->id)])])
+            ->latest()
+            ->get();
+
+        return view('medical-center.doctors.index', [
+            'tab' => $tab,
+            'myDoctors' => $myDoctors,
+            'pendingRequests' => $clinic->affiliations()->where('status', 'requested')->with('doctor')->latest()->get(),
+            'recentActivity' => $clinic->affiliations()
+                ->whereIn('status', ['active', 'declined'])
+                ->whereNotNull('responded_by_doctor_at')
+                ->with('doctor')
+                ->latest('responded_by_doctor_at')
+                ->take(10)
+                ->get(),
+            'searchResults' => $searchResults,
             'filters' => [
                 'license_number' => $licenseNumber,
                 'name' => $name,
@@ -50,9 +69,9 @@ class DoctorSearchController extends Controller
     /**
      * Send a work request to a doctor.
      */
-    public function sendRequest(Doctor $doctor): RedirectResponse
+    public function sendRequest(Doctor $doctor, CurrentClinic $currentClinic): RedirectResponse
     {
-        $clinic = Auth::guard('medical_center')->user();
+        $clinic = $currentClinic->model();
 
         abort_if(
             $doctor->affiliations()->where('clinic_id', $clinic->id)->whereIn('status', ['requested', 'active'])->exists(),

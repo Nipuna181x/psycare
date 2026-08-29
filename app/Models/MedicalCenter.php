@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'phone', 'address', 'registration_number', 'password', 'status', 'facility_fee'])]
+#[Fillable(['name', 'email', 'phone', 'address', 'registration_number', 'password', 'status', 'facility_fee', 'logo_path', 'operating_hours', 'description'])]
 #[Hidden(['password', 'remember_token'])]
 class MedicalCenter extends Authenticatable
 {
@@ -28,6 +29,7 @@ class MedicalCenter extends Authenticatable
         return [
             'password' => 'hashed',
             'facility_fee' => 'decimal:2',
+            'operating_hours' => 'array',
         ];
     }
 
@@ -56,6 +58,14 @@ class MedicalCenter extends Authenticatable
         return $this->hasMany(Appointment::class);
     }
 
+    /**
+     * @return HasMany<ClinicStaff, $this>
+     */
+    public function staff(): HasMany
+    {
+        return $this->hasMany(ClinicStaff::class);
+    }
+
     public function isApproved(): bool
     {
         return $this->status === 'approved';
@@ -64,5 +74,14 @@ class MedicalCenter extends Authenticatable
     public function isPriced(): bool
     {
         return $this->facility_fee !== null;
+    }
+
+    public function logoUrl(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->logo_path);
     }
 }

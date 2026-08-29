@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
 use App\Models\DoctorClinicAffiliation;
+use App\Notifications\MedicalCenterPortalNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -37,6 +38,12 @@ class ClinicRequestController extends Controller
             'responded_by_doctor_at' => now(),
         ]);
 
+        $affiliation->clinic->notify((new MedicalCenterPortalNotification(
+            type: 'doctor_accepted',
+            message: 'Dr. '.$affiliation->doctor->name.' accepted your work request.',
+            link: route('medical-center.doctors.index', ['tab' => 'my-doctors'], absolute: false),
+        ))->afterCommit());
+
         return back()->with('status', "You are now affiliated with {$affiliation->clinic->name}.");
     }
 
@@ -51,6 +58,12 @@ class ClinicRequestController extends Controller
             'status' => 'declined',
             'responded_by_doctor_at' => now(),
         ]);
+
+        $affiliation->clinic->notify((new MedicalCenterPortalNotification(
+            type: 'doctor_declined',
+            message: 'Dr. '.$affiliation->doctor->name.' declined your work request.',
+            link: route('medical-center.doctors.index', ['tab' => 'pending'], absolute: false),
+        ))->afterCommit());
 
         return back()->with('status', 'Request declined.');
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Notifications\DoctorPortalNotification;
+use App\Notifications\MedicalCenterPortalNotification;
 use App\Services\DoctorClinicContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -66,6 +67,12 @@ class AppointmentController extends Controller
                 type: 'appointment_cancelled',
                 message: 'Appointment with '.$appointment->patient_name.' was cancelled.',
                 link: route('doctor.appointments.show', $appointment, absolute: false),
+            ))->afterCommit());
+
+            $appointment->medicalCenter->notify((new MedicalCenterPortalNotification(
+                type: 'appointment_cancelled',
+                message: 'Appointment with '.$appointment->patient_name.' was cancelled by Dr. '.Auth::guard('doctor')->user()->name.'.',
+                link: route('medical-center.appoinment-managment.show', $appointment, absolute: false),
             ))->afterCommit());
         }
 

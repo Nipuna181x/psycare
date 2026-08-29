@@ -4,7 +4,6 @@ namespace App\Http\Requests\Booking;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreScheduleRequest extends FormRequest
 {
@@ -26,7 +25,6 @@ class StoreScheduleRequest extends FormRequest
         return [
             'appointment_date' => ['required', 'date', 'after_or_equal:today', 'before_or_equal:'.now()->addDays(60)->toDateString()],
             'appointment_time' => ['required', 'date_format:H:i'],
-            'mode' => ['required', Rule::in(['in_person', 'online'])],
         ];
     }
 }

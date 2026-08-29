@@ -29,6 +29,6 @@ class DashboardTest extends TestCase
 
         $response = $this->actingAs($clinic, 'medical_center')->get(route('medical-center.dashboard'));
 
-        $response->assertOk();
+        $response->assertOk()->assertDontSee('Grow your team');
     }
 }
