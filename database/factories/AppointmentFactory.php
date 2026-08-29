@@ -34,6 +34,8 @@ class AppointmentFactory extends Factory
             'patient_email' => fake()->safeEmail(),
             'reason' => fake()->sentence(),
             'consultation_fee' => fake()->randomElement([3200, 3500, 4000, 4500]),
+            'doctor_fee_charged' => fn (array $attributes) => Doctor::find($attributes['doctor_id'])?->consultation_fee,
+            'clinic_fee_charged' => fn (array $attributes) => MedicalCenter::find($attributes['medical_center_id'])?->facility_fee,
             'pre_assessment' => [
                 ['question' => 'What brings you in today?', 'answer' => fake()->sentence()],
             ],

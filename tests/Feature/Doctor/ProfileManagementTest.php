@@ -18,7 +18,10 @@ class ProfileManagementTest extends TestCase
         Storage::fake('public');
         $doctor = Doctor::factory()->create();
 
-        $this->actingAs($doctor, 'doctor')->get(route('doctor.profile.edit'))->assertOk()->assertSee('Profile &amp; Settings', false);
+        $this->actingAs($doctor, 'doctor')->get(route('doctor.profile.edit'))
+            ->assertOk()
+            ->assertSee('Profile &amp; Settings', false)
+            ->assertSee(route('doctor.profile.edit'));
 
         $this->actingAs($doctor, 'doctor')->patch(route('doctor.profile.information.update'), [
             'name' => 'Dr. Maya Fernando',
@@ -56,5 +59,27 @@ class ProfileManagementTest extends TestCase
         $this->actingAs($doctor, 'doctor')->from(route('doctor.profile.edit'))->patch(route('doctor.profile.password.update'), [
             'current_password' => 'incorrect', 'password' => 'NewSecurePass123!', 'password_confirmation' => 'NewSecurePass123!',
         ])->assertSessionHasErrors('current_password');
+    }
+
+    public function test_doctor_can_update_session_pricing(): void
+    {
+        $doctor = Doctor::factory()->create(['consultation_fee' => 3000]);
+
+        $this->actingAs($doctor, 'doctor')
+            ->patch(route('doctor.profile.pricing.update'), ['consultation_fee' => 4500])
+            ->assertRedirect();
+
+        $this->assertSame('4500.00', $doctor->fresh()->consultation_fee);
+    }
+
+    public function test_pricing_update_rejects_a_negative_fee(): void
+    {
+        $doctor = Doctor::factory()->create(['consultation_fee' => 3000]);
+
+        $this->actingAs($doctor, 'doctor')
+            ->patch(route('doctor.profile.pricing.update'), ['consultation_fee' => -100])
+            ->assertSessionHasErrors('consultation_fee');
+
+        $this->assertSame('3000.00', $doctor->fresh()->consultation_fee);
     }
 }

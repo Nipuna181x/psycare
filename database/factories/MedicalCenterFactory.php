@@ -28,6 +28,7 @@ class MedicalCenterFactory extends Factory
             'registration_number' => fake()->unique()->bothify('REG-####??'),
             'password' => static::$password ??= Hash::make('password'),
             'status' => 'pending',
+            'facility_fee' => fake()->randomElement([500, 750, 1000, 1500]),
         ];
     }
 

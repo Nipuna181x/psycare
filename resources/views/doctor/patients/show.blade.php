@@ -134,8 +134,8 @@
         @endif
 
         <x-dashboard.panel title="Medication History" subtitle="Prescriptions recorded during appointments with you" class="lg:col-span-3">
-            @php($appointmentsWithMedications = $appointments->filter(fn ($appointment) => $appointment->prescriptions->isNotEmpty()))
-            @if ($appointmentsWithMedications->isEmpty())
+            @php($appointmentsWithPrescription = $appointments->filter(fn ($appointment) => $appointment->prescription))
+            @if ($appointmentsWithPrescription->isEmpty())
                 <div class="grid min-h-32 place-items-center rounded-2xl border border-dashed border-border bg-secondary/40 p-6 text-center">
                     <div>
                         <svg class="mx-auto h-6 w-6 text-ink-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m10.5 20.5 10-10a4.24 4.24 0 0 0-6-6l-10 10a4.24 4.24 0 0 0 6 6Z"/><path d="m8.5 8.5 7 7"/></svg>
@@ -144,24 +144,69 @@
                 </div>
             @else
                 <div class="grid gap-4">
-                    @foreach ($appointmentsWithMedications as $appointment)
+                    @foreach ($appointmentsWithPrescription as $appointment)
                         <section class="overflow-hidden rounded-2xl border border-border">
                             <header class="flex flex-wrap items-center justify-between gap-2 bg-secondary/60 px-4 py-3">
                                 <p class="text-[12px] font-semibold text-ink">{{ $appointment->appointment_date->format('D, j M Y') }}</p>
-                                <p class="text-[11px] text-ink-soft">{{ $appointment->prescriptions->first()->doctor->name ?? 'Doctor' }}</p>
+                                <p class="text-[11px] text-ink-soft">{{ $appointment->prescription->doctor->name ?? 'Doctor' }}</p>
                             </header>
                             <ul class="divide-y divide-border">
-                                @foreach ($appointment->prescriptions as $prescription)
-                                    <li class="grid gap-2 px-4 py-3 sm:grid-cols-[1.2fr_0.8fr_0.8fr_1.5fr] sm:items-start">
-                                        <div><span class="text-[10px] text-ink-soft sm:hidden">Medication · </span><span class="text-[12px] font-semibold text-ink">{{ $prescription->medication_name }}</span></div>
-                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Dosage · </span>{{ $prescription->dosage }}</p>
-                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Frequency · </span>{{ $prescription->frequency }}</p>
-                                        <p class="text-[11px] leading-relaxed text-ink-soft">{{ $prescription->notes ?: 'No duration or notes recorded.' }}</p>
+                                @foreach ($appointment->prescription->items as $item)
+                                    <li class="grid gap-2 px-4 py-3 sm:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr_1.2fr] sm:items-start">
+                                        <div><span class="text-[10px] text-ink-soft sm:hidden">Medicine · </span><span class="text-[12px] font-semibold text-ink">{{ $item->medicine_name }}</span></div>
+                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Dosage · </span>{{ $item->dosage }}</p>
+                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Frequency · </span>{{ $item->frequency }}</p>
+                                        <p class="text-[11px] text-ink-soft"><span class="sm:hidden">Duration · </span>{{ $item->duration ?? '—' }}</p>
+                                        <p class="text-[11px] leading-relaxed text-ink-soft">{{ $item->special_instructions ?: '—' }}</p>
                                     </li>
                                 @endforeach
                             </ul>
+                            @if ($appointment->prescription->notes)
+                                <p class="border-t border-border px-4 py-3 text-[11px] leading-relaxed text-ink-soft"><span class="font-semibold text-ink">Notes:</span> {{ $appointment->prescription->notes }}</p>
+                            @endif
                         </section>
                     @endforeach
+                </div>
+            @endif
+
+            @if ($otherProvidersHistory['status'] !== 'not_applicable')
+                <div class="mt-6 border-t border-border pt-5">
+                    <h3 class="font-display text-[14px] font-medium text-ink">Care History with Other Providers</h3>
+
+                    @if ($otherProvidersHistory['status'] === 'locked')
+                        <div class="mt-3 rounded-2xl border border-dashed border-border bg-secondary/40 p-4">
+                            <p class="text-[12px] text-ink-soft">This patient has not granted you access to their history with other providers.</p>
+                        </div>
+                    @else
+                        @if ($otherProvidersHistory['status'] === 'emergency_override')
+                            <div class="mt-3 rounded-2xl border border-red-200 bg-red-50 p-3.5">
+                                <p class="text-[10px] font-semibold tracking-[0.08em] text-red-800 uppercase">Emergency / crisis override active</p>
+                                <p class="mt-1 text-[12px] text-red-700">This patient's current risk status permits full cross-provider history access regardless of consent.</p>
+                            </div>
+                        @endif
+
+                        <div class="mt-3 grid gap-4">
+                            @forelse ($otherProvidersHistory['appointments'] as $otherAppointment)
+                                <section class="overflow-hidden rounded-2xl border border-border">
+                                    <header class="flex flex-wrap items-center justify-between gap-2 bg-secondary/60 px-4 py-3">
+                                        <p class="text-[12px] font-semibold text-ink">{{ $otherAppointment->appointment_date->format('D, j M Y') }}</p>
+                                        <p class="text-[11px] text-ink-soft">{{ $otherAppointment->doctor->name ?? 'Doctor' }} · {{ $otherAppointment->medicalCenter->name ?? 'Clinic' }}</p>
+                                    </header>
+                                    @if ($otherAppointment->prescription)
+                                        <ul class="divide-y divide-border">
+                                            @foreach ($otherAppointment->prescription->items as $item)
+                                                <li class="px-4 py-3 text-[12px] text-ink">{{ $item->medicine_name }} — {{ $item->dosage }}, {{ $item->frequency }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="px-4 py-3 text-[11px] text-ink-soft">No prescription recorded for this visit.</p>
+                                    @endif
+                                </section>
+                            @empty
+                                <p class="text-[12px] text-ink-soft">No other-provider visits recorded.</p>
+                            @endforelse
+                        </div>
+                    @endif
                 </div>
             @endif
         </x-dashboard.panel>

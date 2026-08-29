@@ -68,4 +68,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Prescription::class, 'patient_id');
     }
+
+    /** @return HasMany<PatientConsent, $this> */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(PatientConsent::class, 'patient_id');
+    }
 }

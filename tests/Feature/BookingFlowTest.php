@@ -6,6 +6,7 @@ use App\Http\Controllers\BookingController;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
+use App\Models\MedicalCenter;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -82,7 +83,11 @@ class BookingFlowTest extends TestCase
         $this->actingAs($patient)
             ->get(route('booking.review', $doctor))
             ->assertOk()
-            ->assertSee('Jane Doe');
+            ->assertSee('Jane Doe')
+            ->assertSee('session fee')
+            ->assertSee($affiliation->clinic->name.' facility fee')
+            ->assertSee('LKR '.number_format(4000))
+            ->assertSee('LKR '.number_format(4000 + $affiliation->clinic->facility_fee));
 
         $confirmResponse = $this->actingAs($patient)->post(route('booking.confirm', $doctor));
 
@@ -97,6 +102,8 @@ class BookingFlowTest extends TestCase
             'gad7_total' => 0,
             'self_harm_flag' => true,
             'requires_immediate_escalation' => true,
+            'doctor_fee_charged' => 4000,
+            'clinic_fee_charged' => $affiliation->clinic->facility_fee,
         ]);
 
         $appointment = $patient->appointments()->first();
@@ -228,5 +235,58 @@ class BookingFlowTest extends TestCase
         $response = $this->actingAs($patient)->get(route('booking.clinic', $doctor));
 
         $response->assertRedirect(route('booking.schedule', $doctor));
+    }
+
+    public function test_booking_is_blocked_at_checkout_when_doctor_has_no_price_set(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create(['consultation_fee' => null]);
+        DoctorClinicAffiliation::factory()->for($doctor)->create();
+
+        $this->completeBookingStepsUpToAssessment($patient, $doctor);
+
+        $response = $this->actingAs($patient)->get(route('booking.review', $doctor));
+
+        $response->assertRedirect(route('booking.schedule', $doctor));
+        $this->assertSame(0, Appointment::query()->count());
+
+        $this->actingAs($patient)->post(route('booking.confirm', $doctor));
+        $this->assertSame(0, Appointment::query()->count());
+    }
+
+    public function test_booking_is_blocked_at_checkout_when_clinic_has_no_price_set(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = Doctor::factory()->create(['consultation_fee' => 4000]);
+        DoctorClinicAffiliation::factory()->for($doctor)->create(['clinic_id' => MedicalCenter::factory()->approved()->create(['facility_fee' => null])->id]);
+
+        $this->completeBookingStepsUpToAssessment($patient, $doctor);
+
+        $response = $this->actingAs($patient)->get(route('booking.review', $doctor));
+
+        $response->assertRedirect(route('booking.schedule', $doctor));
+        $this->assertSame(0, Appointment::query()->count());
+    }
+
+    /**
+     * Drive the wizard from the schedule step through the end of the voice
+     * assessment step (skipped), leaving the session ready to load `review`.
+     */
+    private function completeBookingStepsUpToAssessment(User $patient, Doctor $doctor): void
+    {
+        $date = now()->addDay()->toDateString();
+
+        $this->actingAs($patient)->post(route('booking.schedule', $doctor), [
+            'appointment_date' => $date,
+            'appointment_time' => '10:30',
+            'mode' => 'in_person',
+        ]);
+
+        $this->actingAs($patient)->post(route('booking.details', $doctor), [
+            'patient_name' => 'Jane Doe',
+            'patient_phone' => '0771234567',
+        ]);
+
+        $this->actingAs($patient)->post(route('booking.assessment', $doctor), ['skipped' => true]);
     }
 }

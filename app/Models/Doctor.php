@@ -93,6 +93,12 @@ class Doctor extends Authenticatable
         return $this->hasMany(Prescription::class);
     }
 
+    /** @return HasMany<PatientConsent, $this> */
+    public function consentsReceived(): HasMany
+    {
+        return $this->hasMany(PatientConsent::class);
+    }
+
     /**
      * @return BelongsTo<Admin, $this>
      */
@@ -109,6 +115,11 @@ class Doctor extends Authenticatable
     public function hasActiveAffiliation(): bool
     {
         return $this->activeAffiliations()->exists();
+    }
+
+    public function isPriced(): bool
+    {
+        return $this->consultation_fee !== null;
     }
 
     public function nextAvailableLabel(): string

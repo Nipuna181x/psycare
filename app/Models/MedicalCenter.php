@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'address', 'registration_number', 'password', 'status'])]
+#[Fillable(['name', 'email', 'phone', 'address', 'registration_number', 'password', 'status', 'facility_fee'])]
 #[Hidden(['password', 'remember_token'])]
 class MedicalCenter extends Authenticatable
 {
@@ -27,6 +27,7 @@ class MedicalCenter extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'facility_fee' => 'decimal:2',
         ];
     }
 
@@ -58,5 +59,10 @@ class MedicalCenter extends Authenticatable
     public function isApproved(): bool
     {
         return $this->status === 'approved';
+    }
+
+    public function isPriced(): bool
+    {
+        return $this->facility_fee !== null;
     }
 }

@@ -96,8 +96,10 @@
                             </p>
                             <div class="mt-2 flex items-center justify-between gap-4">
                                 <span class="text-[12px] text-ink-soft">{{ $doctor->consultationModeLabel() }}</span>
-                                @if ($doctor->consultation_fee)
-                                    <span class="text-[13px] font-medium text-ink">LKR {{ number_format($doctor->consultation_fee) }}</span>
+                                @if ($doctor->isPriced())
+                                    <span class="text-[13px] font-medium text-ink">From LKR {{ number_format($doctor->consultation_fee) }} <span class="font-normal text-ink-soft">(excl. clinic fees)</span></span>
+                                @else
+                                    <span class="text-[12px] text-ink-soft">Contact for pricing</span>
                                 @endif
                             </div>
                             <div class="mt-5 flex items-center gap-2">

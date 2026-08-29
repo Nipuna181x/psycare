@@ -9,12 +9,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'user_id', 'doctor_id', 'medical_center_id', 'doctor_availability_slot_id',
     'appointment_date', 'appointment_time', 'mode',
     'patient_name', 'patient_age', 'patient_gender', 'patient_phone', 'patient_email', 'reason',
-    'consultation_fee',
+    'consultation_fee', 'doctor_fee_charged', 'clinic_fee_charged',
     'pre_assessment', 'pre_assessment_mood_rating', 'pre_assessment_summary', 'pre_assessment_risk_level',
     'phq9_total', 'phq9_severity', 'gad7_total', 'gad7_severity', 'self_harm_flag',
     'requires_immediate_escalation', 'screener_open_notes', 'screener_completed_at',
@@ -41,6 +42,8 @@ class Appointment extends Model
             'escalation_reviewed' => 'boolean',
             'escalation_reviewed_at' => 'datetime',
             'screener_completed_at' => 'datetime',
+            'doctor_fee_charged' => 'decimal:2',
+            'clinic_fee_charged' => 'decimal:2',
         ];
     }
 
@@ -82,10 +85,10 @@ class Appointment extends Model
         return $this->hasMany(PatientNlpReport::class);
     }
 
-    /** @return HasMany<Prescription, $this> */
-    public function prescriptions(): HasMany
+    /** @return HasOne<Prescription, $this> */
+    public function prescription(): HasOne
     {
-        return $this->hasMany(Prescription::class);
+        return $this->hasOne(Prescription::class);
     }
 
     public function requiresCrisisEscalation(): bool

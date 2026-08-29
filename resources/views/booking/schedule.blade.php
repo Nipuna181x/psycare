@@ -18,6 +18,12 @@
                 <p class="eyebrow">Step 1 of 4</p>
                 <h1 class="display-head mt-2 text-[clamp(1.5rem,3vw,2rem)] text-ink">When would you like to see {{ $doctor->name }}?</h1>
 
+                @if (session('status'))
+                    <div class="mt-5 rounded-2xl bg-amber-50 px-4 py-3 text-[13px] text-amber-800">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
                 @if ($errors->any())
                     <div class="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-[13px] text-red-700">
                         {{ $errors->first() }}

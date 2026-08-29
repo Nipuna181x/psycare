@@ -5,16 +5,14 @@ namespace App\Http\Requests\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreMedicationRequest extends FormRequest
+class UpdatePricingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        $appointment = $this->route('appointment');
-
-        return $appointment && $appointment->doctor_id === $this->user('doctor')?->id;
+        return $this->user('doctor') !== null;
     }
 
     /**
@@ -25,10 +23,7 @@ class StoreMedicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'medication_name' => ['required', 'string', 'max:255'],
-            'dosage' => ['required', 'string', 'max:255'],
-            'frequency' => ['required', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:2000'],
+            'consultation_fee' => ['required', 'numeric', 'min:0', 'max:999999.99'],
         ];
     }
 }
