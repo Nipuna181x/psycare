@@ -5,6 +5,10 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DoctorApprovalController as AdminDoctorApprovalController;
 use App\Http\Controllers\Admin\MailCheckController as AdminMailCheckController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\PatientController as AdminPatientController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\AiCompanionController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -72,7 +76,7 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'patient.active'])->group(function () {
     Route::get('ai-companion', [AiCompanionController::class, 'show'])->name('ai-companion.show');
     Route::post('ai-companion/start', [AiCompanionController::class, 'start'])
         ->middleware('throttle:20,1')
@@ -139,6 +143,30 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('mail-check', [AdminMailCheckController::class, 'index'])->name('mail-check.index');
         Route::post('mail-check', [AdminMailCheckController::class, 'send'])->name('mail-check.send');
+
+        Route::get('medical-centers', [AdminMedicalCenterController::class, 'index'])->name('medical-centers.index');
+        Route::get('medical-centers/{medicalCenter}', [AdminMedicalCenterController::class, 'show'])->name('medical-centers.show');
+        Route::patch('medical-centers/{medicalCenter}/approve', [AdminMedicalCenterController::class, 'approve'])->name('medical-centers.approve');
+        Route::patch('medical-centers/{medicalCenter}/reject', [AdminMedicalCenterController::class, 'reject'])->name('medical-centers.reject');
+
+        Route::get('doctors', [AdminDoctorApprovalController::class, 'index'])->name('doctors.index');
+        Route::get('doctors/{doctor}', [AdminDoctorApprovalController::class, 'show'])->name('doctors.show');
+        Route::patch('doctors/{doctor}/approve', [AdminDoctorApprovalController::class, 'approve'])->name('doctors.approve');
+        Route::patch('doctors/{doctor}/reject', [AdminDoctorApprovalController::class, 'reject'])->name('doctors.reject');
+
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/read-all', [AdminNotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'read'])->name('notifications.read');
+
+        Route::get('patients', [AdminPatientController::class, 'index'])->name('patients.index');
+        Route::get('patients/{patient}', [AdminPatientController::class, 'show'])->name('patients.show');
+        Route::patch('patients/{patient}/ban', [AdminPatientController::class, 'ban'])->name('patients.ban');
+        Route::patch('patients/{patient}/restore', [AdminPatientController::class, 'restore'])->name('patients.restore');
+
+        Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::get('settings', [AdminSettingsController::class, 'edit'])->name('settings.edit');
+        Route::patch('settings/profile', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile.update');
+        Route::patch('settings/password', [AdminSettingsController::class, 'updatePassword'])->name('settings.password.update');
 
         Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
         Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');

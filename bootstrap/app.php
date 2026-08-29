@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureClinicStaffIsActive;
 use App\Http\Middleware\EnsureDoctorOnboardingComplete;
 use App\Http\Middleware\EnsureMedicalCenterIsApproved;
+use App\Http\Middleware\EnsurePatientIsActive;
 use App\Http\Middleware\EnsurePrimaryClinicAccount;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'doctor.onboarding' => EnsureDoctorOnboardingComplete::class,
             'clinic_staff.active' => EnsureClinicStaffIsActive::class,
             'medical_center.primary' => EnsurePrimaryClinicAccount::class,
+            'patient.active' => EnsurePatientIsActive::class,
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

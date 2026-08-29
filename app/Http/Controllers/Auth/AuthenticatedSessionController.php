@@ -30,6 +30,14 @@ class AuthenticatedSessionController extends Controller
             ])->onlyInput('email');
         }
 
+        if ($request->user()?->is_banned) {
+            Auth::guard('web')->logout();
+
+            return back()->withErrors([
+                'email' => 'This account has been suspended. Please contact PsyCare support.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('home'));
