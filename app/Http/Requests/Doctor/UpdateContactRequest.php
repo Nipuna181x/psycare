@@ -25,7 +25,7 @@ class UpdateContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['nullable', 'email', 'max:255', Rule::unique(Doctor::class)->ignore($this->user('doctor'))],
+            'email' => ['required', 'email', 'max:255', Rule::unique(Doctor::class)->ignore($this->user('doctor'))],
             'phone' => ['nullable', 'string', 'max:30'],
         ];
     }

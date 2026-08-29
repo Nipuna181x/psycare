@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MedicalCenter;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\DoctorClinicAffiliation;
+use App\Notifications\ClinicWorkRequestReceived;
 use App\Services\CurrentClinic;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -79,12 +80,14 @@ class DoctorsController extends Controller
             'A request is already pending or active with this doctor.'
         );
 
-        DoctorClinicAffiliation::create([
+        $affiliation = DoctorClinicAffiliation::create([
             'doctor_id' => $doctor->id,
             'clinic_id' => $clinic->id,
             'status' => 'requested',
             'requested_by_clinic_at' => now(),
         ]);
+
+        $doctor->notify((new ClinicWorkRequestReceived($affiliation))->afterCommit());
 
         return back()->with('status', "Work request sent to Dr. {$doctor->name}.");
     }

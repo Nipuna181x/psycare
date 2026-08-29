@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 
 #[Fillable(['name', 'email', 'mobile', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -31,12 +32,23 @@ class User extends Authenticatable
         ];
     }
 
+    public function routeNotificationForMail(?Notification $notification = null): string
+    {
+        return $this->email;
+    }
+
     /**
      * @return HasMany<Appointment, $this>
      */
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'patient_id');
     }
 
     /** @return HasMany<AiCompanionSession, $this> */

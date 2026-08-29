@@ -13,7 +13,7 @@ class AppointmentController extends Controller
     public function index(): View
     {
         $appointments = Auth::user()->appointments()
-            ->with(['doctor', 'medicalCenter'])
+            ->with(['doctor', 'medicalCenter', 'payment'])
             ->orderByDesc('appointment_date')
             ->orderByDesc('appointment_time')
             ->get();

@@ -31,7 +31,7 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
-        $appointments = $medicalCenter->appointments();
+        $appointments = $medicalCenter->appointments()->visibleToCareTeam();
 
         return view('medical-center.dashboard', [
             'totalDoctors' => array_sum($statusCounts),

@@ -14,7 +14,7 @@ class AnalyticsController extends Controller
      */
     public function index(CurrentClinic $currentClinic): View
     {
-        $appointments = $currentClinic->model()->appointments();
+        $appointments = $currentClinic->model()->appointments()->visibleToCareTeam();
 
         $thisMonth = (clone $appointments)
             ->whereMonth('appointment_date', now()->month)

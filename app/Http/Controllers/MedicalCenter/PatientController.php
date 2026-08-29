@@ -21,12 +21,12 @@ class PatientController extends Controller
         $doctorFilter = $request->integer('doctor_id') ?: null;
 
         $patients = User::query()
-            ->whereHas('appointments', fn ($query) => $query->where('medical_center_id', $clinicId)
+            ->whereHas('appointments', fn ($query) => $query->visibleToCareTeam()->where('medical_center_id', $clinicId)
                 ->when($doctorFilter, fn ($query) => $query->where('doctor_id', $doctorFilter)))
             ->when($nameFilter !== '', fn ($query) => $query->where('name', 'like', "%{$nameFilter}%"))
-            ->withCount(['appointments' => fn ($query) => $query->where('medical_center_id', $clinicId)
+            ->withCount(['appointments' => fn ($query) => $query->visibleToCareTeam()->where('medical_center_id', $clinicId)
                 ->when($doctorFilter, fn ($query) => $query->where('doctor_id', $doctorFilter))])
-            ->with(['appointments' => fn ($query) => $query->where('medical_center_id', $clinicId)
+            ->with(['appointments' => fn ($query) => $query->visibleToCareTeam()->where('medical_center_id', $clinicId)
                 ->when($doctorFilter, fn ($query) => $query->where('doctor_id', $doctorFilter))
                 ->with('doctor')
                 ->orderByDesc('appointment_date')
@@ -53,11 +53,12 @@ class PatientController extends Controller
     {
         $clinicId = $currentClinic->id();
 
-        abort_unless($patient->appointments()->where('medical_center_id', $clinicId)->exists(), 403);
+        abort_unless($patient->appointments()->visibleToCareTeam()->where('medical_center_id', $clinicId)->exists(), 403);
 
         return view('medical-center.patients.show', [
             'patient' => $patient,
             'appointments' => $patient->appointments()
+                ->visibleToCareTeam()
                 ->where('medical_center_id', $clinicId)
                 ->with(['doctor', 'prescription.items'])
                 ->orderByDesc('appointment_date')

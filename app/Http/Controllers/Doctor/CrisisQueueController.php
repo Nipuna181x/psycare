@@ -34,6 +34,7 @@ class CrisisQueueController extends Controller
     public function acknowledge(Appointment $appointment): RedirectResponse
     {
         abort_unless($appointment->doctor_id === Auth::guard('doctor')->id(), 403);
+        abort_if($appointment->status === 'pending_payment', 404);
         abort_unless($appointment->requiresCrisisEscalation(), 422);
 
         $appointment->update([

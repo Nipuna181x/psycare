@@ -71,6 +71,24 @@ class EarningsTest extends TestCase
         $response->assertOk()->assertSee('LKR '.number_format(3000))->assertDontSee('LKR '.number_format(9999));
     }
 
+    public function test_pending_checkout_reservations_are_excluded_from_earnings(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $affiliation = DoctorClinicAffiliation::factory()->for($doctor)->create();
+
+        Appointment::factory()->for($doctor)->create([
+            'medical_center_id' => $affiliation->clinic_id,
+            'status' => 'pending_payment',
+            'doctor_fee_charged' => 9999,
+        ]);
+
+        $this->actingAs($doctor, 'doctor')
+            ->get(route('doctor.earnings.index'))
+            ->assertOk()
+            ->assertSee('No earnings yet')
+            ->assertDontSee('LKR '.number_format(9999));
+    }
+
     public function test_this_month_only_counts_the_current_month(): void
     {
         $doctor = Doctor::factory()->create();

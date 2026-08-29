@@ -100,7 +100,7 @@
                 <form method="POST" action="{{ route('booking.confirm', $doctor) }}" class="mt-6 flex items-center gap-3">
                     @csrf
                     <a href="{{ route('booking.assessment', $doctor) }}" class="rounded-2xl bg-secondary px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">Back</a>
-                    <button type="submit" class="flex-1 rounded-2xl bg-ink px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Confirm booking</button>
+                    <button type="submit" class="flex-1 rounded-2xl bg-ink px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Confirm &amp; Pay</button>
                 </form>
             </div>
         </main>

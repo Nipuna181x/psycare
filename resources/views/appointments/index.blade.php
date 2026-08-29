@@ -27,9 +27,17 @@
                                     <p class="text-[14px] font-medium text-ink">{{ $appointment->doctor->name }}</p>
                                     <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->medicalCenter->name }}</p>
                                     <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }} · {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</p>
+                                    @if ($appointment->payment?->status === 'succeeded')
+                                        <p class="mt-1 text-[10px] font-semibold tracking-[0.06em] text-blue-700 uppercase">Payment ID {{ $appointment->payment->reference() }}</p>
+                                    @endif
                                 </div>
                             </div>
-                            <x-dashboard.badge :status="$appointment->status" />
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if ($appointment->payment?->status === 'succeeded')
+                                    <a href="{{ route('payments.receipt.download', $appointment->payment) }}" class="rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[10px] font-semibold tracking-[0.06em] text-blue-700 uppercase transition-colors hover:bg-blue-100">Download receipt</a>
+                                @endif
+                                <x-dashboard.badge :status="$appointment->status" />
+                            </div>
                         </div>
                     @empty
                         <p class="rounded-3xl bg-card p-8 text-[13px] text-ink-soft">No upcoming appointments yet. <a href="{{ route('doctors.index') }}" class="font-medium text-ink underline">Book a doctor</a>.</p>
@@ -47,9 +55,17 @@
                                 <div>
                                     <p class="text-[14px] font-medium text-ink">{{ $appointment->doctor->name }}</p>
                                     <p class="mt-0.5 text-[12px] text-ink-soft">{{ $appointment->appointment_date->format('D, j M Y') }} · {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</p>
+                                    @if ($appointment->payment?->status === 'succeeded')
+                                        <p class="mt-1 text-[10px] font-semibold tracking-[0.06em] text-blue-700 uppercase">Payment ID {{ $appointment->payment->reference() }}</p>
+                                    @endif
                                 </div>
                             </div>
-                            <x-dashboard.badge :status="$appointment->status" />
+                            <div class="flex flex-wrap items-center gap-2">
+                                @if ($appointment->payment?->status === 'succeeded')
+                                    <a href="{{ route('payments.receipt.download', $appointment->payment) }}" class="rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[10px] font-semibold tracking-[0.06em] text-blue-700 uppercase transition-colors hover:bg-blue-100">Download receipt</a>
+                                @endif
+                                <x-dashboard.badge :status="$appointment->status" />
+                            </div>
                         </div>
                     @empty
                         <p class="rounded-3xl bg-card p-8 text-[13px] text-ink-soft">No past appointments yet.</p>

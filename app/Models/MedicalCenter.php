@@ -66,6 +66,18 @@ class MedicalCenter extends Authenticatable
         return $this->hasMany(ClinicStaff::class);
     }
 
+    /** @return HasMany<Payment, $this> */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'clinic_id');
+    }
+
+    /** @return HasMany<DoctorPayout, $this> */
+    public function doctorPayouts(): HasMany
+    {
+        return $this->hasMany(DoctorPayout::class, 'clinic_id');
+    }
+
     public function isApproved(): bool
     {
         return $this->status === 'approved';

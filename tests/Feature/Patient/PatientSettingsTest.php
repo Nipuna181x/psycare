@@ -45,6 +45,7 @@ class PatientSettingsTest extends TestCase
             'email' => 'updated@example.test',
             'mobile' => '0771234567',
         ]);
+        $this->assertSame('updated@example.test', $patient->fresh()->routeNotificationFor('mail'));
     }
 
     public function test_profile_update_rejects_an_email_already_used_by_another_patient(): void

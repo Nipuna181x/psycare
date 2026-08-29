@@ -24,12 +24,18 @@
 
                 <div class="mt-8 space-y-3 rounded-2xl bg-secondary p-5 text-left">
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Booking reference</span><span class="font-medium text-ink">#{{ str_pad($appointment->id, 6, '0', STR_PAD_LEFT) }}</span></div>
+                    @if ($appointment->payment?->status === 'succeeded')
+                        <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Payment ID</span><span class="font-medium text-ink">{{ $appointment->payment->reference() }}</span></div>
+                    @endif
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Doctor</span><span class="font-medium text-ink">{{ $appointment->doctor->name }}</span></div>
                     <div class="flex items-center justify-between text-[13px]"><span class="text-ink-soft">Date & time</span><span class="font-medium text-ink">{{ $appointment->appointment_date->format('D, j M Y') }}, {{ \Illuminate\Support\Carbon::parse($appointment->appointment_time)->format('g:i A') }}</span></div>
                 </div>
 
                 <div class="mt-8 flex flex-col gap-2.5 sm:flex-row">
                     <a href="{{ route('appointments.index') }}" class="flex-1 rounded-2xl bg-ink px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">View my appointments</a>
+                    @if ($appointment->payment?->status === 'succeeded')
+                        <a href="{{ route('payments.receipt.download', $appointment->payment) }}" class="flex-1 rounded-2xl bg-blue-700 px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-white uppercase transition-transform hover:-translate-y-0.5">Download receipt</a>
+                    @endif
                     <a href="{{ route('doctors.index') }}" class="flex-1 rounded-2xl bg-secondary px-6 py-3.5 text-[11px] font-semibold tracking-[0.12em] text-ink uppercase transition-transform hover:-translate-y-0.5">Back to doctors</a>
                 </div>
             </div>

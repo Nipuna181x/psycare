@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DoctorApprovalController as AdminDoctorApprovalController;
+use App\Http\Controllers\Admin\MailCheckController as AdminMailCheckController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
 use App\Http\Controllers\AiCompanionController;
 use App\Http\Controllers\AppointmentController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Doctor\EarningsController as DoctorEarningsController;
 use App\Http\Controllers\Doctor\NotificationController as DoctorNotificationController;
 use App\Http\Controllers\Doctor\OnboardingController as DoctorOnboardingController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
+use App\Http\Controllers\Doctor\PayoutController as DoctorPayoutController;
 use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\RegisteredDoctorController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashb
 use App\Http\Controllers\MedicalCenter\DoctorsController as MedicalCenterDoctorsController;
 use App\Http\Controllers\MedicalCenter\NotificationController as MedicalCenterNotificationController;
 use App\Http\Controllers\MedicalCenter\PatientController as MedicalCenterPatientController;
+use App\Http\Controllers\MedicalCenter\PaymentController as MedicalCenterPaymentController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
 use App\Http\Controllers\MedicalCenter\SettingsController as MedicalCenterSettingsController;
 use App\Http\Controllers\MedicalCenter\StaffAuthenticatedSessionController;
@@ -44,6 +47,8 @@ use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
 use App\Http\Controllers\PatientNlpClassificationReportController;
 use App\Http\Controllers\PatientProfileController;
+use App\Http\Controllers\PaymentCheckoutController;
+use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\TherapyRoomController;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +85,7 @@ Route::middleware('auth')->group(function () {
         ->name('ai-companion.finish');
 
     Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('payments/{payment}/receipt', PaymentReceiptController::class)->name('payments.receipt.download');
 
     Route::get('health-records', [HealthRecordsController::class, 'index'])->name('health-records.index');
 
@@ -102,6 +108,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('booking/confirmed/{appointment}', [BookingController::class, 'confirmed'])->name('booking.confirmed');
+    Route::get('booking/payment/success', [PaymentCheckoutController::class, 'success'])->name('booking.payment.success');
+    Route::get('booking/payment/cancel/{appointment}', [PaymentCheckoutController::class, 'cancel'])->name('booking.payment.cancel');
 
     Route::prefix('therapy-rooms')->name('therapy-rooms.')->group(function () {
         Route::get('/', [TherapyRoomController::class, 'index'])->name('index');
@@ -129,6 +137,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('mail-check', [AdminMailCheckController::class, 'index'])->name('mail-check.index');
+        Route::post('mail-check', [AdminMailCheckController::class, 'send'])->name('mail-check.send');
 
         Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
         Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');
@@ -172,6 +182,8 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
         Route::get('patients/{patient}', [MedicalCenterPatientController::class, 'show'])->name('patients.show');
 
         Route::get('analytics', [MedicalCenterAnalyticsController::class, 'index'])->name('analytics.index');
+        Route::get('payments', [MedicalCenterPaymentController::class, 'index'])->name('payments.index');
+        Route::patch('payments/doctors/{doctor}/mark-paid', [MedicalCenterPaymentController::class, 'markDoctorPaid'])->name('payments.doctors.mark-paid');
 
         Route::get('notifications', [MedicalCenterNotificationController::class, 'index'])->name('notifications.index');
         Route::post('notifications/read-all', [MedicalCenterNotificationController::class, 'readAll'])->name('notifications.read-all');
@@ -246,6 +258,8 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('appointments/{appointment}/prescription/download', [DoctorPrescriptionController::class, 'download'])->name('appointments.prescription.download');
 
         Route::get('earnings', [DoctorEarningsController::class, 'index'])->name('earnings.index');
+        Route::get('payouts', [DoctorPayoutController::class, 'index'])->name('payouts.index');
+        Route::patch('payouts/{doctorPayout}/received', [DoctorPayoutController::class, 'received'])->name('payouts.received');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

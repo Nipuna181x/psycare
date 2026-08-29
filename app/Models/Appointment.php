@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 #[Fillable([
     'user_id', 'doctor_id', 'medical_center_id', 'doctor_availability_slot_id',
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'phq9_total', 'phq9_severity', 'gad7_total', 'gad7_severity', 'self_harm_flag',
     'requires_immediate_escalation', 'screener_open_notes', 'screener_completed_at',
     'escalation_reviewed', 'escalation_reviewed_at',
+    'reminder_24h_sent_at', 'reminder_1h_sent_at',
     'status',
 ])]
 class Appointment extends Model
@@ -41,6 +43,8 @@ class Appointment extends Model
             'requires_immediate_escalation' => 'boolean',
             'escalation_reviewed' => 'boolean',
             'escalation_reviewed_at' => 'datetime',
+            'reminder_24h_sent_at' => 'datetime',
+            'reminder_1h_sent_at' => 'datetime',
             'screener_completed_at' => 'datetime',
             'doctor_fee_charged' => 'decimal:2',
             'clinic_fee_charged' => 'decimal:2',
@@ -91,9 +95,23 @@ class Appointment extends Model
         return $this->hasOne(Prescription::class);
     }
 
+    /** @return HasOne<Payment, $this> */
+    public function payment(): HasOne
+    {
+        return $this->hasOne(Payment::class);
+    }
+
     public function requiresCrisisEscalation(): bool
     {
         return $this->requires_immediate_escalation || $this->self_harm_flag;
+    }
+
+    /**
+     * The appointment's scheduled date and time combined into a single instant.
+     */
+    public function startsAt(): Carbon
+    {
+        return Carbon::parse($this->appointment_date->format('Y-m-d').' '.$this->appointment_time);
     }
 
     /**
@@ -112,6 +130,18 @@ class Appointment extends Model
                             ->whereTime('appointment_time', '>=', now()->toTimeString());
                     });
             });
+    }
+
+    /**
+     * Hide temporary Checkout reservations from clinical and financial views
+     * until Stripe has confirmed the appointment.
+     *
+     * @param  Builder<Appointment>  $query
+     * @return Builder<Appointment>
+     */
+    public function scopeVisibleToCareTeam(Builder $query): Builder
+    {
+        return $query->where('status', '!=', 'pending_payment');
     }
 
     /**

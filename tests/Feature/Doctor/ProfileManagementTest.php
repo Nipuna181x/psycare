@@ -49,6 +49,7 @@ class ProfileManagementTest extends TestCase
 
         $doctor->refresh();
         $this->assertSame('doctor@example.test', $doctor->email);
+        $this->assertSame('doctor@example.test', $doctor->routeNotificationFor('mail'));
         $this->assertTrue(Hash::check('NewSecurePass123!', $doctor->password));
     }
 
