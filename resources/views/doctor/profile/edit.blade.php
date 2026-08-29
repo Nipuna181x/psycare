@@ -47,6 +47,17 @@
             </section>
 
             <section class="rounded-3xl bg-card p-5 shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-6">
+                <h2 class="font-display text-[16px] font-medium text-ink">Session pricing</h2>
+                <p class="mt-1 text-[11px] text-ink-soft">Your fee per session. Clinics may charge a separate facility fee shown to patients at checkout.</p>
+                <form method="POST" action="{{ route('doctor.profile.pricing.update') }}" class="mt-5 grid gap-4">
+                    @csrf @method('PATCH')
+                    <label class="text-[11px] font-medium text-ink">Consultation fee (LKR)<input type="number" step="0.01" min="0" name="consultation_fee" value="{{ old('consultation_fee', $doctor->consultation_fee) }}" required class="{{ $inputClasses }}"></label>
+                    @error('consultation_fee')<p class="text-[11px] text-red-700">{{ $message }}</p>@enderror
+                    <button class="justify-self-start rounded-xl bg-sky-700 px-5 py-3 text-[11px] font-semibold tracking-[0.1em] text-white uppercase hover:bg-sky-800">Save pricing</button>
+                </form>
+            </section>
+
+            <section class="rounded-3xl bg-card p-5 shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-6">
                 <h2 class="font-display text-[16px] font-medium text-ink">Change password</h2>
                 <p class="mt-1 text-[11px] text-ink-soft">Use a unique password you do not use elsewhere.</p>
                 <form method="POST" action="{{ route('doctor.profile.password.update') }}" class="mt-5 grid gap-4">

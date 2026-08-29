@@ -15,6 +15,7 @@ use App\Http\Controllers\Doctor\ClinicContextController as DoctorClinicContextCo
 use App\Http\Controllers\Doctor\ClinicRequestController as DoctorClinicRequestController;
 use App\Http\Controllers\Doctor\CrisisQueueController as DoctorCrisisQueueController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
+use App\Http\Controllers\Doctor\EarningsController as DoctorEarningsController;
 use App\Http\Controllers\Doctor\NotificationController as DoctorNotificationController;
 use App\Http\Controllers\Doctor\OnboardingController as DoctorOnboardingController;
 use App\Http\Controllers\Doctor\PatientController as DoctorPatientController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\MedicalCenter\AuthenticatedSessionController as Medical
 use App\Http\Controllers\MedicalCenter\DashboardController as MedicalCenterDashboardController;
 use App\Http\Controllers\MedicalCenter\DoctorSearchController as MedicalCenterDoctorSearchController;
 use App\Http\Controllers\MedicalCenter\RegisteredMedicalCenterController;
+use App\Http\Controllers\MedicalCenter\SettingsController as MedicalCenterSettingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PatientConsentController;
 use App\Http\Controllers\PatientConversationController;
@@ -156,6 +158,9 @@ Route::prefix('medical-center')->name('medical-center.')->group(function () {
 
         Route::get('appoinment-managment', [MedicalCenterAppointmentController::class, 'index'])->name('appoinment-managment.index');
         Route::get('appoinment-managment/{appointment}', [MedicalCenterAppointmentController::class, 'show'])->name('appoinment-managment.show');
+
+        Route::get('settings', [MedicalCenterSettingsController::class, 'edit'])->name('settings.edit');
+        Route::patch('settings/pricing', [MedicalCenterSettingsController::class, 'updatePricing'])->name('settings.pricing.update');
     });
 });
 
@@ -198,6 +203,7 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::get('profile', [DoctorProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('profile/information', [DoctorProfileController::class, 'updateProfile'])->name('profile.information.update');
         Route::patch('profile/contact', [DoctorProfileController::class, 'updateContact'])->name('profile.contact.update');
+        Route::patch('profile/pricing', [DoctorProfileController::class, 'updatePricing'])->name('profile.pricing.update');
         Route::patch('profile/password', [DoctorProfileController::class, 'updatePassword'])->name('profile.password.update');
 
         Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
@@ -205,6 +211,8 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
         Route::patch('appointments/{appointment}/status', [DoctorAppointmentController::class, 'updateStatus'])->name('appointments.status');
         Route::post('appointments/{appointment}/prescription', [DoctorPrescriptionController::class, 'store'])->name('appointments.prescription.store');
         Route::get('appointments/{appointment}/prescription/download', [DoctorPrescriptionController::class, 'download'])->name('appointments.prescription.download');
+
+        Route::get('earnings', [DoctorEarningsController::class, 'index'])->name('earnings.index');
 
         Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
         Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');

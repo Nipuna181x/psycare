@@ -15,11 +15,11 @@ class ClinicSeeder extends Seeder
     public function run(): void
     {
         $clinics = [
-            ['city' => 'Colombo', 'name' => 'Serene Mind Clinic', 'address' => 'Galle Road, Colombo 03, Colombo'],
-            ['city' => 'Kandy', 'name' => 'Hill Country Medical Institute', 'address' => 'Kandy City Centre, Kandy'],
-            ['city' => 'Galle', 'name' => 'Southern Care Collective', 'address' => 'Galle Fort, Galle'],
-            ['city' => 'Kurunegala', 'name' => 'North Western Wellbeing Centre', 'address' => 'Kandy Road, Kurunegala'],
-            ['city' => 'Jaffna', 'name' => 'Northern Mind Practice', 'address' => 'Hospital Road, Jaffna'],
+            ['city' => 'Colombo', 'name' => 'Serene Mind Clinic', 'address' => 'Galle Road, Colombo 03, Colombo', 'facility_fee' => 1000],
+            ['city' => 'Kandy', 'name' => 'Hill Country Medical Institute', 'address' => 'Kandy City Centre, Kandy', 'facility_fee' => 800],
+            ['city' => 'Galle', 'name' => 'Southern Care Collective', 'address' => 'Galle Fort, Galle', 'facility_fee' => 900],
+            ['city' => 'Kurunegala', 'name' => 'North Western Wellbeing Centre', 'address' => 'Kandy Road, Kurunegala', 'facility_fee' => 700],
+            ['city' => 'Jaffna', 'name' => 'Northern Mind Practice', 'address' => 'Hospital Road, Jaffna', 'facility_fee' => 750],
         ];
 
         $password = Hash::make('password');
@@ -34,6 +34,7 @@ class ClinicSeeder extends Seeder
                     'registration_number' => 'REG-'.Str::upper(Str::random(6)),
                     'password' => $password,
                     'status' => 'approved',
+                    'facility_fee' => $clinic['facility_fee'],
                 ]
             );
         }

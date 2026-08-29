@@ -117,6 +117,11 @@ class Doctor extends Authenticatable
         return $this->activeAffiliations()->exists();
     }
 
+    public function isPriced(): bool
+    {
+        return $this->consultation_fee !== null;
+    }
+
     public function nextAvailableLabel(): string
     {
         $next = $this->appointments()->upcoming()->orderBy('appointment_date')->orderBy('appointment_time')->first();

@@ -82,9 +82,19 @@
                     @endif
                 </div>
 
-                <div class="mt-4 flex items-center justify-between rounded-2xl bg-ink px-5 py-4 text-primary-foreground">
-                    <p class="text-[13px]">Consultation fee</p>
-                    <p class="font-display text-[16px] font-medium">{{ $doctor->consultation_fee ? 'LKR '.number_format($doctor->consultation_fee) : 'On request' }}</p>
+                <div class="mt-4 rounded-2xl bg-ink px-5 py-4 text-primary-foreground">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[13px] text-primary-foreground/80">Doctor's session fee</p>
+                        <p class="text-[13px] font-medium">LKR {{ number_format($doctorFee) }}</p>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <p class="text-[13px] text-primary-foreground/80">{{ $clinic->name }} facility fee</p>
+                        <p class="text-[13px] font-medium">LKR {{ number_format($clinicFee) }}</p>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between border-t border-white/15 pt-3">
+                        <p class="text-[13px]">Total</p>
+                        <p class="font-display text-[16px] font-medium">LKR {{ number_format($totalFee) }}</p>
+                    </div>
                 </div>
 
                 <form method="POST" action="{{ route('booking.confirm', $doctor) }}" class="mt-6 flex items-center gap-3">

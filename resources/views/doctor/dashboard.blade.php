@@ -19,6 +19,19 @@
         </div>
     @endif
 
+    @if ($noPriceSet)
+        <div class="mt-5 rounded-3xl bg-card p-6 text-center shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-8">
+            <span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sky-100 text-sky-700">
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+            <h2 class="mt-4 font-display text-[16px] font-medium text-ink">Set your session price to start receiving bookings</h2>
+            <p class="mx-auto mt-2 max-w-[48ch] text-[13px] leading-relaxed text-ink-soft">Patients can't complete checkout until you set a consultation fee.</p>
+            <a href="{{ route('doctor.profile.edit') }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">
+                Set your price
+            </a>
+        </div>
+    @endif
+
     <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <x-dashboard.stat-card label="Specialisation" :value="$doctor->specialization ?? 'Not set'" chip="rose">
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v6a4 4 0 0 0 8 0V2"/><circle cx="20" cy="10" r="2"/><path d="M20 12a2 2 0 0 0-2 2v2a6 6 0 0 1-6 6 6 6 0 0 1-6-6v-2a2 2 0 0 0-2-2"/></svg>
@@ -63,7 +76,7 @@
                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
                 </a>
             </x-slot:action>
-            <ul class="divide-y divide-border">
+            <ul class="grid gap-3">
                 @forelse ($nextAppointments as $appointment)
                     @include('doctor.appointments._row', ['appointment' => $appointment])
                 @empty

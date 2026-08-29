@@ -250,12 +250,21 @@ class BookingController extends Controller
         }
 
         $booking = session("booking.{$doctor->id}");
+        $clinic = MedicalCenter::find($booking['clinic']['clinic_id']);
+
+        if ($redirect = $this->ensurePriced($doctor, $clinic)) {
+            return $redirect;
+        }
+
         $skipped = (bool) ($booking['assessment']['skipped'] ?? false);
         $analysis = $skipped ? null : $analyzer->analyze($booking['assessment']['answers']);
 
         return view('booking.review', [
             'doctor' => $doctor,
-            'clinic' => MedicalCenter::find($booking['clinic']['clinic_id']),
+            'clinic' => $clinic,
+            'doctorFee' => $doctor->consultation_fee,
+            'clinicFee' => $clinic->facility_fee,
+            'totalFee' => $doctor->consultation_fee + $clinic->facility_fee,
             'schedule' => $booking['schedule'],
             'details' => $booking['details'],
             'assessment' => $booking['assessment'],
@@ -276,6 +285,11 @@ class BookingController extends Controller
 
         $booking = session("booking.{$doctor->id}");
         $clinicId = $booking['clinic']['clinic_id'];
+        $clinic = MedicalCenter::find($clinicId);
+
+        if ($redirect = $this->ensurePriced($doctor, $clinic)) {
+            return $redirect;
+        }
 
         if ($this->isSlotTaken($doctor, $clinicId, $booking['schedule']['appointment_date'], $booking['schedule']['appointment_time'])) {
             return redirect()->route('booking.schedule', $doctor)
@@ -307,6 +321,8 @@ class BookingController extends Controller
             'patient_email' => $booking['details']['patient_email'] ?? null,
             'reason' => $booking['details']['reason'] ?? null,
             'consultation_fee' => $doctor->consultation_fee,
+            'doctor_fee_charged' => $doctor->consultation_fee,
+            'clinic_fee_charged' => $clinic->facility_fee,
             'pre_assessment' => $skipped ? null : $booking['assessment']['answers'],
             'pre_assessment_summary' => $skipped ? null : $this->screenerSummary($analysis),
             'pre_assessment_risk_level' => $skipped ? null : ($analysis['requires_immediate_escalation'] ? 'elevated' : ($analysis['phq9']['severity'] === 'minimal' && $analysis['gad7']['severity'] === 'minimal' ? 'low' : 'moderate')),
@@ -355,6 +371,21 @@ class BookingController extends Controller
     private function ensureBookable(Doctor $doctor): void
     {
         abort_unless($doctor->isBookable() && $doctor->hasActiveAffiliation(), 404);
+    }
+
+    /**
+     * Guard checkout/confirmation against a doctor or clinic that hasn't set
+     * their pricing yet — booking must never complete with a missing or
+     * zero price.
+     */
+    private function ensurePriced(Doctor $doctor, ?MedicalCenter $clinic): ?RedirectResponse
+    {
+        if ($doctor->isPriced() && $clinic?->isPriced()) {
+            return null;
+        }
+
+        return redirect()->route('booking.schedule', $doctor)
+            ->with('status', "This doctor or clinic hasn't set their pricing yet — booking is temporarily unavailable.");
     }
 
     /**
