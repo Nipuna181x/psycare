@@ -7,6 +7,7 @@ use App\Http\Requests\MedicalCenter\PaymentIndexRequest;
 use App\Models\Doctor;
 use App\Models\DoctorPayout;
 use App\Models\Payment;
+use App\Notifications\DoctorPayoutPaid;
 use App\Services\CurrentClinic;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -106,6 +107,8 @@ class PaymentController extends Controller
         if (! $payout) {
             return back()->with('status', 'There are no unpaid succeeded payments for this doctor.');
         }
+
+        $doctor->notify((new DoctorPayoutPaid($payout))->afterCommit());
 
         return back()->with('status', 'Recorded LKR '.number_format((float) $payout->amount, 2).' as paid to Dr. '.$doctor->name.'.');
     }

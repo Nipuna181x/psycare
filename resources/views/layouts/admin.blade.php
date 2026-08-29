@@ -37,6 +37,12 @@
                     'badgeTone' => 'danger',
                     'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M8 2v4M16 2v4M3 10h18\'/><rect width=\'18\' height=\'18\' x=\'3\' y=\'4\' rx=\'2\'/><path d=\'m9 16 2 2 4-4\'/></svg>',
                 ],
+                [
+                    'label' => 'SMTP Check',
+                    'href' => route('admin.mail-check.index'),
+                    'active' => request()->routeIs('admin.mail-check.*'),
+                    'icon' => '<svg class=\'h-4 w-4\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect width=\'20\' height=\'16\' x=\'2\' y=\'4\' rx=\'2\'/><path d=\'m22 7-10 6L2 7\'/><path d=\'m16 17 2 2 4-4\'/></svg>',
+                ],
             ]"
             promo-title="Platform integrity"
             promo-description="Review pending medical centre applications to keep the network trustworthy."

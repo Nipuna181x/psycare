@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DoctorApprovalController as AdminDoctorApprovalController;
+use App\Http\Controllers\Admin\MailCheckController as AdminMailCheckController;
 use App\Http\Controllers\Admin\MedicalCenterController as AdminMedicalCenterController;
 use App\Http\Controllers\AiCompanionController;
 use App\Http\Controllers\AppointmentController;
@@ -136,6 +137,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [AdminAuthenticatedSessionController::class, 'destroy'])->name('logout');
 
         Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('mail-check', [AdminMailCheckController::class, 'index'])->name('mail-check.index');
+        Route::post('mail-check', [AdminMailCheckController::class, 'send'])->name('mail-check.send');
 
         Route::get('patients/{patient}/nlp-report', [PatientNlpClassificationReportController::class, 'show'])->name('patients.nlp-report.show');
         Route::post('patients/{patient}/nlp-report/sync', [PatientNlpClassificationReportController::class, 'sync'])->name('patients.nlp-report.sync');

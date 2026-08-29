@@ -8,7 +8,9 @@ use App\Models\DoctorPayout;
 use App\Models\MedicalCenter;
 use App\Models\Payment;
 use App\Models\User;
+use App\Notifications\DoctorPayoutPaid;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class PaymentsTest extends TestCase
@@ -75,6 +77,7 @@ class PaymentsTest extends TestCase
 
     public function test_clinic_marks_all_unpaid_succeeded_payments_for_one_doctor_as_paid_with_audit(): void
     {
+        Notification::fake();
         $clinic = MedicalCenter::factory()->approved()->create(['name' => 'Wellbeing Clinic']);
         $doctor = Doctor::factory()->create(['name' => 'Nadia Perera']);
         $otherDoctor = Doctor::factory()->create();
@@ -109,6 +112,11 @@ class PaymentsTest extends TestCase
         $this->assertSame(2, $payout->payment_count);
         $this->assertSame('medical_center', $payout->marked_by_type);
         $this->assertSame($clinic->id, $payout->marked_by_id);
+        Notification::assertSentTo($doctor, DoctorPayoutPaid::class, fn (DoctorPayoutPaid $notification): bool => $notification->payout->is($payout));
+
+        $mail = (new DoctorPayoutPaid($payout))->toMail($doctor);
+        $this->assertSame('Payout recorded by Wellbeing Clinic', $mail->subject);
+        $this->assertStringContainsString('LKR 7,000.00', implode(' ', $mail->introLines));
 
         $this->actingAs($doctor, 'doctor')
             ->get(route('doctor.payouts.index'))

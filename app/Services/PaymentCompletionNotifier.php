@@ -32,7 +32,7 @@ class PaymentCompletionNotifier
         ))->afterCommit());
 
         $patient->notify((new BookingConfirmed($appointment))->afterCommit());
-        Mail::to($appointment->patient_email ?: $patient->email)->queue(new PaymentReceipt($payment));
+        Mail::to($patient->email)->queue(new PaymentReceipt($payment));
 
         if ($appointment->requiresCrisisEscalation()) {
             $doctor->notify((new DoctorPortalNotification(

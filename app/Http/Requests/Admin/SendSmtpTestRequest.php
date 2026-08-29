@@ -1,20 +1,18 @@
 <?php
 
-namespace App\Http\Requests\Doctor;
+namespace App\Http\Requests\Admin;
 
-use App\Models\Doctor;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateContactRequest extends FormRequest
+class SendSmtpTestRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user('doctor') !== null;
+        return $this->user('admin') !== null;
     }
 
     /**
@@ -25,8 +23,7 @@ class UpdateContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'max:255', Rule::unique(Doctor::class)->ignore($this->user('doctor'))],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'email' => ['required', 'string', 'email', 'max:255'],
         ];
     }
 }

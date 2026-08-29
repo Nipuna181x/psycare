@@ -65,7 +65,9 @@ class PaymentCheckoutTest extends TestCase
         $this->assertSame('pi_test_paid', $payment->fresh()->stripe_payment_intent_id);
         $this->assertSame('4242', $payment->fresh()->card_last_four);
         Notification::assertSentTo($patient, BookingConfirmed::class);
-        Mail::assertQueued(PaymentReceipt::class, fn (PaymentReceipt $receipt): bool => $receipt->payment->is($payment));
+        Mail::assertQueued(PaymentReceipt::class, fn (PaymentReceipt $receipt): bool => $receipt->payment->is($payment)
+            && $receipt->hasTo($patient->email)
+            && ! $receipt->hasTo('jane@example.test'));
         (new PaymentReceipt($payment->fresh(['appointment.doctor', 'appointment.medicalCenter'])))
             ->assertSeeInHtml('Payment Receipt')
             ->assertSeeInHtml('LKR 4,500.00')

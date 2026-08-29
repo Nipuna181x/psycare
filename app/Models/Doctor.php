@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
 
@@ -35,6 +36,11 @@ class Doctor extends Authenticatable
             'rating' => 'decimal:1',
             'approved_at' => 'datetime',
         ];
+    }
+
+    public function routeNotificationForMail(?Notification $notification = null): string
+    {
+        return $this->email;
     }
 
     /**
