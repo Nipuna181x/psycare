@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Medical Center — Staff Management</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Medical Center / Clinic Staff Management</div>
+<div class="wf-desc">Primary-account-only screen for managing clinic staff logins. Staff are created with a password and can be soft-disabled, which force-logs them out on their next request.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Clinic portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Doctors</a>
+            <a>Patients</a>
+            <a>Appointments</a>
+            <a>Analytics</a>
+            <a>Payments</a>
+            <a>Settings</a>
+            <a>Notifications <span class="count">4</span></a>
+            <span class="active">Clinic Staff</span>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Clinic Staff</div>
+            <span class="wf-btn">+ Add Staff</span>
+        </div>
+        <div class="wf-shell-content">
+            <table class="wf-table">
+                <tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr>
+                <tr><td>▬▬▬▬▬</td><td>staff1@clinic.com</td><td><span class="wf-tag ok">Active</span></td><td><span class="wf-btn outline" style="border-color:#b02a37; color:#b02a37;">Disable</span></td></tr>
+                <tr><td>▬▬▬▬▬</td><td>staff2@clinic.com</td><td><span class="wf-tag alert">Disabled</span></td><td>—</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

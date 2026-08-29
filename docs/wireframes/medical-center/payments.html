@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Medical Center — Payments & Payouts</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Medical Center / Payments & Doctor Payouts</div>
+<div class="wf-desc">Revenue and payout ledger. Shows succeeded payments and unpaid amounts owed per doctor, and lets the clinic batch-mark a doctor's outstanding payments as paid.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Clinic portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Doctors</a>
+            <a>Patients</a>
+            <a>Appointments</a>
+            <a>Analytics</a>
+            <span class="active">Payments</span>
+            <a>Settings</a>
+            <a>Notifications <span class="count">4</span></a>
+            <a>Clinic Staff</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Payments</div>
+            <div class="wf-avatar">MC</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-3" style="margin-bottom:20px;">
+                <div class="wf-card" style="border-radius:16px;">Revenue (Month)<div class="wf-h2" style="font-size:20px;">LKR ▬▬▬,▬▬▬</div></div>
+                <div class="wf-card" style="border-radius:16px;">Clinic Fees Collected<div class="wf-h2" style="font-size:20px;">LKR ▬▬,▬▬▬</div></div>
+                <div class="wf-card" style="border-radius:16px;">Unpaid to Doctors<div class="wf-h2" style="font-size:20px;">LKR ▬▬,▬▬▬</div></div>
+            </div>
+            <div class="wf-h2">Unpaid Payouts by Doctor</div>
+            <table class="wf-table">
+                <tr><th>Doctor</th><th>Unpaid Amount</th><th>Payments</th><th></th></tr>
+                <tr><td>Dr. ▬▬▬▬</td><td>LKR ▬▬,▬▬▬</td><td>14</td><td><span class="wf-btn">Mark Paid</span></td></tr>
+                <tr><td>Dr. ▬▬▬▬</td><td>LKR ▬,▬▬▬</td><td>6</td><td><span class="wf-btn">Mark Paid</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

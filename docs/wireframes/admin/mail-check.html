@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin — SMTP Check</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Super Admin / SMTP Check</div>
+<div class="wf-desc">Diagnostic tool for outbound email. Shows a live SMTP readiness checklist and lets an admin send a test email to verify deliverability without affecting the app's default mailer.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Admin portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Medical Centers</a>
+            <a>Doctors</a>
+            <a>Notifications <span class="count">7</span></a>
+            <a>Patients</a>
+            <a>Reports & Analytics</a>
+            <span class="active">SMTP Check</span>
+            <a>Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">SMTP Check</div>
+            <div class="wf-avatar">Ad</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-card" style="border-radius:16px; margin-bottom:20px;">
+                <div class="wf-h2">Readiness Checklist</div>
+                <div><span class="wf-tag ok">✓ SMTP Configured</span> <span class="wf-tag ok">✓ Auth Configured</span> <span class="wf-tag">Security: STARTTLS</span></div>
+            </div>
+            <div class="wf-card" style="border-radius:16px; max-width:420px;">
+                <div class="wf-h2">Send Test Email</div>
+                <label class="wf-field-label">Recipient Email</label>
+                <div class="wf-field">you@example.com</div>
+                <span class="wf-btn" style="margin-top:14px; display:inline-block;">Send Test Email</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

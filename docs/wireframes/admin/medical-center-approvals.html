@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin — Medical Center Approvals</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Super Admin / Medical Centers</div>
+<div class="wf-desc">Approval queue for clinic registrations. Admins search and filter by status, then approve or reject a clinic — approval is what unlocks that clinic's ability to log in.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Admin portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <span class="active">Medical Centers</span>
+            <a>Doctors</a>
+            <a>Notifications <span class="count">7</span></a>
+            <a>Patients</a>
+            <a>Reports & Analytics</a>
+            <a>SMTP Check</a>
+            <a>Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Medical Centers</div>
+            <div class="wf-avatar">Ad</div>
+        </div>
+        <div class="wf-shell-content">
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+                <span class="wf-tag" style="border-color:#333;">All</span>
+                <span class="wf-tag alert">Pending (5)</span>
+                <span class="wf-tag ok">Approved</span>
+                <span class="wf-tag">Rejected</span>
+            </div>
+            <table class="wf-table">
+                <tr><th>Clinic</th><th>Registration No.</th><th>Status</th><th></th></tr>
+                <tr><td>▬▬▬▬ Medical Center</td><td>REG-▬▬▬▬</td><td><span class="wf-tag alert">Pending</span></td><td><span class="wf-btn">Approve</span> <span class="wf-btn outline" style="border-color:#b02a37; color:#b02a37;">Reject</span></td></tr>
+                <tr><td>▬▬▬▬ Medical Center</td><td>REG-▬▬▬▬</td><td><span class="wf-tag ok">Approved</span></td><td><span class="wf-btn outline">View</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

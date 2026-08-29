@@ -1,0 +1,543 @@
+/* PsyCare — shared low-fidelity wireframe kit */
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f4f4f4;
+    color: #333;
+}
+.wf-page {
+    max-width: 1200px;
+    margin: 24px auto;
+    background: #fff;
+    border: 2px solid #333;
+}
+.wf-label {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8px 4px 0;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #888;
+}
+.wf-desc {
+    max-width: 1200px;
+    margin: 4px auto 0;
+    padding: 0 4px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* ---- Top bar ---- */
+.wf-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 2px solid #333;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.wf-logo {
+    font-weight: 700;
+    font-size: 18px;
+    border: 2px solid #333;
+    padding: 6px 14px;
+}
+.wf-nav {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+.wf-nav span {
+    font-size: 13px;
+    padding: 6px 4px;
+    border-bottom: 2px solid transparent;
+}
+.wf-nav span.active {
+    border-bottom: 2px solid #333;
+    font-weight: 700;
+}
+.wf-avatar {
+    width: 34px;
+    height: 34px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+/* ---- Layout helpers ---- */
+.wf-body {
+    display: flex;
+    min-height: 520px;
+}
+.wf-sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    border-right: 2px solid #333;
+    padding: 18px 14px;
+}
+.wf-sidebar .wf-nav {
+    flex-direction: column;
+    gap: 10px;
+}
+.wf-sidebar .wf-nav span {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    padding-left: 10px;
+}
+.wf-sidebar .wf-nav span.active {
+    border-left: 3px solid #333;
+    border-bottom: none;
+}
+.wf-main {
+    flex: 1;
+    padding: 24px;
+}
+.wf-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 560px;
+    padding: 40px;
+}
+
+/* ---- Placeholder primitives ---- */
+.wf-h1 { font-size: 22px; font-weight: 700; margin: 0 0 14px; }
+.wf-h2 { font-size: 16px; font-weight: 700; margin: 0 0 10px; }
+.wf-line {
+    height: 10px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 8px 0;
+}
+.wf-line.short { width: 40%; }
+.wf-line.mid { width: 65%; }
+.wf-line.long { width: 90%; }
+.wf-box {
+    border: 2px dashed #999;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+    padding: 10px;
+}
+.wf-card {
+    border: 1.5px solid #333;
+    padding: 14px;
+    background: #fff;
+}
+.wf-grid {
+    display: grid;
+    gap: 16px;
+}
+.wf-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.wf-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.wf-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.wf-btn {
+    display: inline-block;
+    border: 2px solid #333;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #333;
+    color: #fff;
+    text-align: center;
+}
+.wf-btn.outline {
+    background: #fff;
+    color: #333;
+}
+.wf-field {
+    border: 1.5px solid #666;
+    padding: 10px 12px;
+    color: #999;
+    font-size: 13px;
+    background: #fff;
+}
+.wf-field-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #666;
+    margin-bottom: 4px;
+    display: block;
+}
+.wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.wf-table th, .wf-table td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: left;
+}
+.wf-table th {
+    background: #eee;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.wf-tag {
+    display: inline-block;
+    border: 1.5px solid #333;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.wf-tag.alert {
+    border-color: #b02a37;
+    color: #b02a37;
+}
+.wf-tag.ok {
+    border-color: #0f7a4c;
+    color: #0f7a4c;
+}
+.wf-badge-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #999;
+    display: inline-block;
+    margin-right: 6px;
+}
+.wf-steps {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.wf-step {
+    border: 2px solid #999;
+    color: #999;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.wf-step.active {
+    border-color: #333;
+    color: #333;
+    background: #eee;
+}
+.wf-avatar-lg {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+}
+.wf-chart {
+    border: 2px dashed #999;
+    height: 160px;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px;
+}
+.wf-chart .bar {
+    flex: 1;
+    background: #ddd;
+    border: 1px solid #999;
+}
+
+/* ---- App shell: matches PsyCare's real rounded floating sidebar/topbar layout ---- */
+.wf-shell {
+    max-width: 1200px;
+    margin: 24px auto;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+.wf-shell-sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 18px 14px;
+}
+.wf-shell-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px 16px;
+}
+.wf-shell-brand .dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #333;
+    flex-shrink: 0;
+}
+.wf-shell-brand .name {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.wf-shell-rolelabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #999;
+    padding: 0 4px 10px;
+}
+.wf-pillnav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.wf-pillnav a, .wf-pillnav span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 14px;
+    padding: 9px 12px;
+    font-size: 12.5px;
+    color: #555;
+    text-decoration: none;
+}
+.wf-pillnav .active {
+    background: #333;
+    color: #fff;
+    font-weight: 700;
+}
+.wf-pillnav .count {
+    background: #b02a37;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+}
+.wf-shell-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.wf-shell-topbar {
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.wf-shell-content {
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 24px;
+}
+
+/* ---- Floating pill nav for the public/patient site (no sidebar) ---- */
+.wf-pilltopbar {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 20px;
+}
+.wf-pilltopbar .wf-shell-brand { padding: 0; }
+.wf-pilltopbar-links {
+    display: flex;
+    gap: 4px;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 999px;
+    padding: 6px;
+    flex-wrap: wrap;
+}
+.wf-pilltopbar-links span {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 999px;
+    color: #555;
+}
+.wf-pilltopbar-links span.active {
+    background: #333;
+    color: #fff;
+    font-weight: 700;
+}
+.wf-stat-chip {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+/* ---- Booking header: matches the real numbered-circle step tracker ---- */
+.wf-booking-header {
+    max-width: 840px;
+    margin: 24px auto 0;
+    padding: 0 20px;
+}
+.wf-booking-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.wf-booking-steps {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 26px;
+}
+.wf-booking-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+.wf-booking-step .circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: #eee;
+    color: #999;
+}
+.wf-booking-step.done .circle { background: #0f7a4c; color: #fff; }
+.wf-booking-step.current .circle { background: #333; color: #fff; }
+.wf-booking-step .lbl { font-size: 12px; color: #999; }
+.wf-booking-step.done .lbl, .wf-booking-step.current .lbl { color: #333; font-weight: 600; }
+.wf-booking-step .connector { flex: 1; height: 1px; background: #ddd; }
+.wf-booking-step.done .connector { background: #0f7a4c; }
+.wf-booking-content {
+    max-width: 840px;
+    margin: 24px auto;
+    padding: 0 20px 40px;
+}
+
+/* ---- Split auth layout: matches account-access.blade / doctor auth pages ---- */
+.wf-auth-shell {
+    max-width: 1200px;
+    margin: 20px auto 32px;
+    padding: 0 20px;
+}
+.wf-auth-split {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 14px;
+    align-items: stretch;
+}
+.wf-auth-photo {
+    border-radius: 20px;
+    border: 2px solid #333;
+    background: repeating-linear-gradient(135deg, #333, #333 10px, #3d3d3d 10px, #3d3d3d 20px);
+    min-height: 560px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    color: #fff;
+    padding: 26px;
+}
+.wf-auth-photo .tag {
+    position: absolute;
+    top: 22px;
+    left: 22px;
+    border: 1.5px solid #fff;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.wf-auth-photo .caption-h { font-size: 20px; font-weight: 700; max-width: 20ch; margin: 0 0 8px; }
+.wf-auth-photo .caption-p { font-size: 12px; opacity: 0.8; max-width: 34ch; line-height: 1.5; }
+.wf-auth-panel {
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 560px;
+}
+.wf-auth-panel .eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #999;
+    margin-bottom: 8px;
+}
+.wf-auth-panel .wf-h1 { margin-bottom: 6px; }
+.wf-auth-panel .subtext { font-size: 12.5px; color: #666; line-height: 1.5; margin-bottom: 22px; max-width: 46ch; }
+.wf-role-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.wf-role-tab {
+    border: 1.5px solid #999;
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 12px;
+}
+.wf-role-tab .lbl { display: block; font-weight: 700; margin-bottom: 2px; }
+.wf-role-tab .sub { display: block; font-size: 10.5px; color: #999; }
+.wf-role-tab.active { border-color: #333; background: #333; color: #fff; }
+.wf-role-tab.active .sub { color: #ccc; }
+.wf-mode-pill {
+    display: inline-flex;
+    border: 1.5px solid #333;
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 22px;
+    width: fit-content;
+}
+.wf-mode-pill span {
+    padding: 7px 18px;
+    font-size: 11.5px;
+    border-radius: 999px;
+}
+.wf-mode-pill span.active { background: #333; color: #fff; font-weight: 700; }
+.wf-auth-panel .wf-field-label { margin-top: 12px; }
+.wf-auth-panel .wf-field-label:first-of-type { margin-top: 0; }
+.wf-auth-foot {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #666;
+}
+@media (max-width: 860px) {
+    .wf-auth-split { grid-template-columns: 1fr; }
+    .wf-auth-photo { display: none; }
+}

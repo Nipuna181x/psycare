@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — My Appointments</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / My Appointments</div>
+<div class="wf-desc">Patient's home screen after login. Summarizes upcoming, completed, and pending-payment appointment counts, lists upcoming bookings, and links onward to start a new booking.</div>
+
+<div class="wf-pilltopbar">
+    <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+    <div class="wf-pilltopbar-links">
+        <span>Home</span>
+        <span>Book a Doctor</span>
+        <span>Lumi</span>
+        <span>My Health Records</span>
+        <span class="active">My Appointments</span>
+        <span>Group Therapy</span>
+        <span>Mood Tracker</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div class="wf-box" style="width:30px; height:30px; border-radius:50%; padding:0;">🔔</div>
+        <div class="wf-avatar">JD</div>
+    </div>
+</div>
+
+<div class="wf-shell" style="max-width:1160px;">
+    <div class="wf-shell-content" style="flex:1;">
+        <div class="wf-h1">My Appointments</div>
+        <div class="wf-grid cols-3" style="margin-bottom:20px;">
+            <div class="wf-card" style="border-radius:16px;"><div class="wf-line short"></div><div class="wf-h2" style="font-size:24px;">2</div><div class="wf-line short"></div>Upcoming</div>
+            <div class="wf-card" style="border-radius:16px;"><div class="wf-line short"></div><div class="wf-h2" style="font-size:24px;">8</div><div class="wf-line short"></div>Completed</div>
+            <div class="wf-card" style="border-radius:16px;"><div class="wf-line short"></div><div class="wf-h2" style="font-size:24px;">1</div><div class="wf-line short"></div>Pending Payment</div>
+        </div>
+        <div class="wf-h2">Upcoming</div>
+        <table class="wf-table">
+            <tr><th>Doctor</th><th>Date</th><th>Time</th><th>Mode</th><th>Status</th><th></th></tr>
+            <tr><td>Dr. ▬▬▬▬▬</td><td>2026-09-02</td><td>10:00 AM</td><td>Online</td><td><span class="wf-tag ok">Confirmed</span></td><td><span class="wf-btn outline">View</span></td></tr>
+            <tr><td>Dr. ▬▬▬▬▬</td><td>2026-09-10</td><td>2:30 PM</td><td>In-person</td><td><span class="wf-tag ok">Confirmed</span></td><td><span class="wf-btn outline">View</span></td></tr>
+        </table>
+        <div style="margin-top:16px;"><span class="wf-btn">+ Book New Appointment</span></div>
+    </div>
+</div>
+</body>
+</html>

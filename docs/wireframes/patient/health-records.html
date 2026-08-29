@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — My Health Records</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / My Health Records</div>
+<div class="wf-desc">Aggregated clinical history view. Combines NLP classification results, generated reports, and past appointments with prescriptions into a single risk-progression dashboard.</div>
+
+<div class="wf-pilltopbar">
+    <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+    <div class="wf-pilltopbar-links">
+        <span>Home</span>
+        <span>Book a Doctor</span>
+        <span>Lumi</span>
+        <span class="active">My Health Records</span>
+        <span>My Appointments</span>
+        <span>Group Therapy</span>
+        <span>Mood Tracker</span>
+    </div>
+    <div class="wf-avatar">JD</div>
+</div>
+
+<div class="wf-shell" style="max-width:1100px;">
+    <div class="wf-shell-content" style="flex:1;">
+        <div class="wf-h1">Health Records</div>
+        <div class="wf-grid cols-2" style="margin-bottom:20px;">
+            <div class="wf-card" style="border-radius:16px;">
+                <div class="wf-h2">Risk Progression</div>
+                <div class="wf-chart">
+                    <div class="bar" style="height:30%;"></div><div class="bar" style="height:45%;"></div>
+                    <div class="bar" style="height:35%;"></div><div class="bar" style="height:20%;"></div>
+                </div>
+                <span class="wf-tag ok" style="margin-top:8px; display:inline-block;">Trend: Improving</span>
+            </div>
+            <div class="wf-card" style="border-radius:16px;">
+                <div class="wf-h2">Latest Summary</div>
+                <div class="wf-line long"></div>
+                <div class="wf-line mid"></div>
+                <div class="wf-line short"></div>
+            </div>
+        </div>
+        <div class="wf-h2">Appointment & Prescription History</div>
+        <table class="wf-table">
+            <tr><th>Date</th><th>Doctor</th><th>Clinic</th><th>Prescription</th></tr>
+            <tr><td>2026-08-10</td><td>Dr. ▬▬▬▬</td><td>▬▬▬▬ Clinic</td><td><span class="wf-btn outline">Download</span></td></tr>
+            <tr><td>2026-07-15</td><td>Dr. ▬▬▬▬</td><td>▬▬▬▬ Clinic</td><td><span class="wf-btn outline">Download</span></td></tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

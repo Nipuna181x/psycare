@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — Booking: Review & Pay</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / Book Appointment — Step 4: Review</div>
+<div class="wf-desc">Final booking step. Shows appointment summary, assessed risk level, and fee breakdown, then reserves the time slot and redirects the patient to Stripe Checkout to complete payment.</div>
+
+<div class="wf-booking-header">
+    <div class="wf-booking-topline">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div style="font-size:12px; color:#999;">Exit booking</div>
+    </div>
+    <div class="wf-booking-steps">
+        <div class="wf-booking-step done"><div class="circle">✓</div><div class="lbl">Schedule</div></div>
+        <div class="connector"></div>
+        <div class="wf-booking-step done"><div class="circle">✓</div><div class="lbl">Details</div></div>
+        <div class="connector"></div>
+        <div class="wf-booking-step done"><div class="circle">✓</div><div class="lbl">Pre-assessment</div></div>
+        <div class="connector"></div>
+        <div class="wf-booking-step current"><div class="circle">4</div><div class="lbl">Review</div></div>
+    </div>
+</div>
+
+<div class="wf-booking-content">
+    <div class="wf-h1">Review Your Booking</div>
+    <div class="wf-grid cols-2">
+        <div class="wf-card" style="border-radius:16px;">
+            <div class="wf-h2">Appointment Summary</div>
+            <div class="wf-line mid"></div>
+            <div class="wf-line short"></div>
+            <div class="wf-line long"></div>
+            <div class="wf-line mid"></div>
+            <span class="wf-tag">Risk: Low</span>
+        </div>
+        <div class="wf-card" style="border-radius:16px;">
+            <div class="wf-h2">Payment Summary</div>
+            <table class="wf-table">
+                <tr><td>Doctor Fee</td><td>LKR ▬▬▬▬</td></tr>
+                <tr><td>Clinic Fee</td><td>LKR ▬▬▬</td></tr>
+                <tr><th>Total</th><th>LKR ▬▬▬▬▬</th></tr>
+            </table>
+            <div class="wf-btn" style="width:100%; text-align:center; margin-top:14px;">Proceed to Stripe Checkout</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

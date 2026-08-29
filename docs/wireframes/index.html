@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PsyCare — Wireframes Index</title>
+<link rel="stylesheet" href="wireframe-kit.css">
+<style>
+  .wf-section { margin-bottom: 32px; }
+  .wf-cardgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .wf-pagecard {
+    display: block;
+    border: 1.5px solid #333;
+    padding: 12px 14px;
+    text-decoration: none;
+    color: #333;
+    background: #fff;
+  }
+  .wf-pagecard:hover { background: #f4f4f4; }
+  .wf-pagecard .title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .wf-pagecard .desc { font-size: 12px; color: #666; line-height: 1.45; }
+</style>
+</head>
+<body>
+<div class="wf-page" style="padding: 24px 28px;">
+    <div class="wf-h1" style="font-size:26px;">PsyCare — Wireframe Index</div>
+    <div class="wf-line mid" style="margin-bottom:24px;"></div>
+
+    <div class="wf-section">
+        <div class="wf-h2">Public</div>
+        <div class="wf-cardgrid">
+            <a class="wf-pagecard" href="public/home.html">
+                <div class="title">Home</div>
+                <div class="desc">Landing page for unauthenticated visitors. Introduces PsyCare, highlights featured approved doctors, and offers entry points to book a doctor or start a login/registration flow.</div>
+            </a>
+            <a class="wf-pagecard" href="public/find-doctors.html">
+                <div class="title">Find Doctors</div>
+                <div class="desc">Public doctor directory. Lets visitors search and filter approved doctors by name, specialization, or consultation mode before viewing a profile or starting the booking flow.</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="wf-section">
+        <div class="wf-h2">Patient</div>
+        <div class="wf-cardgrid">
+            <a class="wf-pagecard" href="patient/login.html">
+                <div class="title">Login</div>
+                <div class="desc">Patient sign-in screen. Authenticates against the patient (web) guard; rejects invalid credentials and blocks banned accounts with a suspension message before granting dashboard access.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/register.html">
+                <div class="title">Register</div>
+                <div class="desc">Patient account creation form. Collects name, email, mobile number, and password, then auto-logs the new patient in immediately — no email verification or approval step required.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/dashboard.html">
+                <div class="title">Dashboard / Appointments</div>
+                <div class="desc">Patient's home screen after login. Summarizes upcoming, completed, and pending-payment appointment counts, lists upcoming bookings, and links onward to start a new booking.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/booking-wizard.html">
+                <div class="title">Booking — Pre-Assessment</div>
+                <div class="desc">Fourth step of the 5-step booking wizard. Optional PHQ-9/GAD-7 screener questions feed a risk analysis that can flag self-harm or immediate escalation; patients may skip it entirely.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/booking-review.html">
+                <div class="title">Booking — Review & Pay</div>
+                <div class="desc">Final booking step. Shows appointment summary, assessed risk level, and fee breakdown, then reserves the time slot and redirects the patient to Stripe Checkout to complete payment.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/ai-companion.html">
+                <div class="title">AI Companion</div>
+                <div class="desc">Conversational chat with Lumi, the AI companion. Detects self-harm language for an immediate crisis response, replies via Gemini with synthesized voice, and can generate a clinical report on finish.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/therapy-room-session.html">
+                <div class="title">Therapy Room Session</div>
+                <div class="desc">Live group therapy video call joined via WebRTC signaling over Reverb. Patients appear to others only by an anonymous label, protecting real identity during group sessions.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/mood-tracker.html">
+                <div class="title">Mood Tracker</div>
+                <div class="desc">Daily mood logging screen. Patients record a mood score, tags, and an optional note once per day — resubmitting today's entry overwrites it — and view a 30-day mood history chart.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/health-records.html">
+                <div class="title">Health Records</div>
+                <div class="desc">Aggregated clinical history view. Combines NLP classification results, generated reports, and past appointments with prescriptions into a single risk-progression dashboard.</div>
+            </a>
+            <a class="wf-pagecard" href="patient/settings.html">
+                <div class="title">Settings & Consent</div>
+                <div class="desc">Account settings page. Edits profile details and password, plus a per-doctor consent toggle controlling which treating doctors can access this patient's health data.</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="wf-section">
+        <div class="wf-h2">Doctor</div>
+        <div class="wf-cardgrid">
+            <a class="wf-pagecard" href="doctor/login.html">
+                <div class="title">Login</div>
+                <div class="desc">Doctor sign-in screen. Authenticates against the doctor guard, then routes the doctor through onboarding or approval-status gates before reaching the dashboard.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/register.html">
+                <div class="title">Register</div>
+                <div class="desc">Doctor account creation form. Collects name, email, license number, and password, then creates the account in pending-approval status, requiring profile completion and admin review.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/onboarding.html">
+                <div class="title">Onboarding</div>
+                <div class="desc">Mandatory profile-completion form shown before a doctor can practice. Captures specialization, experience, bio, and photo; first-time completion notifies admins for approval review.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/dashboard.html">
+                <div class="title">Dashboard</div>
+                <div class="desc">Doctor's home screen, scoped to the currently selected clinic. Shows today/upcoming/completed appointment counts, crisis-flag totals, and today's schedule with per-patient risk levels.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/appointment-detail.html">
+                <div class="title">Appointment & Prescription</div>
+                <div class="desc">Single appointment view showing the patient's screener results. Lets the doctor issue or replace a prescription with line items, then mark the appointment completed or cancelled.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/crisis-queue.html">
+                <div class="title">Crisis Queue</div>
+                <div class="desc">Safety-critical worklist of patients whose screener responses flagged self-harm risk or required immediate escalation. Doctors acknowledge each case to mark it as reviewed.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/patient-nlp-report.html">
+                <div class="title">Patient NLP Report</div>
+                <div class="desc">AI-generated clinical insight for one patient. Shows a risk-level trend chart, symptom frequency, and conversation history, with a manual sync button for missed classifications.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/therapy-rooms.html">
+                <div class="title">Therapy Rooms</div>
+                <div class="desc">Group therapy room management. Doctors create rooms with eligible patients, then start, host, or end live sessions, with the ability to remove a disruptive participant mid-call.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/earnings.html">
+                <div class="title">Earnings</div>
+                <div class="desc">Gross earnings dashboard covering confirmed and completed appointments. Displays all-time and monthly totals, a 6-month trend chart, and a per-clinic revenue breakdown.</div>
+            </a>
+            <a class="wf-pagecard" href="doctor/payouts.html">
+                <div class="title">Payouts</div>
+                <div class="desc">Manual payout ledger, not a live payment processor. Shows amounts pending per clinic and lets the doctor acknowledge receipt only after the clinic has marked a batch as paid.</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="wf-section">
+        <div class="wf-h2">Medical Center</div>
+        <div class="wf-cardgrid">
+            <a class="wf-pagecard" href="medical-center/login.html">
+                <div class="title">Login</div>
+                <div class="desc">Clinic sign-in screen for the primary medical-center account. Blocks login until admin approval, showing a rejected or pending-review message otherwise.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/register.html">
+                <div class="title">Register</div>
+                <div class="desc">Clinic registration form. Collects name, registration number, contact details, and password, then submits the application for admin review with no auto-login until approved.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/dashboard.html">
+                <div class="title">Dashboard</div>
+                <div class="desc">Clinic's home screen. Summarizes active doctor count, pending affiliation requests, today's appointments, and monthly revenue, alongside specialization breakdown and recent activity.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/doctors.html">
+                <div class="title">Doctors — Search & Requests</div>
+                <div class="desc">Lets clinics search approved, profile-complete doctors and send affiliation requests. The doctor must accept before joining; existing affiliations and pending requests are tracked separately.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/patients.html">
+                <div class="title">Patients</div>
+                <div class="desc">Clinic-scoped patient directory. Only shows patients who have had at least one appointment at this specific clinic, preventing cross-clinic access to other facilities' patients.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/analytics.html">
+                <div class="title">Analytics</div>
+                <div class="desc">Operational analytics for the clinic. Reports month-over-month appointment volume trend, monthly revenue, busiest doctors, and cancellation rate over a 6-month window.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/payments.html">
+                <div class="title">Payments & Payouts</div>
+                <div class="desc">Revenue and payout ledger. Shows succeeded payments and unpaid amounts owed per doctor, and lets the clinic batch-mark a doctor's outstanding payments as paid.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/staff.html">
+                <div class="title">Staff Management</div>
+                <div class="desc">Primary-account-only screen for managing clinic staff logins. Staff are created with a password and can be soft-disabled, which force-logs them out on their next request.</div>
+            </a>
+            <a class="wf-pagecard" href="medical-center/settings.html">
+                <div class="title">Settings</div>
+                <div class="desc">Clinic configuration screen. Edits profile and contact details, uploads a logo, and sets operating hours and the per-appointment facility fee charged to patients.</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="wf-section">
+        <div class="wf-h2">Super Admin</div>
+        <div class="wf-cardgrid">
+            <a class="wf-pagecard" href="admin/login.html">
+                <div class="title">Login</div>
+                <div class="desc">Admin sign-in screen. Admin accounts are seeded out-of-band with no self-registration and no status/ban gate — only credential validation stands between login and the dashboard.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/dashboard.html">
+                <div class="title">Dashboard</div>
+                <div class="desc">Platform-wide overview for administrators. Totals medical centers, doctors, and patients, flags pending approvals, and surfaces doctor specialization breakdown and recent activity.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/medical-center-approvals.html">
+                <div class="title">Medical Center Approvals</div>
+                <div class="desc">Approval queue for clinic registrations. Admins search and filter by status, then approve or reject a clinic — approval is what unlocks that clinic's ability to log in.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/doctor-approvals.html">
+                <div class="title">Doctor Approvals</div>
+                <div class="desc">Approval queue for doctor accounts. Admins review profile-complete doctors and approve or reject them; doctors who haven't finished onboarding cannot be approved yet.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/patients.html">
+                <div class="title">Patients — Ban / Restore</div>
+                <div class="desc">Platform-wide patient directory with moderation controls. Admins search, filter by active/banned status, and ban or restore an account, which force-logs the patient out immediately.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/reports.html">
+                <div class="title">Platform Reports</div>
+                <div class="desc">Aggregate platform analytics. Shows 6-month growth trends, appointment status and risk-level breakdowns, total revenue, and top-performing centers and doctors.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/mail-check.html">
+                <div class="title">Mail Check (SMTP)</div>
+                <div class="desc">Diagnostic tool for outbound email. Shows a live SMTP readiness checklist and lets an admin send a test email to verify deliverability without affecting the app's default mailer.</div>
+            </a>
+            <a class="wf-pagecard" href="admin/settings.html">
+                <div class="title">Settings</div>
+                <div class="desc">Admin's personal account settings. A simple form for updating profile details and changing the admin's own login password.</div>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

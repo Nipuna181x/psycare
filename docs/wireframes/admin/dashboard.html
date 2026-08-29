@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin — Dashboard</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Super Admin / Dashboard</div>
+<div class="wf-desc">Platform-wide overview for administrators. Totals medical centers, doctors, and patients, flags pending approvals, and surfaces doctor specialization breakdown and recent activity.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Admin portal</div>
+        <div class="wf-pillnav">
+            <span class="active">Dashboard</span>
+            <a>Medical Centers</a>
+            <a>Doctors</a>
+            <a>Notifications <span class="count">7</span></a>
+            <a>Patients</a>
+            <a>Reports & Analytics</a>
+            <a>SMTP Check</a>
+            <a>Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div>
+                <div class="wf-h2" style="margin:0;">Dashboard</div>
+                <div class="wf-line short" style="margin:6px 0 0;"></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div class="wf-box" style="width:30px; height:30px; border-radius:50%; padding:0;">🔔</div>
+                <div class="wf-avatar">Ad</div>
+            </div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-4" style="margin-bottom:20px;">
+                <div class="wf-card" style="border-radius:16px;"><div class="wf-stat-chip">🏥</div><div class="wf-h2" style="font-size:22px;">42</div><div class="wf-line short"></div>Medical Centers</div>
+                <div class="wf-card" style="border-radius:16px;"><div class="wf-stat-chip">🩺</div><div class="wf-h2" style="font-size:22px;">186</div><div class="wf-line short"></div>Doctors</div>
+                <div class="wf-card" style="border-radius:16px;"><div class="wf-stat-chip">🧑</div><div class="wf-h2" style="font-size:22px;">3,204</div><div class="wf-line short"></div>Patients</div>
+                <div class="wf-card" style="border-radius:16px;"><div class="wf-stat-chip">⏳</div><div class="wf-h2" style="font-size:22px; color:#b02a37;">7</div><div class="wf-line short"></div>Pending Approvals</div>
+            </div>
+            <div class="wf-grid cols-2">
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Doctor Specialization Breakdown</div>
+                    <div class="wf-line long"></div><div class="wf-line mid"></div><div class="wf-line short"></div>
+                </div>
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Pending Medical Centers</div>
+                    <div class="wf-line long"></div><div class="wf-line mid"></div><div class="wf-line short"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Doctor — Payouts</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Doctor / Payouts</div>
+<div class="wf-desc">Manual payout ledger, not a live payment processor. Shows amounts pending per clinic and lets the doctor acknowledge receipt only after the clinic has marked a batch as paid.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Doctor portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Crisis Queue <span class="count">2</span></a>
+            <a>Clinic Requests <span class="count">3</span></a>
+            <a>Appointments</a>
+            <a>Earnings</a>
+            <span class="active">Payouts</span>
+            <a>Patients</a>
+            <a>Group Sessions</a>
+            <a>Notifications <span class="count">5</span></a>
+            <a>Profile & Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Payouts</div>
+            <div class="wf-avatar">Dr</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-3" style="margin-bottom:20px;">
+                <div class="wf-card" style="border-radius:16px;">Pending<div class="wf-h2" style="font-size:22px;">LKR ▬▬,▬▬▬</div></div>
+                <div class="wf-card" style="border-radius:16px;">Paid This Month<div class="wf-h2" style="font-size:22px;">LKR ▬▬,▬▬▬</div></div>
+                <div class="wf-card" style="border-radius:16px;">Total Paid<div class="wf-h2" style="font-size:22px;">LKR ▬▬▬,▬▬▬</div></div>
+            </div>
+            <div class="wf-h2">Pending by Clinic</div>
+            <table class="wf-table">
+                <tr><th>Clinic</th><th>Amount</th><th>Status</th><th></th></tr>
+                <tr><td>▬▬▬▬ Clinic</td><td>LKR ▬▬,▬▬▬</td><td><span class="wf-tag">Paid by clinic</span></td><td><span class="wf-btn">Mark Received</span></td></tr>
+                <tr><td>▬▬▬▬ Clinic</td><td>LKR ▬,▬▬▬</td><td><span class="wf-tag alert">Not yet paid</span></td><td><span class="wf-btn outline" style="opacity:.5;">Mark Received</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
