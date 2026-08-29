@@ -8,12 +8,15 @@ use Tests\TestCase;
 
 class HomeAccountControlTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_guest_sees_account_label_and_registration_icon(): void
     {
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Sign in or sign up')
             ->assertSee(route('register'))
+            ->assertSee('href="'.route('therapy-rooms.index').'"', false)
             ->assertDontSee('>Book a doctor</a>', false);
     }
 
