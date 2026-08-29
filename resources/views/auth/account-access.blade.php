@@ -10,15 +10,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300..600&display=swap" rel="stylesheet">
+    @include('partials.favicon')
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <div id="account-access" class="min-h-screen bg-background text-ink selection:bg-teal/20" data-role="{{ $initialRole }}" data-mode="{{ $initialMode }}">
-        <nav class="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-5 py-6 md:px-9 md:py-7">
-            <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink"><span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span><span class="font-display text-lg font-medium tracking-tight">PsyCare</span></a>
-            <div class="hidden items-center gap-1 rounded-full bg-card px-2 py-1.5 shadow-[0_1px_0_0_var(--border)] lg:flex">@foreach ([['Home', '/'], ['Book a Doctor', '/doctors'], ['Lumi', '/ai-companion'], ['My Health Records', '/health-records'], ['My Appointments', '/appointments'], ['Group Therapy', '/group-therapy'], ['Mood Tracker', '/mood-tracker']] as [$label, $href])<a href="{{ $href }}" class="whitespace-nowrap rounded-full px-3 py-2 text-[12px] text-ink-soft transition-colors hover:bg-secondary hover:text-ink">{{ $label }}</a>@endforeach</div>
-            <a href="{{ route('login') }}" class="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5">Log in <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-        </nav>
+        <x-patient-nav />
 
         <main class="mx-auto max-w-[1320px] px-5 pb-16 md:px-9 md:pb-24">
             <div class="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
@@ -36,9 +34,10 @@
                         <p class="mt-5 rounded-2xl bg-secondary px-4 py-3 text-[12px] text-ink-soft">{{ session('status') }}</p>
                     @endif
 
-                    <div class="mt-8 grid grid-cols-2 gap-2">
+                    <div class="mt-8 grid grid-cols-3 gap-2">
                         <button type="button" data-role-button="patient" class="rounded-2xl p-4 text-left"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="mt-3 block font-display text-[15px] font-medium">Patient</span><span class="mt-0.5 block text-[12px] opacity-70">Book & track care</span></button>
                         <button type="button" data-role-button="clinic" class="rounded-2xl p-4 text-left"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/></svg><span class="mt-3 block font-display text-[15px] font-medium">Clinic</span><span class="mt-0.5 block text-[12px] opacity-70">Manage clinicians</span></button>
+                        <button type="button" data-role-button="doctor" class="rounded-2xl p-4 text-left"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="m9 16 2 2 4-4"/></svg><span class="mt-3 block font-display text-[15px] font-medium">Doctor</span><span class="mt-0.5 block text-[12px] opacity-70">Consult & manage patients</span></button>
                     </div>
 
                     <div class="mt-6 inline-flex rounded-full bg-secondary p-1"><button type="button" data-mode-button="login" class="rounded-full px-5 py-2 text-[12px]">Log in</button><button type="button" data-mode-button="register" class="rounded-full px-5 py-2 text-[12px]">Register</button></div>
@@ -72,6 +71,7 @@
         $accountRoutes = [
             'patient' => ['login' => route('login'), 'register' => route('register')],
             'clinic' => ['login' => route('medical-center.login'), 'register' => route('medical-center.register')],
+            'doctor' => ['login' => route('doctor.login'), 'register' => route('doctor.register')],
         ];
     @endphp
     <script>
@@ -117,7 +117,14 @@
                 registerOptions.querySelector('input').required = isRegister;
             };
 
-            document.querySelectorAll('[data-role-button]').forEach((button) => button.addEventListener('click', () => { role = button.dataset.roleButton; update(); }));
+            document.querySelectorAll('[data-role-button]').forEach((button) => button.addEventListener('click', () => {
+                if (button.dataset.roleButton === 'doctor') {
+                    window.location.href = routes.doctor[mode];
+                    return;
+                }
+                role = button.dataset.roleButton;
+                update();
+            }));
             document.querySelectorAll('[data-mode-button]').forEach((button) => button.addEventListener('click', () => { mode = button.dataset.modeButton; update(); }));
             update();
         })();

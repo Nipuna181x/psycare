@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Lumi — PsyCare AI Companion</title>
+    @include('partials.favicon')
+
     @vite(['resources/css/app.css', 'resources/js/ai-companion.js'])
 </head>
 <body class="overflow-hidden bg-black">
