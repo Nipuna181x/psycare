@@ -6,9 +6,35 @@
 @endphp
 
 @section('content')
-    <x-dashboard.panel title="All patients" :subtitle="$patients->count().' '.Str::plural('patient', $patients->count())">
+    <div class="rounded-3xl bg-card p-5 shadow-[0_12px_36px_-28px_rgba(15,23,42,0.28)] md:p-6">
+        <form method="GET" action="{{ route('doctor.patients.index') }}" class="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+            <label class="block">
+                <span class="text-[11px] font-medium text-ink-soft">Patient name</span>
+                <input type="text" name="name" value="{{ $filters['name'] }}" placeholder="Amaya Silva" class="mt-1.5 w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-[12px] text-ink outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+            </label>
+            <label class="block">
+                <span class="text-[11px] font-medium text-ink-soft">Risk level</span>
+                <select name="risk" class="mt-1.5 w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-[12px] text-ink outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
+                    <option value="">All risk levels</option>
+                    @foreach (['low' => 'Low', 'moderate' => 'Moderate', 'elevated' => 'Elevated'] as $value => $label)
+                        <option value="{{ $value }}" @selected($filters['risk'] === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <button type="submit" class="mt-1.5 self-end rounded-xl bg-blue-800 px-6 py-2.5 text-[11px] font-semibold tracking-[0.1em] text-white uppercase hover:bg-blue-900">Filter</button>
+        </form>
+    </div>
+
+    <div class="mt-5">
+        <x-dashboard.panel title="All patients" :subtitle="$patients->count().' '.Str::plural('patient', $patients->count())">
         @if ($patients->isEmpty())
-            <p class="py-6 text-center text-[13px] text-ink-soft">No patients yet — they'll appear here once someone books an appointment with you.</p>
+            <p class="py-6 text-center text-[13px] text-ink-soft">
+                @if ($filters['name'] !== '' || $filters['risk'])
+                    No patients match your search.
+                @else
+                    No patients yet — they'll appear here once someone books an appointment with you.
+                @endif
+            </p>
         @else
             <div class="overflow-x-auto">
                 <table class="min-w-full text-left text-[12px]">
@@ -55,5 +81,6 @@
                 </table>
             </div>
         @endif
-    </x-dashboard.panel>
+        </x-dashboard.panel>
+    </div>
 @endsection

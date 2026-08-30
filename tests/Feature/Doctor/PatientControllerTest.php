@@ -39,6 +39,62 @@ class PatientControllerTest extends TestCase
             ->assertDontSee('Other Patient');
     }
 
+    public function test_patients_index_can_be_filtered_by_name(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $amaya = User::factory()->create(['name' => 'Amaya Silva']);
+        $nimal = User::factory()->create(['name' => 'Nimal Perera']);
+
+        Appointment::factory()->for($amaya)->for($doctor)->create();
+        Appointment::factory()->for($nimal)->for($doctor)->create();
+
+        $this->actingAs($doctor, 'doctor')
+            ->get(route('doctor.patients.index', ['name' => 'Amaya']))
+            ->assertOk()
+            ->assertSee('Amaya Silva')
+            ->assertDontSee('Nimal Perera');
+    }
+
+    public function test_patients_index_can_be_filtered_by_risk_level(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $lowRiskPatient = User::factory()->create(['name' => 'Low Risk Patient']);
+        $highRiskPatient = User::factory()->create(['name' => 'High Risk Patient']);
+
+        Appointment::factory()->for($lowRiskPatient)->for($doctor)->create();
+        Appointment::factory()->for($highRiskPatient)->for($doctor)->create();
+
+        $lowSession = AiCompanionSession::factory()->for($lowRiskPatient)->create();
+        PatientNlpReport::factory()->create([
+            'user_id' => $lowRiskPatient->id,
+            'ai_companion_session_id' => $lowSession->id,
+            'report' => [
+                'summary' => 'Doing fine.',
+                'presenting_concerns' => [], 'symptoms' => [], 'stressors' => [], 'protective_factors' => [], 'functional_impact' => [],
+                'risk' => ['level' => 'low', 'requires_immediate_review' => false, 'evidence' => [], 'recommended_action' => 'Routine review.'],
+                'clinician_follow_up_questions' => [],
+            ],
+        ]);
+
+        $highSession = AiCompanionSession::factory()->for($highRiskPatient)->create();
+        PatientNlpReport::factory()->create([
+            'user_id' => $highRiskPatient->id,
+            'ai_companion_session_id' => $highSession->id,
+            'report' => [
+                'summary' => 'Struggling badly.',
+                'presenting_concerns' => [], 'symptoms' => [], 'stressors' => [], 'protective_factors' => [], 'functional_impact' => [],
+                'risk' => ['level' => 'elevated', 'requires_immediate_review' => true, 'evidence' => [], 'recommended_action' => 'Escalate.'],
+                'clinician_follow_up_questions' => [],
+            ],
+        ]);
+
+        $this->actingAs($doctor, 'doctor')
+            ->get(route('doctor.patients.index', ['risk' => 'elevated']))
+            ->assertOk()
+            ->assertSee('High Risk Patient')
+            ->assertDontSee('Low Risk Patient');
+    }
+
     public function test_doctor_cannot_view_a_patient_they_have_not_treated(): void
     {
         $doctor = Doctor::factory()->create();
