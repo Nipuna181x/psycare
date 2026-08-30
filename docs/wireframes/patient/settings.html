@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — Settings</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / Settings & Consent</div>
+<div class="wf-desc">Account settings page. Edits profile details and password, plus a per-doctor consent toggle controlling which treating doctors can access this patient's health data.</div>
+
+<div class="wf-pilltopbar">
+    <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+    <div class="wf-pilltopbar-links">
+        <span>Home</span>
+        <span>Book a Doctor</span>
+        <span>Lumi</span>
+        <span>My Health Records</span>
+        <span>My Appointments</span>
+        <span>Group Therapy</span>
+        <span>Mood Tracker</span>
+    </div>
+    <div class="wf-avatar">JD</div>
+</div>
+<div class="wf-desc" style="max-width:1100px; text-align:right;">Reached via the account avatar dropdown (top right), not the main nav bar.</div>
+
+<div class="wf-shell" style="max-width:1000px;">
+    <div class="wf-shell-content" style="flex:1;">
+        <div class="wf-h1">Settings</div>
+        <div class="wf-grid cols-2">
+            <div class="wf-card" style="border-radius:16px;">
+                <div class="wf-h2">Profile</div>
+                <label class="wf-field-label">Name</label>
+                <div class="wf-field">Jane Doe</div>
+                <label class="wf-field-label" style="margin-top:10px;">Email</label>
+                <div class="wf-field">jane@example.com</div>
+                <span class="wf-btn" style="margin-top:14px; display:inline-block;">Save Profile</span>
+            </div>
+            <div class="wf-card" style="border-radius:16px;">
+                <div class="wf-h2">Doctor Access (Consent)</div>
+                <table class="wf-table">
+                    <tr><th>Doctor</th><th>Access</th></tr>
+                    <tr><td>Dr. ▬▬▬▬</td><td><span class="wf-tag ok">Granted</span></td></tr>
+                    <tr><td>Dr. ▬▬▬▬</td><td><span class="wf-tag alert">Revoked</span></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

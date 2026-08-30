@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between gap-4">
         <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink">
             <span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span>
-            <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
+            <span class="font-display text-lg font-semibold tracking-[0.08em] uppercase">PsyCare</span>
         </a>
         <a href="{{ route('doctors.show', $doctor) }}" class="text-[12px] text-ink-soft transition-colors hover:text-ink">Exit booking</a>
     </div>

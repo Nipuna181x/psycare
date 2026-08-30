@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Medical Center — Doctors</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Medical Center / Doctors — Search & Affiliation Requests</div>
+<div class="wf-desc">Lets clinics search approved, profile-complete doctors and send affiliation requests. The doctor must accept before joining; existing affiliations and pending requests are tracked separately.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Clinic portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <span class="active">Doctors</span>
+            <a>Patients</a>
+            <a>Appointments</a>
+            <a>Analytics</a>
+            <a>Payments</a>
+            <a>Settings</a>
+            <a>Notifications <span class="count">4</span></a>
+            <a>Clinic Staff</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Doctors</div>
+            <div class="wf-avatar">MC</div>
+        </div>
+        <div class="wf-shell-content">
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+                <span class="wf-tag" style="border-color:#333;">Search</span>
+                <span class="wf-tag">Affiliated</span>
+                <span class="wf-tag">Pending Requests</span>
+            </div>
+            <div class="wf-grid cols-2" style="margin-bottom:16px;">
+                <div class="wf-field">Search by name or license number...</div>
+                <span class="wf-btn" style="width:fit-content;">Search</span>
+            </div>
+            <table class="wf-table">
+                <tr><th>Doctor</th><th>Specialization</th><th>License</th><th></th></tr>
+                <tr><td>Dr. ▬▬▬▬</td><td>▬▬▬▬▬▬</td><td>SLMC-▬▬▬▬</td><td><span class="wf-btn">Send Request</span></td></tr>
+                <tr><td>Dr. ▬▬▬▬</td><td>▬▬▬▬▬▬</td><td>SLMC-▬▬▬▬</td><td><span class="wf-tag">Requested</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -16,6 +16,7 @@ use App\Services\PdfFontRegistrar;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,20 +32,31 @@ class PatientController extends Controller
     /**
      * List every patient the authenticated doctor has an appointment history with.
      */
-    public function index(DoctorClinicContext $clinicContext): View
+    public function index(Request $request, DoctorClinicContext $clinicContext): View
     {
         $doctor = Auth::guard('doctor')->user();
         $clinicId = $clinicContext->current($doctor);
 
+        $nameFilter = trim((string) $request->string('name'));
+        $riskFilter = $request->string('risk')->toString() ?: null;
+
         $patients = User::query()
             ->whereHas('appointments', fn ($query) => $query->visibleToCareTeam()->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId)))
+            ->when($nameFilter !== '', fn ($query) => $query->where('name', 'like', "%{$nameFilter}%"))
             ->withCount(['appointments' => fn ($query) => $query->visibleToCareTeam()->where('doctor_id', $doctor->id)->when($clinicId, fn ($query) => $query->where('medical_center_id', $clinicId))])
             ->with(['patientNlpReports' => fn ($query) => $query->latest('generated_at')->limit(1)])
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->when($riskFilter, fn ($patients) => $patients->filter(
+                fn (User $patient) => $patient->patientNlpReports->first()?->report['risk']['level'] === $riskFilter
+            )->values());
 
         return view('doctor.patients.index', [
             'patients' => $patients,
+            'filters' => [
+                'name' => $nameFilter,
+                'risk' => $riskFilter,
+            ],
         ]);
     }
 

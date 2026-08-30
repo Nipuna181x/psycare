@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — Register</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / Register</div>
+<div class="wf-desc">Unified account-access screen in "register" mode with the Patient role tab selected. Collects name, email, mobile number, and password, then auto-logs the new patient in immediately — no email verification or approval step required. Switching the role tab to Clinic keeps this same layout (see Medical Center → Register); switching to Doctor navigates away to the separate doctor registration flow.</div>
+<div class="wf-page">
+    <div class="wf-topbar">
+        <div class="wf-logo">PsyCare</div>
+        <div class="wf-nav"><span>Home</span><span>Book a Doctor</span><span>Lumi</span><span>My Appointments</span></div>
+        <div class="wf-btn outline">Login</div>
+    </div>
+
+    <div class="wf-auth-shell">
+        <div class="wf-auth-split">
+            <div class="wf-auth-photo">
+                <div class="tag">Photo · counsellor with patient</div>
+                <div>
+                    <div class="caption-h">One account, every clinic on the island</div>
+                    <div class="caption-p">Patients keep their assessments, notes and upcoming sessions in one place. Clinics manage clinicians, rooms and live availability.</div>
+                </div>
+            </div>
+
+            <div class="wf-auth-panel">
+                <div class="eyebrow">Account access</div>
+                <div class="wf-h1">Create your PsyCare account</div>
+
+                <div class="wf-role-tabs">
+                    <div class="wf-role-tab active"><span class="lbl">Patient</span><span class="sub">Book &amp; track care</span></div>
+                    <div class="wf-role-tab"><span class="lbl">Clinic</span><span class="sub">Manage clinicians</span></div>
+                    <div class="wf-role-tab"><span class="lbl">Doctor</span><span class="sub">Consult &amp; manage patients</span></div>
+                </div>
+
+                <div class="wf-mode-pill"><span>Log in</span><span class="active">Register</span></div>
+
+                <label class="wf-field-label">Full Name</label>
+                <div class="wf-field">Jane Doe</div>
+                <label class="wf-field-label">Email</label>
+                <div class="wf-field">you@example.com</div>
+                <label class="wf-field-label">Mobile Number</label>
+                <div class="wf-field">+94 7X XXX XXXX</div>
+                <label class="wf-field-label">Password</label>
+                <div class="wf-field">••••••••</div>
+                <label class="wf-field-label">Confirm Password</label>
+                <div class="wf-field">••••••••</div>
+
+                <div style="margin-top:14px; font-size:11px; color:#666; display:flex; gap:8px; align-items:flex-start;">
+                    <span class="wf-badge-dot" style="border-radius:3px; margin-top:2px;"></span>
+                    I agree to PsyCare's clinical privacy policy and consent to secure storage of my records.
+                </div>
+
+                <div class="wf-btn" style="width:100%; text-align:center; margin-top:16px;">Register as patient</div>
+                <div class="wf-auth-foot">Looking for a clinician instead? Browse doctors</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+</content>

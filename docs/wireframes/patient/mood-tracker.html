@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Patient — Mood Tracker</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Patient / Mood Tracker</div>
+<div class="wf-desc">Daily mood logging screen. Patients record a mood score, tags, and an optional note once per day — resubmitting today's entry overwrites it — and view a 30-day mood history chart.</div>
+
+<div class="wf-pilltopbar">
+    <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+    <div class="wf-pilltopbar-links">
+        <span>Home</span>
+        <span>Book a Doctor</span>
+        <span>Lumi</span>
+        <span>My Health Records</span>
+        <span>My Appointments</span>
+        <span>Group Therapy</span>
+        <span class="active">Mood Tracker</span>
+    </div>
+    <div class="wf-avatar">JD</div>
+</div>
+
+<div class="wf-shell" style="max-width:1000px;">
+    <div class="wf-shell-content" style="flex:1;">
+        <div class="wf-h1">How are you feeling today?</div>
+        <div class="wf-card" style="border-radius:16px; margin-bottom:20px;">
+            <div class="wf-grid cols-4">
+                <div class="wf-field" style="text-align:center;">😞 1-2</div>
+                <div class="wf-field" style="text-align:center;">😐 3-5</div>
+                <div class="wf-field" style="text-align:center;">🙂 6-8</div>
+                <div class="wf-field" style="text-align:center;">😄 9-10</div>
+            </div>
+            <label class="wf-field-label" style="margin-top:12px;">Tags</label>
+            <div style="display:flex; gap:8px;"><span class="wf-tag">Anxious</span><span class="wf-tag">Tired</span><span class="wf-tag">Hopeful</span></div>
+            <label class="wf-field-label" style="margin-top:12px;">Note (optional)</label>
+            <div class="wf-field">Write a short note...</div>
+            <span class="wf-btn" style="margin-top:14px; display:inline-block;">Save Today's Mood</span>
+        </div>
+        <div class="wf-h2">Mood History (30 days)</div>
+        <div class="wf-chart">
+            <div class="bar" style="height:40%;"></div><div class="bar" style="height:60%;"></div><div class="bar" style="height:30%;"></div>
+            <div class="bar" style="height:70%;"></div><div class="bar" style="height:50%;"></div><div class="bar" style="height:80%;"></div>
+            <div class="bar" style="height:65%;"></div><div class="bar" style="height:45%;"></div><div class="bar" style="height:55%;"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin — Patients</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Super Admin / Patients — Ban / Restore</div>
+<div class="wf-desc">Platform-wide patient directory with moderation controls. Admins search, filter by active/banned status, and ban or restore an account, which force-logs the patient out immediately.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Admin portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Medical Centers</a>
+            <a>Doctors</a>
+            <a>Notifications <span class="count">7</span></a>
+            <span class="active">Patients</span>
+            <a>Reports & Analytics</a>
+            <a>SMTP Check</a>
+            <a>Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Patients</div>
+            <div class="wf-avatar">Ad</div>
+        </div>
+        <div class="wf-shell-content">
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+                <span class="wf-tag" style="border-color:#333;">All</span>
+                <span class="wf-tag ok">Active</span>
+                <span class="wf-tag alert">Banned</span>
+                <div class="wf-field" style="margin-left:auto; width:200px;">Search name/email/mobile...</div>
+            </div>
+            <table class="wf-table">
+                <tr><th>Patient</th><th>Email</th><th>Status</th><th></th></tr>
+                <tr><td>▬▬▬▬▬</td><td>jane@example.com</td><td><span class="wf-tag ok">Active</span></td><td><span class="wf-btn outline" style="border-color:#b02a37; color:#b02a37;">Ban</span></td></tr>
+                <tr><td>▬▬▬▬▬</td><td>john@example.com</td><td><span class="wf-tag alert">Banned</span></td><td><span class="wf-btn outline">Restore</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

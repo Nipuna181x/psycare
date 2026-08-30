@@ -81,7 +81,8 @@ if (root) {
             audio.src = `data:${result.audio_type};base64,${result.audio}`;
             setState('speaking', text[language].speaking);
             await audio.play();
-        } catch {
+        } catch (error) {
+            console.error('Lumi sendMessage failed:', error);
             busy = false;
             microphoneButton.disabled = false;
             setState('ready', text[language].error);
@@ -105,7 +106,8 @@ if (root) {
             audio.src = `data:${result.audio_type};base64,${result.audio}`;
             setState('speaking', text[language].speaking);
             await audio.play();
-        } catch {
+        } catch (error) {
+            console.error('Lumi startSession failed:', error);
             busy = false;
             microphoneButton.disabled = false;
             setState('ready', text[language].error);

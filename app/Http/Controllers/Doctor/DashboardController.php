@@ -31,6 +31,7 @@ class DashboardController extends Controller
 
         return view('doctor.dashboard', [
             'doctor' => $doctor,
+            'clinicId' => $clinicId,
             'noClinicAffiliation' => $doctor->activeAffiliations->isEmpty(),
             'noPriceSet' => ! $doctor->isPriced(),
             'todayCount' => $todayCount,

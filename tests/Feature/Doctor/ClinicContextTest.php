@@ -81,4 +81,32 @@ class ClinicContextTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_dashboard_active_clinics_card_shows_all_names_when_all_clinics_selected(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $affiliations = DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+
+        $response = $this->actingAs($doctor, 'doctor')->get(route('doctor.dashboard'));
+
+        $response->assertOk();
+        foreach ($affiliations as $affiliation) {
+            $response->assertSee($affiliation->clinic->name);
+        }
+    }
+
+    public function test_dashboard_active_clinics_card_shows_only_selected_clinic_name(): void
+    {
+        $doctor = Doctor::factory()->create();
+        $affiliations = DoctorClinicAffiliation::factory()->for($doctor)->count(2)->create();
+        [$clinicA, $clinicB] = $affiliations->pluck('clinic_id')->all();
+        $clinicAName = $affiliations->firstWhere('clinic_id', $clinicA)->clinic->name;
+        $clinicBName = $affiliations->firstWhere('clinic_id', $clinicB)->clinic->name;
+
+        $this->actingAs($doctor, 'doctor')->post(route('doctor.clinic-context.update'), ['clinic_id' => $clinicA]);
+
+        $response = $this->actingAs($doctor, 'doctor')->get(route('doctor.dashboard'));
+
+        $response->assertOk()->assertSeeInOrder([$clinicAName, 'Active clinics']);
+    }
 }

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Doctor — Appointment Detail & Prescription</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Doctor / Appointment Detail & Prescription</div>
+<div class="wf-desc">Single appointment view showing the patient's screener results. Lets the doctor issue or replace a prescription with line items, then mark the appointment completed or cancelled.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Doctor portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Crisis Queue <span class="count">2</span></a>
+            <a>Clinic Requests <span class="count">3</span></a>
+            <span class="active">Appointments</span>
+            <a>Earnings</a>
+            <a>Payouts</a>
+            <a>Patients</a>
+            <a>Group Sessions</a>
+            <a>Notifications <span class="count">5</span></a>
+            <a>Profile & Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div>
+                <div class="wf-h2" style="margin:0;">Appointment — ▬▬▬▬▬</div>
+                <div class="wf-line short" style="margin:6px 0 0;"></div>
+            </div>
+            <div class="wf-avatar">Dr</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-2">
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Patient & Screener</div>
+                    <div class="wf-line mid"></div>
+                    <div class="wf-line short"></div>
+                    <span class="wf-tag">PHQ-9: Moderate</span> <span class="wf-tag">GAD-7: Mild</span>
+                    <div class="wf-line long" style="margin-top:10px;"></div>
+                    <div class="wf-line mid"></div>
+                </div>
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Issue Prescription</div>
+                    <table class="wf-table">
+                        <tr><th>Medicine</th><th>Dosage</th><th>Frequency</th></tr>
+                        <tr><td class="wf-field">Name</td><td class="wf-field">Dosage</td><td class="wf-field">Freq.</td></tr>
+                    </table>
+                    <span class="wf-btn outline" style="margin-top:8px; display:inline-block;">+ Add Item</span>
+                    <div class="wf-btn" style="margin-top:12px;">Save Prescription</div>
+                </div>
+            </div>
+            <div style="margin-top:16px; display:flex; gap:10px;">
+                <span class="wf-btn outline">Mark Completed</span>
+                <span class="wf-btn outline" style="border-color:#b02a37; color:#b02a37;">Cancel Appointment</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

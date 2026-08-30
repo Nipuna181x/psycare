@@ -8,94 +8,89 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300..600&display=swap" rel="stylesheet">
+    @include('partials.favicon')
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <main class="min-h-screen bg-background p-3 text-ink selection:bg-sky-500/15 md:p-6 lg:flex lg:items-center">
-        <div class="mx-auto grid w-full max-w-[1320px] gap-5 lg:grid-cols-[0.95fr_1.05fr]">
-            <section class="relative hidden min-h-[760px] overflow-hidden rounded-3xl bg-ink lg:block">
-                <img src="{{ Vite::asset('resources/images/psycare/hero-consult.jpg') }}" alt="A doctor speaking with a patient during a consultation" width="1200" height="900" class="h-full w-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/25 to-ink/20"></div>
+    <div class="min-h-screen bg-background text-ink selection:bg-sky-500/15">
+        <x-patient-nav />
 
-                <a href="{{ route('home') }}" class="absolute top-8 left-8 flex items-center gap-2.5 text-primary-foreground">
-                    <span class="grid h-9 w-9 place-items-center rounded-full bg-primary-foreground/20 backdrop-blur-md"><span class="h-2.5 w-2.5 rounded-full bg-primary-foreground"></span></span>
-                    <span class="font-display text-lg font-medium tracking-tight">PsyCare</span>
-                </a>
+        <main class="p-3 md:p-6 lg:flex lg:items-center">
+            <div class="mx-auto grid w-full max-w-[1320px] gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+                <section class="relative hidden min-h-[700px] overflow-hidden rounded-3xl bg-ink lg:block">
+                    <img src="{{ Vite::asset('resources/images/psycare/hero-consult.jpg') }}" alt="A doctor speaking with a patient during a consultation" width="1200" height="900" class="h-full w-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/25 to-ink/20"></div>
 
-                <div class="absolute inset-x-0 bottom-0 p-8 md:p-10">
-                    <span class="inline-flex items-center gap-2 rounded-full bg-primary-foreground/14 px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-primary-foreground/80 uppercase backdrop-blur-md">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
-                        Doctor portal
-                    </span>
-                    <h2 class="display-head mt-5 max-w-[16ch] text-[clamp(2rem,4vw,3.4rem)] text-primary-foreground">Care that continues beyond the consultation room</h2>
-                    <p class="mt-5 max-w-[48ch] text-[14px] leading-relaxed text-primary-foreground/72">Manage appointments, follow patient progress, and coordinate group therapy from one secure clinical workspace.</p>
-                </div>
-            </section>
-
-            <section class="flex min-h-[calc(100vh-1.5rem)] items-center rounded-3xl bg-card px-6 py-10 md:min-h-[calc(100vh-3rem)] md:px-10 lg:min-h-[760px] lg:px-14 xl:px-16">
-                <div class="mx-auto w-full max-w-[600px]">
-                    <div class="flex items-center justify-between gap-4 lg:hidden">
-                        <a href="{{ route('home') }}" class="flex items-center gap-2.5 text-ink">
-                            <span class="grid h-8 w-8 place-items-center rounded-full bg-ink"><span class="h-2.5 w-2.5 rounded-full bg-card"></span></span>
-                            <span class="font-display text-lg font-medium">PsyCare</span>
-                        </a>
-                        <span class="text-[10px] font-medium tracking-[0.12em] text-ink-soft uppercase">Doctor portal</span>
+                    <div class="absolute inset-x-0 bottom-0 p-8 md:p-10">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-primary-foreground/14 px-4 py-2 text-[11px] font-medium tracking-[0.08em] text-primary-foreground/80 uppercase backdrop-blur-md">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                            Doctor portal
+                        </span>
+                        <h2 class="display-head mt-5 max-w-[16ch] text-[clamp(2rem,4vw,3.4rem)] text-primary-foreground">Care that continues beyond the consultation room</h2>
+                        <p class="mt-5 max-w-[48ch] text-[14px] leading-relaxed text-primary-foreground/72">Manage appointments, follow patient progress, and coordinate group therapy from one secure clinical workspace.</p>
                     </div>
+                </section>
 
-                    <p class="eyebrow mt-10 lg:mt-0">Secure clinical access</p>
-                    <h1 class="display-head mt-3 max-w-[17ch] text-[clamp(2rem,4.2vw,3.2rem)] text-ink">Welcome back, doctor</h1>
-                    <p class="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-ink-soft">Sign in with your PsyCare account to continue to your clinical dashboard.</p>
+                <section class="flex min-h-[calc(100vh-1.5rem)] items-center rounded-3xl bg-card px-6 py-10 md:min-h-[calc(100vh-3rem)] md:px-10 lg:min-h-[700px] lg:px-14 xl:px-16">
+                    <div class="mx-auto w-full max-w-[600px]">
+                        <span class="inline-flex text-[10px] font-medium tracking-[0.12em] text-ink-soft uppercase lg:hidden">Doctor portal</span>
 
-                    <div class="mt-8 grid gap-2 sm:grid-cols-2">
-                        <div class="rounded-2xl bg-ink p-4 text-primary-foreground">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
-                            <span class="mt-3 block font-display text-[15px] font-medium">Clinical schedule</span>
-                            <span class="mt-0.5 block text-[12px] text-primary-foreground/65">Appointments in one place</span>
+                        <p class="eyebrow mt-3 lg:mt-0">Secure clinical access</p>
+                        <h1 class="display-head mt-3 max-w-[17ch] text-[clamp(2rem,4.2vw,3.2rem)] text-ink">Welcome back, doctor</h1>
+                        <p class="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-ink-soft">Sign in with your PsyCare account to continue to your clinical dashboard.</p>
+
+                        <div class="mt-8 grid gap-2 sm:grid-cols-2">
+                            <div class="rounded-2xl bg-ink p-4 text-primary-foreground">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/></svg>
+                                <span class="mt-3 block font-display text-[15px] font-medium">Clinical schedule</span>
+                                <span class="mt-0.5 block text-[12px] text-primary-foreground/65">Appointments in one place</span>
+                            </div>
+                            <div class="rounded-2xl bg-secondary p-4 text-ink-soft">
+                                <svg class="h-4 w-4 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+                                <span class="mt-3 block font-display text-[15px] font-medium text-ink">Private and secure</span>
+                                <span class="mt-0.5 block text-[12px]">Protected patient information</span>
+                            </div>
                         </div>
-                        <div class="rounded-2xl bg-secondary p-4 text-ink-soft">
-                            <svg class="h-4 w-4 text-teal-deep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-                            <span class="mt-3 block font-display text-[15px] font-medium text-ink">Private and secure</span>
-                            <span class="mt-0.5 block text-[12px]">Protected patient information</span>
-                        </div>
+
+                        @if (session('status'))
+                            <p class="mt-6 rounded-2xl bg-secondary px-4 py-3 text-[12px] text-ink-soft">{{ session('status') }}</p>
+                        @endif
+
+                        <form method="POST" action="{{ route('doctor.login') }}" class="mt-8 space-y-4">
+                            @csrf
+
+                            <label for="email" class="block">
+                                <span class="text-[12px] text-ink-soft">Email</span>
+                                <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="you@email.com" required autofocus autocomplete="email" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('email') ring-2 ring-red-300 @enderror">
+                                @error('email')
+                                    <span class="mt-1.5 block text-[12px] text-red-700">{{ $message }}</span>
+                                @enderror
+                            </label>
+
+                            <label for="password" class="block">
+                                <span class="text-[12px] text-ink-soft">Password</span>
+                                <input id="password" name="password" type="password" placeholder="••••••••" required autocomplete="current-password" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('password') ring-2 ring-red-300 @enderror">
+                                @error('password')
+                                    <span class="mt-1.5 block text-[12px] text-red-700">{{ $message }}</span>
+                                @enderror
+                            </label>
+
+                            <div class="flex items-center justify-between gap-4 text-[12px] text-ink-soft">
+                                <span>Your account, your credentials.</span>
+                                <span class="shrink-0 text-muted-foreground">Authorised access only</span>
+                            </div>
+
+                            <button type="submit" class="w-full rounded-full bg-ink px-6 py-4 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-deep">Continue to doctor portal</button>
+                        </form>
+
+                        @if (Route::has('doctor.register'))
+                            <p class="mt-6 text-[11px] leading-relaxed text-muted-foreground">New to PsyCare? <a href="{{ route('doctor.register') }}" class="text-ink underline-offset-4 hover:underline">Register as a doctor</a>.</p>
+                        @endif
                     </div>
-
-                    @if (session('status'))
-                        <p class="mt-6 rounded-2xl bg-secondary px-4 py-3 text-[12px] text-ink-soft">{{ session('status') }}</p>
-                    @endif
-
-                    <form method="POST" action="{{ route('doctor.login') }}" class="mt-8 space-y-4">
-                        @csrf
-
-                        <label for="email" class="block">
-                            <span class="text-[12px] text-ink-soft">Email</span>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="you@email.com" required autofocus autocomplete="email" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('email') ring-2 ring-red-300 @enderror">
-                            @error('email')
-                                <span class="mt-1.5 block text-[12px] text-red-700">{{ $message }}</span>
-                            @enderror
-                        </label>
-
-                        <label for="password" class="block">
-                            <span class="text-[12px] text-ink-soft">Password</span>
-                            <input id="password" name="password" type="password" placeholder="••••••••" required autocomplete="current-password" class="mt-1.5 w-full rounded-2xl bg-secondary px-4 py-3.5 text-[13px] text-ink placeholder:text-muted-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring @error('password') ring-2 ring-red-300 @enderror">
-                            @error('password')
-                                <span class="mt-1.5 block text-[12px] text-red-700">{{ $message }}</span>
-                            @enderror
-                        </label>
-
-                        <div class="flex items-center justify-between gap-4 text-[12px] text-ink-soft">
-                            <span>Your account, your credentials.</span>
-                            <span class="shrink-0 text-muted-foreground">Authorised access only</span>
-                        </div>
-
-                        <button type="submit" class="w-full rounded-full bg-ink px-6 py-4 text-[11px] font-semibold tracking-[0.12em] text-primary-foreground uppercase transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-deep">Continue to doctor portal</button>
-                    </form>
-
-                    @if (Route::has('doctor.register'))
-                        <p class="mt-6 text-[11px] leading-relaxed text-muted-foreground">New to PsyCare? <a href="{{ route('doctor.register') }}" class="text-ink underline-offset-4 hover:underline">Register as a doctor</a>.</p>
-                    @endif
-                </div>
-            </section>
-        </div>
-    </main>
+                </section>
+            </div>
+        </main>
+    </div>
 </body>
 </html>

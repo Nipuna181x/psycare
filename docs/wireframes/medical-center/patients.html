@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Medical Center — Patients</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Medical Center / Patients (clinic-scoped)</div>
+<div class="wf-desc">Clinic-scoped patient directory. Only shows patients who have had at least one appointment at this specific clinic, preventing cross-clinic access to other facilities' patients.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Clinic portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Doctors</a>
+            <span class="active">Patients</span>
+            <a>Appointments</a>
+            <a>Analytics</a>
+            <a>Payments</a>
+            <a>Settings</a>
+            <a>Notifications <span class="count">4</span></a>
+            <a>Clinic Staff</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Patients</div>
+            <div class="wf-avatar">MC</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-3" style="margin-bottom:14px;">
+                <div class="wf-field">Search by name...</div>
+                <div class="wf-field">Filter by doctor ▾</div>
+                <span class="wf-btn" style="width:fit-content;">Search</span>
+            </div>
+            <table class="wf-table">
+                <tr><th>Patient</th><th>Doctor</th><th>Last Appointment</th><th></th></tr>
+                <tr><td>▬▬▬▬▬</td><td>Dr. ▬▬▬▬</td><td>2026-08-12</td><td><span class="wf-btn outline">View</span></td></tr>
+                <tr><td>▬▬▬▬▬</td><td>Dr. ▬▬▬▬</td><td>2026-07-30</td><td><span class="wf-btn outline">View</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

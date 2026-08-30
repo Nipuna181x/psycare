@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Doctor — Patient NLP Report</title>
+<link rel="stylesheet" href="../wireframe-kit.css">
+</head>
+<body>
+<div class="wf-label">Doctor / Patient — NLP Classification Report</div>
+<div class="wf-desc">AI-generated clinical insight for one patient. Shows a risk-level trend chart, symptom frequency, and conversation history, with a manual sync button for missed classifications.</div>
+
+<div class="wf-shell">
+    <div class="wf-shell-sidebar">
+        <div class="wf-shell-brand"><div class="dot"></div><div class="name">PsyCare</div></div>
+        <div class="wf-shell-rolelabel">Doctor portal</div>
+        <div class="wf-pillnav">
+            <a>Dashboard</a>
+            <a>Crisis Queue <span class="count">2</span></a>
+            <a>Clinic Requests <span class="count">3</span></a>
+            <a>Appointments</a>
+            <a>Earnings</a>
+            <a>Payouts</a>
+            <span class="active">Patients</span>
+            <a>Group Sessions</a>
+            <a>Notifications <span class="count">5</span></a>
+            <a>Profile & Settings</a>
+        </div>
+    </div>
+    <div class="wf-shell-main">
+        <div class="wf-shell-topbar">
+            <div class="wf-h2" style="margin:0;">Patient ▬▬▬▬▬ — NLP Report</div>
+            <div class="wf-avatar">Dr</div>
+        </div>
+        <div class="wf-shell-content">
+            <div class="wf-grid cols-2" style="margin-bottom:20px;">
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Risk Trend</div>
+                    <div class="wf-chart">
+                        <div class="bar" style="height:30%;"></div><div class="bar" style="height:50%;"></div>
+                        <div class="bar" style="height:40%;"></div><div class="bar" style="height:20%;"></div>
+                    </div>
+                    <span class="wf-tag ok" style="margin-top:8px; display:inline-block;">Improving</span>
+                </div>
+                <div class="wf-card" style="border-radius:16px;">
+                    <div class="wf-h2">Symptom Frequency</div>
+                    <div class="wf-line long"></div><div class="wf-line mid"></div><div class="wf-line short"></div>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="wf-h2">Conversation History</div>
+                <span class="wf-btn outline">Sync Latest</span>
+            </div>
+            <table class="wf-table">
+                <tr><th>Date</th><th>Risk Level</th><th>Self-harm Flag</th><th></th></tr>
+                <tr><td>2026-08-20</td><td><span class="wf-tag">Moderate</span></td><td>No</td><td><span class="wf-btn outline">View</span></td></tr>
+                <tr><td>2026-07-14</td><td><span class="wf-tag alert">Urgent</span></td><td>Yes</td><td><span class="wf-btn outline">View</span></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

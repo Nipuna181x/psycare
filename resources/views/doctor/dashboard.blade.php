@@ -37,7 +37,7 @@
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v6a4 4 0 0 0 8 0V2"/><circle cx="20" cy="10" r="2"/><path d="M20 12a2 2 0 0 0-2 2v2a6 6 0 0 1-6 6 6 6 0 0 1-6-6v-2a2 2 0 0 0-2-2"/></svg>
         </x-dashboard.stat-card>
 
-        <x-dashboard.stat-card label="Active clinics" :value="$doctor->activeAffiliations->pluck('clinic.name')->implode(', ') ?: 'None yet'" chip="amber">
+        <x-dashboard.stat-card label="Active clinics" :value="$clinicId ? $doctor->activeAffiliations->firstWhere('clinic_id', $clinicId)?->clinic?->name : ($doctor->activeAffiliations->pluck('clinic.name')->implode(', ') ?: 'None yet')" chip="amber">
             <svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v18Z"/><path d="M6 12H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/><path d="M18 9h2a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
         </x-dashboard.stat-card>
 
